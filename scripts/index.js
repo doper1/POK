@@ -1,10 +1,10 @@
 let qrcode = require('qrcode-terminal');
 let {Client, LocalAuth} = require('whatsapp-web.js');
-let player = require('player');
-let constants = require('constants')
-let general_functions = require('general_functions')
-let poker_functions = require('poker_functions');
-const Player = require('player');
+let player = require('./player');
+let constants = require('./constants')
+let general_functions = require('./general_functions')
+let poker_functions = require('./poker_functions');
+//const Player = require('player');
 
 
 let whatsapp = new Client({
@@ -32,29 +32,6 @@ whatsapp.on('message', async message => {
     if (chatName.includes("נבחרתם שבוע הבא") || chatName.includes("סלפי אחד") || chatName.includes("קלף חינם")){
         let user_msg = message.body.toLowerCase();
 
-        /////////////////////////////////////////////////////////////////////////////////////////
-        if( user_msg === "מורד" ){
-            message.reply('עציץ');
-        }
-        if( user_msg === "אדם" ){
-            message.reply('בוט');
-        }
-        if(user_msg === "שחם"){
-            message.reply('חתיךךךךך');
-        }
-        if(user_msg === "שקד"){
-            message.reply('כוס');
-        }
-        if(user_msg === "ליי"){
-            message.reply('גב');
-        }
-        if(user_msg === "בן"){
-            message.reply('סוס');
-        }
-        if(user_msg === "גולן"){
-            message.reply("די גולן די")
-        }
-        /////////////////////////////////////////////////////////////////////////////////////////
         // poker usage - learn about the functions
         if (user_msg === "poker usage" || user_msg === "poker help" || user_msg === "poker ?" || user_msg === "poker") {
             message.reply('poker- usage, join, show, exit, start, finish, check, raise [amount], fold');
