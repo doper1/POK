@@ -1,6 +1,6 @@
 let qrcode = require('qrcode-terminal');
 let {Client, LocalAuth} = require('whatsapp-web.js');
-let player = require('./player');
+let Player = require('./player');
 let constants = require('./constants')
 let general_functions = require('./general_functions')
 let poker_functions = require('./poker_functions');
