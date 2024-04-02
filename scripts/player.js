@@ -1,6 +1,7 @@
 class Player {
-  constructor(name, phone_number) {
+  constructor(id,name, phone_number) {
       this.name = name;
+      this.id = id
       this.phone_number = phone_number;
       this.hole_cards = [];
       this.final_hand = [];
