@@ -2,9 +2,9 @@ let general_functions = require('./general_functions')
 let Player = require('./player')
 
 class Game {
-    constructor(id, players, pot,type) {
+    constructor(id, pot,type) {
         this.id = id;
-        this.players = players; // arr player
+        this.players = []; // arr player
         this.pot = pot;
 
         this.deck = general_functions.shuffleArray(
@@ -15,7 +15,8 @@ class Game {
         this.burned = [];
         this.CommunityCards = [];
     }
-    
+    getPlayers() { return this.players; }
+    setPlayers(newPlayers) { this.players = newPlayers; }
     
 
 
@@ -31,10 +32,11 @@ class Game {
     }
 
     addPlayer(id, name, phonenumber) {
-        players.push(new Player(id,name,phonenumber));
+        let p = new Player(id,name,phonenumber);
+        this.players.push(p);
     }
 
-    getPlayers() { return this.players; }
+    getlayers() { return this.players; }
 
   
  }

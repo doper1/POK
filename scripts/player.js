@@ -8,7 +8,8 @@ class Player {
       this.money = 1000; 
       this.currentBet = 0;
   }
-
+  getId () { return this.id}
+  setId (newId) { this.id = newId}
   getName() {
     return this.name;
   }
