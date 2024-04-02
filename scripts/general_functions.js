@@ -4,7 +4,6 @@ const { suits, ranks, SB, BB } = require('./constants');
 // For example: [{"Diamond":"4"},{"Cloves": "9"}]
 function createDeck() {
     let deck = [];
-    console.log(suits)
     for (let suit of suits) {
       for (let rank of ranks) {
         deck.push([suit, rank]);

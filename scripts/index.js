@@ -97,8 +97,5 @@ whatsapp.on('message', async msg => {
     }
 })
 
-whatsapp.on('ready',() => {
-    console.log("Client is ready!")
-})
 
 whatsapp.initialize()
