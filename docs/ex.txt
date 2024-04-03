@@ -1,0 +1,8 @@
+// if (user_msg === "poker check") {
+    //   let player = new Player(playerName, playerNumber);
+    //   player.setHoleCards(["5", "Diamond"], ["Your", "Mother"]);
+    //   whatsapp.sendMessage(
+    //     player.getPhoneNumber(),
+    //     `Hole cards: ${player.getHoleCards()}`
+    //   );
+    // }

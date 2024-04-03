@@ -1,15 +1,32 @@
 {
-  "dependencies": {
-    "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.23.0"
-  },
-  "name": "poker_bot",
+  "name": "pokair",
   "version": "1.0.0",
+  "description": "Poker bot for whatsapp",
   "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doper1/pokair.git"
+  },
+  "keywords": [
+    "Poker",
+    "chatbot",
+    "whatsapp"
+  ],
   "author": "Adam",
   "license": "ISC",
-  "description": ""
+  "bugs": {
+    "url": "https://github.com/doper1/pokair/issues"
+  },
+  "homepage": "https://github.com/doper1/pokair#readme",
+  "dependencies": {
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp": "^0.0.5-Alpha",
+    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus"
+  }
 }
