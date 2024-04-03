@@ -30,21 +30,19 @@ whatsapp.on("message", async (msg) => {
   ) {
     let user_msg = message.body.toLowerCase();
 
-    // poker usage - learn about the functions
-    if (user_msg === "poker usage" || user_msg === "poker help") {
+    // pok usage - learn about the functions
+    if (user_msg === "pok usage" || user_msg === "pok help") {
       message.reply(
-        "poker- usage, create, join, show, exit, start, finish, check, raise [amount], fold"
+        "pok- usage, create, join, show, exit, start, finish, check, raise [amount], fold"
       );
     }
 
-    // poker join (the game)
-    if (user_msg === "poker join") {
+    // pok join (the game)
+    if (user_msg === "pok join") {
       if (!(chat_id in games)) {
         games[chat_id] = new Game(chat_id, null, 0, "r");
         games[chat_id].addPlayer(contact.pushname, message.author);
-        message.reply(
-          `${contact.pushname.split(" ")[0]} have joined the game!`
-        );
+        message.reply(`${contact.pushname.split(" ")[0]} has joined the game!`);
       } else {
         let found = false;
         for (let i = 0; i < games[chat_id].players.length; i++) {
@@ -64,8 +62,8 @@ whatsapp.on("message", async (msg) => {
       }
     }
 
-    // poker show (players)
-    if (user_msg === "poker show") {
+    // pok show (players)
+    if (user_msg === "pok show") {
       if (chat_id in games) {
         let players_list = "";
         let players = games[chat_id].players;
@@ -83,23 +81,46 @@ whatsapp.on("message", async (msg) => {
       }
     }
 
-    // poker exit (the table)
-    if (user_msg === "poker exit") {
-      for (let i = 0; i < games[chat_id].players.length; i++) {
-        if (message.author === games[chat_id].players[i].phone_number) {
-          games[chat_id].players.splice(i, 1);
-          message.reply(
-            `${contact.pushname.split(" ")[0]} have exited the game!`
-          );
-          break;
-        }
-      }
+    // pok exit (the table)
+    if (user_msg === "pok exit") {
+      if (!(chat_id in games))
+        message.reply("There are no players on the table :(");
+      else
+        for (let i = 0; i < games[chat_id].players.length; i++)
+          if (message.author === games[chat_id].players[i].phone_number) {
+            games[chat_id].players.splice(i, 1);
+            message.reply(
+              `${contact.pushname.split(" ")[0]} have exited the game!`
+            );
+            break;
+          }
     }
 
-    // poker start - start the game
-    if (user_msg === "poker start") {
-      let order = general_functions.shuffleArray(games[chat_id].getPlayers());
-      console.log(`Order: ${order}\nDeck: ${deck}`);
+    // pok end - ends the game
+    if (user_msg === "pok end") {
+      let msg = "";
+      if (chat_id in games) {
+        for (let i = 0; i < games[chat_id].players.length; i++)
+          msg += `${i + 1}. ${games[chat_id].players[i].name} has ${
+            games[chat_id].players[i].money
+          }\n`;
+        msg += `The game has ended!\n`;
+        delete games[chat_id];
+        message.reply(msg);
+      } else message.reply("There are no players on the table :(");
+    }
+
+    // pok start - start the game
+    if (user_msg === "pok start") {
+      games[chat_id].players = general_functions.shuffleArray(
+        games[chat_id].players
+      );
+      let order = "The order is: \n";
+      for (let i = 0; i < games[chat_id].players.length; i++) {
+        order += `${i + 1}. ${games[chat_id].players[i].name}\n`;
+      }
+      message.reply(`\n${order}\n`);
+      games[chat_id].initRound();
     }
   }
 });
