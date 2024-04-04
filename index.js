@@ -1,10 +1,14 @@
+// Packages
 let qrcode = require("qrcode-terminal");
 let { Client, LocalAuth } = require("whatsapp-web.js");
-let Player = require("./player");
-let constants = require("./constants");
-let general_functions = require("./general_functions");
-let poker_functions = require("./poker_functions");
-let Game = require("./Game");
+
+// Scripts
+let constants = require("./scripts/constants");
+let general_functions = require("./scripts/general_functions");
+let poker_functions = require("./scripts/poker_functions");
+
+// Classes
+let Game = require("./classes/Game");
 
 let whatsapp = new Client({
   authStrategy: new LocalAuth(),
@@ -17,7 +21,7 @@ whatsapp.on("qr", (qr) => {
 });
 
 let games = {};
-whatsapp.on("message", async (msg) => {
+whatsapp.on("message_create", async (msg) => {
   let message = await msg;
   let chat = await message.getChat();
   let contact = await message.getContact();
@@ -36,17 +40,27 @@ whatsapp.on("message", async (msg) => {
       } else allowedmidround(eval(user_msg_split[1] + "()"));
     }
 
-    // pok usage - learn about the functions
-    if (user_msg === "pok usage" || user_msg === "pok help") {
+    // pok help - learn about the functions
+    if (user_msg === "pok help") {
       message.reply(
-        "pok- usage, create, join, show, exit, start, finish, check, raise [amount], fold"
+        `Usage:
+-------
+♠️ pok help
+♥️ pok join
+♣️ pok show
+♦️ pok exit
+♠️ pok start
+♥️ pok end
+♣️ pok check
+♦️ pok raise [raise amount]
+♠️ pok fold`
       );
     }
 
     // pok join (the game)
     if (user_msg === "pok join") {
       if (!(chat_id in games)) {
-        games[chat_id] = new Game(chat_id, 0, "r");
+        games[chat_id] = new Game(chat_id);
         games[chat_id].addPlayer(contact.pushname, message.author);
         message.reply(`${contact.pushname.split(" ")[0]} has joined the game!`);
       } else {
@@ -101,6 +115,18 @@ whatsapp.on("message", async (msg) => {
             break;
           }
     }
+    // pok start - start the game
+    if (user_msg === "pok start") {
+      games[chat_id].players = general_functions.shuffleArray(
+        games[chat_id].players
+      );
+      let order = "The order is: \n";
+      for (let i = 0; i < games[chat_id].players.length; i++) {
+        order += `${i + 1}. ${games[chat_id].players[i].name}\n`;
+      }
+      message.reply(`\n${order}\n`);
+      games[chat_id].initRound();
+    }
 
     // pok end - ends the game
     if (user_msg === "pok end") {
@@ -114,19 +140,6 @@ whatsapp.on("message", async (msg) => {
         delete games[chat_id];
         message.reply(msg);
       } else message.reply("There are no players on the table :(");
-    }
-
-    // pok start - start the game
-    if (user_msg === "pok start") {
-      games[chat_id].players = general_functions.shuffleArray(
-        games[chat_id].players
-      );
-      let order = "The order is: \n";
-      for (let i = 0; i < games[chat_id].players.length; i++) {
-        order += `${i + 1}. ${games[chat_id].players[i].name}\n`;
-      }
-      message.reply(`\n${order}\n`);
-      games[chat_id].initRound();
     }
   }
 });

@@ -1,4 +1,4 @@
-module.exports.suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
+module.exports.suits = ["♦️", "♥️", "♣️", "♠️"];
 module.exports.ranks = [
   "2",
   "3",
