@@ -54,7 +54,7 @@ whatsapp.on("message_create", async (msg) => {
     // pok join (the game)
     if (user_msg === "pok join") {
       if (!(chat_id in games)) {
-        games[chat_id] = new Game(chat_id, null, 0, "r");
+        games[chat_id] = new Game(chat_id);
         games[chat_id].addPlayer(contact.pushname, message.author);
         message.reply(`${contact.pushname.split(" ")[0]} has joined the game!`);
       } else {
@@ -97,22 +97,43 @@ whatsapp.on("message_create", async (msg) => {
 
     // pok exit (the table)
     if (user_msg === "pok exit") {
-      for (let i = 0; i < games[chat_id].players.length; i++) {
-        if (message.author === games[chat_id].players[i].phone_number) {
-          games[chat_id].players.splice(i, 1);
-          message.reply(
-            `${contact.pushname.split(" ")[0]} have exited the game`
-          );
-          message.react("😔");
-          break;
-        }
-      }
+      if (!(chat_id in games))
+        message.reply("There are no players on the table :(");
+      else
+        for (let i = 0; i < games[chat_id].players.length; i++)
+          if (message.author === games[chat_id].players[i].phone_number) {
+            games[chat_id].players.splice(i, 1);
+            message.reply(
+              `${contact.pushname.split(" ")[0]} have exited the game!`
+            );
+            break;
+          }
     }
-
     // pok start - start the game
     if (user_msg === "pok start") {
-      let order = general_functions.shuffleArray(games[chat_id].getPlayers());
-      console.log(`Order: ${order}\nDeck: ${deck}`);
+      games[chat_id].players = general_functions.shuffleArray(
+        games[chat_id].players
+      );
+      let order = "The order is: \n";
+      for (let i = 0; i < games[chat_id].players.length; i++) {
+        order += `${i + 1}. ${games[chat_id].players[i].name}\n`;
+      }
+      message.reply(`\n${order}\n`);
+      games[chat_id].initRound();
+    }
+
+    // pok end - ends the game
+    if (user_msg === "pok end") {
+      let msg = "";
+      if (chat_id in games) {
+        for (let i = 0; i < games[chat_id].players.length; i++)
+          msg += `${i + 1}. ${games[chat_id].players[i].name} has ${
+            games[chat_id].players[i].money
+          }\n`;
+        msg += `The game has ended!\n`;
+        delete games[chat_id];
+        message.reply(msg);
+      } else message.reply("There are no players on the table :(");
     }
   }
 });

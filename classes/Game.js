@@ -2,14 +2,12 @@ let general_functions = require("../scripts/general_functions");
 let Player = require("./Player");
 
 class Game {
-  constructor(id, pot, type) {
+  constructor(id) {
     this.id = id;
     this.players = []; // arr player --> to linkedlist
-    this.pot = pot;
-
+    this.pot = 0;
     this.deck = general_functions.shuffleArray(general_functions.createDeck()); //deck
-
-    this.type = this.type; // for oma chap or more
+    this.type = 1; // for oma chap or more // 1,2,3
     this.burned = [];
     this.CommunityCards = [];
   }
@@ -25,13 +23,18 @@ class Game {
     for (let i = 0; i < this.players.length; i++) players[i].setHoleCards([]);
   }
 
-  addPlayer(id, name, phonenumber) {
-    let p = new Player(id, name, phonenumber);
-    this.players.push(p);
+  addPlayer(name, phone_number) {
+    let player = new Player(name, phone_number);
+    this.players.push(player);
   }
 
   getlayers() {
     return this.players;
   }
+
+  setType() {
+    this.type = this.type; // for oma chap or more
+  }
 }
+
 module.exports = Game;
