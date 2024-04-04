@@ -12,6 +12,16 @@ class Game {
     this.type = type; // for oma chap or more
     this.burned = [];
     this.CommunityCards = [];
+    this.midround = true;
+  }
+  getmidround() {
+    return this.midround;
+  }
+  setmidround(newmidround) {
+    this.midround = newmidround;
+  }
+  flipmidround() {
+    this.midround = !this.midround;
   }
   getPlayers() {
     return this.players;

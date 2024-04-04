@@ -29,6 +29,12 @@ whatsapp.on("message", async (msg) => {
     chat.name.includes("קלף חינם")
   ) {
     let user_msg = message.body.toLowerCase();
+    let user_msg_split = user_msg.split(" ");
+    if (user_msg_split[0] === "pok") {
+      if (user_msg_split.length < 2) {
+        message.reply("you need to specify the game you want to play!");
+      } else allowedmidround(eval(user_msg_split[1] + "()"));
+    }
 
     // pok usage - learn about the functions
     if (user_msg === "pok usage" || user_msg === "pok help") {
@@ -40,7 +46,7 @@ whatsapp.on("message", async (msg) => {
     // pok join (the game)
     if (user_msg === "pok join") {
       if (!(chat_id in games)) {
-        games[chat_id] = new Game(chat_id, null, 0, "r");
+        games[chat_id] = new Game(chat_id, 0, "r");
         games[chat_id].addPlayer(contact.pushname, message.author);
         message.reply(`${contact.pushname.split(" ")[0]} has joined the game!`);
       } else {
@@ -124,6 +130,19 @@ whatsapp.on("message", async (msg) => {
     }
   }
 });
+
+const allowedmidround = function (fn) {
+  console.log(fn.name);
+  if (games[chat_id].midround)
+    if (fn.name in constants.ALLOWEDMIDROUND) return fn.name;
+    else console.log("Not allowed mid round");
+};
+
+eval("name(allowedmidround)");
+
+function name(fn) {
+  console.log(fn.name);
+}
 
 whatsapp.on("ready", () => {
   console.log("Client is ready!");
