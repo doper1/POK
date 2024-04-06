@@ -10,6 +10,7 @@ class Game {
     this.type = 1; // for oma chap or more // 1,2,3
     this.burned = [];
     this.CommunityCards = [];
+    this.midround = false;
   }
   getPlayers() {
     return this.players;
@@ -19,8 +20,13 @@ class Game {
   }
 
   initRound() {
+    this.players = general_functions.shuffleArray(this.players); // shuffle order
+
     this.deck = general_functions.shuffleArray(general_functions.createDeck()); // new deck
-    for (let i = 0; i < this.players.length; i++) players[i].setHoleCards([]);
+    for (let i = 0; i < this.players.length; i++) {
+      this.players[i].setHoleCards(this.deck.pop(), this.deck.pop());
+      //send players hole cards
+    }
   }
 
   addPlayer(name, phone_number) {

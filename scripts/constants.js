@@ -16,4 +16,4 @@ module.exports.ranks = [
 ];
 module.exports.SB = 10;
 module.exports.BB = 20;
-module.exports.ALLOWEDMIDROUND = [FOLD, CHECK, RAISE, ALL_IN];
+module.exports.ALLOWEDMIDROUND = ["fold", "check", "raise", "all_in"];
