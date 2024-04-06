@@ -4,7 +4,7 @@
 let Game = require("../classes/Game");
 
 // pok help - learn about the functions
-function help(chat, chat_id, contact, message, games) {
+function help(whatsapp, chat, chat_id, contact, message, games) {
   message.reply(
     `The Usage is:
 -------
@@ -21,7 +21,7 @@ function help(chat, chat_id, contact, message, games) {
 }
 
 // pok join (the game)
-function join(chat, chat_id, contact, message, games) {
+function join(whatsapp, chat, chat_id, contact, message, games) {
   if (!(chat_id in games)) {
     games[chat_id] = new Game(chat_id);
     games[chat_id].addPlayer(contact.pushname, message.author);
@@ -43,7 +43,7 @@ function join(chat, chat_id, contact, message, games) {
   }
 }
 // pok show (players)
-function show(chat, chat_id, contact, message, games) {
+function show(whatsapp, chat, chat_id, contact, message, games) {
   if (chat_id in games) {
     let players_list = "";
     let players = games[chat_id].players;
@@ -61,7 +61,7 @@ function show(chat, chat_id, contact, message, games) {
   }
 }
 // pok exit (the table)
-function exit(chat, chat_id, contact, message, games) {
+function exit(whatsapp, chat, chat_id, contact, message, games) {
   if (!(chat_id in games))
     message.reply("There are no players on the table :(");
   else
@@ -76,8 +76,8 @@ function exit(chat, chat_id, contact, message, games) {
   if (games[chat_id].players.length === 0) delete games[chat_id];
 }
 // pok start - start the game
-function start(chat, chat_id, contact, message, games) {
-  games[chat_id].initRound();
+function start(whatsapp, chat, chat_id, contact, message, games) {
+  games[chat_id].initRound(whatsapp);
 
   let order = "The order is: \n";
   for (let i = 0; i < games[chat_id].players.length; i++) {
@@ -87,7 +87,7 @@ function start(chat, chat_id, contact, message, games) {
 }
 
 // pok end - ends the game
-function end(chat, chat_id, contact, message, games) {
+function end(whatsapp, chat, chat_id, contact, message, games) {
   let msg = "";
   if (chat_id in games) {
     for (let i = 0; i < games[chat_id].players.length; i++)
@@ -99,4 +99,5 @@ function end(chat, chat_id, contact, message, games) {
     message.reply(msg);
   } else message.reply("There are no players on the table :(");
 }
+
 module.exports = { help, join, show, exit, start, end };

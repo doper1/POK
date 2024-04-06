@@ -26,7 +26,7 @@ class Player {
   }
 
   getHoleCards() {
-    return this.hand;
+    return this.hole_cards;
   }
 
   setHoleCards(card_1, card_2) {

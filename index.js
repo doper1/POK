@@ -43,19 +43,19 @@ whatsapp.on("message_create", async (msg) => {
             if (games[chat_id].midround) {
               if (user_msg_split in constants.ALLOWEDMIDROUND) {
                 eval(
-                  `game_functions.${user_msg_split[1]}(chat, chat_id, contact, message, games)`
+                  `game_functions.${user_msg_split[1]}(whatsapp,chat, chat_id, contact, message, games)`
                 );
               } else {
                 message.reply("in mid Not allowed mid round");
               }
             } else {
               eval(
-                `pok_functions.${user_msg_split[1]}(chat, chat_id, contact, message, games)`
+                `pok_functions.${user_msg_split[1]}(whatsapp,chat, chat_id, contact, message, games)`
               );
             }
           } else {
             eval(
-              `pok_functions.${user_msg_split[1]}(chat, chat_id, contact, message, games)`
+              `pok_functions.${user_msg_split[1]}(whatsapp,chat, chat_id, contact, message, games)`
             );
           }
         } catch (e) {

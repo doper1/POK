@@ -1,6 +1,5 @@
 let general_functions = require("../scripts/general_functions");
 let Player = require("./Player");
-
 class Game {
   constructor(id) {
     this.id = id;
@@ -19,13 +18,16 @@ class Game {
     this.players = newPlayers;
   }
 
-  initRound() {
+  initRound(whatsapp) {
     this.players = general_functions.shuffleArray(this.players); // shuffle order
 
     this.deck = general_functions.shuffleArray(general_functions.createDeck()); // new deck
     for (let i = 0; i < this.players.length; i++) {
       this.players[i].setHoleCards(this.deck.pop(), this.deck.pop());
-      //send players hole cards
+      whatsapp.sendMessage(
+        this.players[i].getPhoneNumber(),
+        `Your cards are ${this.players[i].getHoleCards()}`
+      );
     }
   }
 
