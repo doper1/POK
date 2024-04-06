@@ -77,7 +77,6 @@ function exit(chat, chat_id, contact, message, games) {
 }
 // pok start - start the game
 function start(chat, chat_id, contact, message, games) {
-  console.log("started start");
   games[chat_id].initRound();
 
   let order = "The order is: \n";
