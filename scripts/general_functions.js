@@ -1,4 +1,4 @@
-const { suits, ranks, SB, BB } = require("./constants");
+const { suits, ranks, SB, BB } = require("../constants");
 
 // Generate a Deck of cards in an array full of dictionaries of suit: rank.
 // For example: [["Diamond","4"],["Cloves", "9"]]

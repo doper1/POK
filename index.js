@@ -3,7 +3,7 @@ let qrcode = require("qrcode-terminal");
 let { Client, LocalAuth } = require("whatsapp-web.js");
 
 // Scripts
-let constants = require("./scripts/constants");
+let constants = require("./constants");
 let general_functions = require("./scripts/general_functions");
 let poker_functions = require("./scripts/poker_functions");
 
@@ -36,19 +36,7 @@ whatsapp.on("message_create", async (msg) => {
 
     // pok help - learn about the functions
     if (user_msg === "pok help") {
-      message.reply(
-        `Usage:
--------
-♠️ pok help
-♥️ pok join
-♣️ pok show
-♦️ pok exit
-♠️ pok start
-♥️ pok end
-♣️ pok check
-♦️ pok raise [raise amount]
-♠️ pok fold`
-      );
+      message.reply(constants.help_pre_game);
     }
 
     // pok join (the game)
