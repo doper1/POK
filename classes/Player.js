@@ -5,6 +5,7 @@ class Player {
     this.hole_cards = [];
     this.hand_score = "";
     this.money = 1000;
+    this.game_money = 0;
     this.currentBet = 0;
     this.all_in = false;
   }
@@ -26,7 +27,7 @@ class Player {
   }
 
   getHoleCards() {
-    return this.hand;
+    return this.hole_cards;
   }
 
   setHoleCards(card_1, card_2) {

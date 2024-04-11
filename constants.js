@@ -16,6 +16,7 @@ module.exports.ranks = [
 ];
 module.exports.SB = 10;
 module.exports.BB = 20;
+module.exports.ALLOWEDMIDROUND = ["fold", "check", "raise", "all_in"];
 module.exports.help_pre_game = `Commands menu:
 --------------
 ♠️ pok help 

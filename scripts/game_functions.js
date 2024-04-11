@@ -24,3 +24,15 @@ function fold() {
 // 3. If there is a tie, split the pot
 
 // All in
+
+function print_cards(cards) {
+  let to_string = "";
+  for (let i = 0; i < cards.length - 1; i++) {
+    to_string += `*|${cards[i][0]}${cards[i][1]}|* `;
+  }
+  return `${to_string}  *|${cards[cards.length - 1][0]}${
+    cards[cards.length - 1][1]
+  }|*`;
+}
+
+module.exports = { check, raise, fold, print_cards };

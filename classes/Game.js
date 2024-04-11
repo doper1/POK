@@ -1,4 +1,5 @@
 let general_functions = require("../scripts/general_functions");
+let game_functions = require("../scripts/game_functions");
 let Player = require("./Player");
 
 class Game {
@@ -10,6 +11,7 @@ class Game {
     this.type = 1; // for oma chap or more // 1,2,3
     this.burned = [];
     this.CommunityCards = [];
+    this.midround = false;
   }
   getPlayers() {
     return this.players;
@@ -18,9 +20,20 @@ class Game {
     this.players = newPlayers;
   }
 
-  initRound() {
+  initRound(whatsapp, chat_name) {
+    this.players = general_functions.shuffleArray(this.players); // shuffle order
+
     this.deck = general_functions.shuffleArray(general_functions.createDeck()); // new deck
-    for (let i = 0; i < this.players.length; i++) players[i].setHoleCards([]);
+    for (let i = 0; i < this.players.length; i++) {
+      this.players[i].setHoleCards(this.deck.pop(), this.deck.pop());
+      whatsapp.sendMessage(
+        this.players[i].getPhoneNumber(),
+        `${chat_name}
+-------------
+Cards: ${game_functions.print_cards(this.players[i].getHoleCards())}
+Stack: $${this.players[i].game_money}`
+      );
+    }
   }
 
   addPlayer(name, phone_number) {
@@ -34,6 +47,14 @@ class Game {
 
   setType() {
     this.type = this.type; // for oma chap or more
+  }
+
+  getMidround() {
+    return this.midround;
+  }
+
+  setMidround(newMidround) {
+    this.midround = newMidround;
   }
 }
 
