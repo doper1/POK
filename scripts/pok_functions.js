@@ -3,7 +3,7 @@
 //imports
 let Game = require("../classes/Game");
 let constants = require("../constants");
-
+let game_functions = require("./game_functions");
 // pok help - learn about the functions
 // function help() {
 //   if (games[chat_id] != undefined && games[chat_id].midround) {
@@ -71,12 +71,26 @@ function exit(games, chat_id, message, contact) {
 // pok start - start the game
 function start(whatsapp, chat, chat_id, contact, message, games) {
   games[chat_id].initRound(whatsapp, chat.name);
-
   let order = "The order is:";
   for (let i = 0; i < games[chat_id].players.length; i++) {
     order += `\n${i + 1}. ${games[chat_id].players[i].name}`;
   }
   message.reply(`${order}`);
+  message.reply(`Cards on table are:
+    \n ${game_functions.print_cards(games[chat_id].CommunityCards)}`);
+  game_functions.check_winner(games[chat_id], games[chat_id].players);
+  for (let i = 0; i < games[chat_id].players.length; i++) {
+    whatsapp.sendMessage(
+      games[chat_id].players[i].getPhoneNumber(),
+      `${chat.name}
+-------------
+Community Cards:
+${game_functions.print_cards(games[chat_id].CommunityCards)}
+Cards: ${game_functions.print_cards(games[chat_id].players[i].hole_cards)}
+Hand strength: ${JSON.stringify(games[chat_id].players[i].hand_score)}
+Stack: ${games[chat_id].players[i].game_money}`
+    );
+  }
 }
 
 // pok end - ends the game

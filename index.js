@@ -36,7 +36,7 @@ whatsapp.on("message_create", async (msg) => {
   let chat = await message.getChat();
   if (!chat.isGroup) return; // Prevents the bot from replaying to non-group chats
   let contact = await message.getContact();
-  let chat_id = chat.id._serialized.replace(/\D/g, "");
+  let chat_id = chat.id.user;
 
   if (
     chat.name.includes("נבחרתם שבוע הבא") ||
@@ -61,10 +61,17 @@ whatsapp.on("message_create", async (msg) => {
               pok_functions.show(games, chat_id, message);
               break;
             case "exit":
-              pok_functions.exit(games, chat_id, message, contact);
+              pok_functions.exit(games, chat_id, message);
               break;
             case "start":
-              pok_functions.start(games, chat_id, message, contact);
+              pok_functions.start(
+                whatsapp,
+                chat,
+                chat_id,
+                contact,
+                message,
+                games
+              );
               break;
             case "end":
               pok_functions.end(games, chat_id, message, contact);

@@ -1,6 +1,7 @@
 let general_functions = require("../scripts/general_functions");
 let game_functions = require("../scripts/game_functions");
 let Player = require("./Player");
+const LinkedList = require("./LinkedList");
 
 class Game {
   constructor(id) {
@@ -13,6 +14,10 @@ class Game {
     this.CommunityCards = [];
     this.midround = false;
   }
+
+  getCommunityCards() {
+    return this.CommunityCards;
+  }
   getPlayers() {
     return this.players;
   }
@@ -22,7 +27,6 @@ class Game {
 
   initRound(whatsapp, chat_name) {
     this.players = general_functions.shuffleArray(this.players); // shuffle order
-
     this.deck = general_functions.shuffleArray(general_functions.createDeck()); // new deck
     for (let i = 0; i < this.players.length; i++) {
       this.players[i].setHoleCards(this.deck.pop(), this.deck.pop());
@@ -30,10 +34,18 @@ class Game {
         this.players[i].getPhoneNumber(),
         `${chat_name}
 -------------
-Cards: ${game_functions.print_cards(this.players[i].getHoleCards())}
+Cards: ${game_functions.print_cards(this.players[i].hole_cards)}
 Stack: $${this.players[i].game_money}`
       );
     }
+    this.deck.pop();
+    this.CommunityCards.push(
+      this.deck.pop(),
+      this.deck.pop(),
+      this.deck.pop(),
+      this.deck.pop(),
+      this.deck.pop()
+    );
   }
 
   addPlayer(name, phone_number) {
