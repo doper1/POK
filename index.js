@@ -4,8 +4,6 @@ let { Client, LocalAuth } = require("whatsapp-web.js");
 
 // Scripts
 let constants = require("./constants");
-let general_functions = require("./scripts/general_functions");
-let game_functions = require("./scripts/game_functions");
 let pok_functions = require("./scripts/pok_functions");
 
 // Classes
@@ -34,9 +32,16 @@ whatsapp.on("message_create", async (msg) => {
   // On production change from "message_create" to "message" -> to prevent spamming of this function
   let message = await msg;
   let chat = await message.getChat();
+  let chat_id = chat.id.user;
+
   if (!chat.isGroup) return; // Prevents the bot from replaying to non-group chats
+
   let contact = await message.getContact();
-  let chat_id = chat.id._serialized.replace(/\D/g, "");
+  if (contact.pushname === undefined) {
+    full_name = contact.id.user;
+  } else {
+    full_name = contact.pushname;
+  }
 
   if (
     chat.name.includes("נבחרתם שבוע הבא") ||
@@ -55,19 +60,19 @@ whatsapp.on("message_create", async (msg) => {
               message.reply(constants.help_pre_game);
               break;
             case "join":
-              pok_functions.join(games, chat_id, message, contact);
+              pok_functions.join(games, chat_id, message, full_name);
               break;
             case "show":
               pok_functions.show(games, chat_id, message);
               break;
             case "exit":
-              pok_functions.exit(games, chat_id, message, contact);
+              pok_functions.exit(games, chat_id, message, full_name);
               break;
             case "start":
-              pok_functions.start(games, chat_id, message, contact);
+              pok_functions.start(games, chat_id, message, whatsapp, chat);
               break;
             case "end":
-              pok_functions.end(games, chat_id, message, contact);
+              pok_functions.end(games, chat_id, message);
               break;
             default:
               message.reply(constants.help_pre_game);
@@ -91,7 +96,12 @@ whatsapp.on("message_create", async (msg) => {
               pok_functions.exit(games, chat_id, message, contact);
               break;
             default:
-              message.reply(constants.help_in_game);
+              if (user_msg[1] === "start") {
+                message.react("🧐");
+                message.reply("There is a game in progress");
+              } else {
+                message.reply(constants.help_in_game);
+              }
           }
         }
       }

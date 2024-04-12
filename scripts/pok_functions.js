@@ -1,24 +1,14 @@
-//set vars / chat, chat_id, contact, message, args(games...)
+//set vars / chat, chat_id, full_name, message, args(games...)
 
 //imports
 let Game = require("../classes/Game");
-let constants = require("../constants");
-
-// pok help - learn about the functions
-// function help() {
-//   if (games[chat_id] != undefined && games[chat_id].midround) {
-//     message.reply(constants.help_in_game);
-//   } else {
-// message.reply(constants.help_pre_game);
-// }
-//}
 
 // pok join (the game)
-function join(games, chat_id, message, contact) {
+function join(games, chat_id, message, full_name) {
   if (!(chat_id in games)) {
     games[chat_id] = new Game(chat_id);
-    games[chat_id].addPlayer(contact.pushname, message.author);
-    message.reply(`${contact.pushname.split(" ")[0]} has joined the game!`);
+    games[chat_id].addPlayer(full_name, message.author);
+    message.reply(`${full_name.split(" ")[0]} has joined the game!`);
   } else {
     let found = false;
     for (let i = 0; i < games[chat_id].players.length; i++) {
@@ -30,8 +20,8 @@ function join(games, chat_id, message, contact) {
 
     if (found) message.reply("you have already joined!");
     else {
-      games[chat_id].addPlayer(contact.pushname, message.author);
-      message.reply(`${contact.pushname.split(" ")[0]} have joined the game!`);
+      games[chat_id].addPlayer(full_name, message.author);
+      message.reply(`${full_name.split(" ")[0]} have joined the game!`);
     }
   }
 }
@@ -54,7 +44,7 @@ function show(games, chat_id, message) {
   }
 }
 // pok exit (the table)
-function exit(games, chat_id, message, contact) {
+function exit(games, chat_id, message, full_name) {
   if (!(chat_id in games))
     message.reply("There are no players on the table :(");
   else
@@ -62,21 +52,27 @@ function exit(games, chat_id, message, contact) {
       if (message.author === games[chat_id].players[i].phone_number) {
         games[chat_id].players.splice(i, 1);
         message.reply(
-          `${contact.pushname.split(" ")[0]} have exited the game!`
+          `${full_name.pushname.split(" ")[0]} have exited the game!`
         );
         break;
       }
   if (games[chat_id].players.length === 0) delete games[chat_id];
 }
 // pok start - start the game
-function start(whatsapp, chat, chat_id, contact, message, games) {
-  games[chat_id].initRound(whatsapp, chat.name);
+function start(games, chat_id, message, whatsapp, chat) {
+  if (games[chat_id] === undefined) {
+    message.reply("There are no players on the table :(");
+  } else if (games[chat_id].players.length === 1) {
+    message.reply("There is only one player on the table :(");
+  } else {
+    games[chat_id].initRound(whatsapp, chat.name);
 
-  let order = "The order is:";
-  for (let i = 0; i < games[chat_id].players.length; i++) {
-    order += `\n${i + 1}. ${games[chat_id].players[i].name}`;
+    let order = `Playing Order:\n---------------`;
+    for (let i = 0; i < games[chat_id].players.length; i++) {
+      order += `\n${i + 1}. ${games[chat_id].players[i].name}`;
+    }
+    message.reply(`${order}`);
   }
-  message.reply(`${order}`);
 }
 
 // pok end - ends the game
@@ -93,4 +89,21 @@ function end(games, chat_id, message) {
   } else message.reply("There are no players on the table :(");
 }
 
-module.exports = { join, show, exit, start, end };
+function check() {
+  // move current player
+}
+
+//Raise
+function raise() {
+  // move current player
+  //pot += player_bet;
+  //player_money -= player_bet;
+}
+
+//Fold
+function fold() {
+  //player.pop() from mini linked list
+  //check_player_amount()
+}
+
+module.exports = { join, show, exit, start, end, check, raise, fold };

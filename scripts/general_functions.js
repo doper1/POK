@@ -1,17 +1,3 @@
-const { suits, ranks, SB, BB } = require("../constants");
-
-// Generate a Deck of cards in an array full of dictionaries of suit: rank.
-// For example: [["Diamond","4"],["Cloves", "9"]]
-function createDeck() {
-  let deck = [];
-  for (let suit of suits) {
-    for (let rank of ranks) {
-      deck.push([suit, rank]);
-    }
-  }
-  return deck;
-}
-
 // Function to deal a hand of cards
 function dealHand(deck, numCards) {
   if (numCards > deck.length) {
@@ -35,4 +21,18 @@ function shuffleArray(array) {
   return array;
 }
 
-module.exports = { createDeck, dealHand, reverseString, shuffleArray };
+function sort_cards(cards) {
+  return cards.slice().sort((a, b) => a[1] - b[1]);
+}
+
+function hasTwoWords(string) {
+  return /^\S+\s+\S+$/.test(string);
+}
+
+module.exports = {
+  dealHand,
+  reverseString,
+  shuffleArray,
+  sort_cards,
+  hasTwoWords,
+};

@@ -1,13 +1,14 @@
 let general_functions = require("../scripts/general_functions");
 let game_functions = require("../scripts/game_functions");
 let Player = require("./Player");
+let constants = require("../constants");
 
 class Game {
   constructor(id) {
     this.id = id;
     this.players = []; // arr player --> to linkedlist
     this.pot = 0;
-    this.deck = general_functions.shuffleArray(general_functions.createDeck()); //deck
+    this.deck = []; //deck
     this.type = 1; // for oma chap or more // 1,2,3
     this.burned = [];
     this.CommunityCards = [];
@@ -21,9 +22,9 @@ class Game {
   }
 
   initRound(whatsapp, chat_name) {
+    this.midround = true;
     this.players = general_functions.shuffleArray(this.players); // shuffle order
-
-    this.deck = general_functions.shuffleArray(general_functions.createDeck()); // new deck
+    this.deck = general_functions.shuffleArray(constants.deck);
     for (let i = 0; i < this.players.length; i++) {
       this.players[i].setHoleCards(this.deck.pop(), this.deck.pop());
       whatsapp.sendMessage(
