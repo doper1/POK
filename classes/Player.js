@@ -9,7 +9,12 @@ class Player {
     this.currentBet = 0;
     this.all_in = false;
   }
-
+  getHandScore() {
+    return this.hand_score;
+  }
+  setHandScore(newScore) {
+    this.hand_score = newScore;
+  }
   getName() {
     return this.name;
   }

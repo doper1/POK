@@ -69,7 +69,7 @@ function exit(games, chat_id, message, contact) {
   if (games[chat_id].players.length === 0) delete games[chat_id];
 }
 // pok start - start the game
-function start(whatsapp, chat, chat_id, contact, message, games) {
+function start(whatsapp, chat, chat_id, message, games) {
   games[chat_id].initRound(whatsapp, chat.name);
   let order = "The order is:";
   for (let i = 0; i < games[chat_id].players.length; i++) {
@@ -78,7 +78,11 @@ function start(whatsapp, chat, chat_id, contact, message, games) {
   message.reply(`${order}`);
   message.reply(`Cards on table are:
     \n ${game_functions.print_cards(games[chat_id].CommunityCards)}`);
-  game_functions.check_winner(games[chat_id], games[chat_id].players);
+
+  games[chat_id].players.forEach((player) => {
+    game_functions.update_hand_str(games[chat_id], player);
+  });
+
   for (let i = 0; i < games[chat_id].players.length; i++) {
     whatsapp.sendMessage(
       games[chat_id].players[i].getPhoneNumber(),
@@ -87,7 +91,16 @@ function start(whatsapp, chat, chat_id, contact, message, games) {
 Community Cards:
 ${game_functions.print_cards(games[chat_id].CommunityCards)}
 Cards: ${game_functions.print_cards(games[chat_id].players[i].hole_cards)}
-Hand strength: ${JSON.stringify(games[chat_id].players[i].hand_score)}
+Hand strength: ${
+        constants.strength_dict[
+          Object.keys(games[chat_id].players[i].hand_score)[0]
+        ]
+      }
+      ${game_functions.print_cards(
+        games[chat_id].players[i].hand_score[
+          Object.keys(games[chat_id].players[i].hand_score)[0]
+        ]
+      )}
 Stack: ${games[chat_id].players[i].game_money}`
     );
   }

@@ -39,13 +39,7 @@ Stack: $${this.players[i].game_money}`
       );
     }
     this.deck.pop();
-    this.CommunityCards.push(
-      this.deck.pop(),
-      this.deck.pop(),
-      this.deck.pop(),
-      this.deck.pop(),
-      this.deck.pop()
-    );
+    this.CommunityCards.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
   }
 
   addPlayer(name, phone_number) {

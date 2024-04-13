@@ -64,17 +64,41 @@ whatsapp.on("message_create", async (msg) => {
               pok_functions.exit(games, chat_id, message);
               break;
             case "start":
-              pok_functions.start(
-                whatsapp,
-                chat,
-                chat_id,
-                contact,
-                message,
-                games
-              );
+              pok_functions.start(whatsapp, chat, chat_id, message, games);
               break;
             case "end":
               pok_functions.end(games, chat_id, message, contact);
+              break;
+            case "open": // TO REMOVE
+              games[chat_id].CommunityCards.push(games[chat_id].deck.pop());
+              games[chat_id].players.forEach((player) => {
+                game_functions.update_hand_str(games[chat_id], player);
+              });
+              message.reply(
+                `Cards on table are:
+                \n ${game_functions.print_cards(games[chat_id].CommunityCards)}`
+              );
+              for (let i = 0; i < games[chat_id].players.length; i++) {
+                whatsapp.sendMessage(
+                  games[chat_id].players[i].getPhoneNumber(),
+                  `${chat.name}
+-------------
+Community Cards:
+${game_functions.print_cards(games[chat_id].CommunityCards)}
+Hand Cards: ${game_functions.print_cards(games[chat_id].players[i].hole_cards)}
+Hand strength: ${
+                    constants.strength_dict[
+                      Object.keys(games[chat_id].players[i].hand_score)[0]
+                    ]
+                  }
+      ${game_functions.print_cards(
+        games[chat_id].players[i].hand_score[
+          Object.keys(games[chat_id].players[i].hand_score)[0]
+        ]
+      )}
+Stack: $${games[chat_id].players[i].game_money}`
+                );
+              }
               break;
             default:
               message.reply(constants.help_pre_game);

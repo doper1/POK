@@ -14,6 +14,18 @@ module.exports.ranks = [
   "K",
   "A",
 ];
+module.exports.strength_dict = {
+  0: "Royal Flush",
+  1: "Straight Flush",
+  2: "Four of a Kind",
+  3: "Full House",
+  4: "Flush",
+  5: "Straight",
+  6: "Three of a Kind",
+  7: "Two Pair",
+  8: "Pair",
+  9: "High Card",
+};
 module.exports.SB = 10;
 module.exports.BB = 20;
 module.exports.ALLOWEDMIDROUND = ["fold", "check", "raise", "all_in"];
