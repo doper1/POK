@@ -16,8 +16,7 @@ module.exports.ranks = [
 ];
 module.exports.SB = 10;
 module.exports.BB = 20;
-module.exports.ALLOWEDMIDROUND = ["fold", "check", "raise", "all_in"];
-module.exports.help_pre_game = `Possbile commands:
+module.exports.help_pre_game = `Possible Commands:
 --------------
 ♠️ pok help 
 ♥️ pok join
@@ -25,16 +24,17 @@ module.exports.help_pre_game = `Possbile commands:
 ♦️ pok exit
 ♠️ pok start`;
 
-module.exports.help_in_game = `Possbile commands (in game):
+module.exports.help_in_game = `Possible Commands (in game):
 --------------
 ♠️ pok check
-♥️ pok raise [raise amount]
-♣️ pok fold
-♦️ pok help 
-♠️ pok join
-♥️ pok show
-♣️ pok exit
-♦️ pok end`;
+♥️ pok call
+♣️ pok raise [raise amount]
+♦️ pok fold
+♠️ pok help 
+♥️ pok join
+♣️ pok show
+♦️ pok exit
+♠️ pok end`;
 
 module.exports.deck = [
   ["♦️", "2"],
@@ -90,3 +90,6 @@ module.exports.deck = [
   ["♠️", "K"],
   ["♠️", "A"],
 ];
+
+module.exports.fold_emojies = ["☹️", "😒", "🤒", "🤕", "😵", "😪", "😬", "😩"];
+module.exports.start_emojies = ["🥹", "😎", "😋", "🥳", "🤩", "🤠", "🤗", "😛"];

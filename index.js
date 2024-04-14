@@ -48,10 +48,11 @@ whatsapp.on("message_create", async (msg) => {
     chat.name.includes("טסטים פוקר") ||
     chat.name.includes("קלף חינם")
   ) {
+    // Remove on production
     let user_msg = message.body.toLowerCase().split(" ");
 
     if (user_msg[0] === "pok") {
-      if (!(games[chat_id] != undefined && games[chat_id].midround)) {
+      if (!(games[chat_id] != undefined && games[chat_id].is_midround)) {
         if (user_msg.length === 1) {
           message.reply(constants.help_pre_game);
         } else {
@@ -71,9 +72,7 @@ whatsapp.on("message_create", async (msg) => {
             case "start":
               pok_functions.start(games, chat_id, message, whatsapp, chat);
               break;
-            case "end":
-              pok_functions.end(games, chat_id, message);
-              break;
+
             default:
               message.reply(constants.help_pre_game);
           }
@@ -83,6 +82,18 @@ whatsapp.on("message_create", async (msg) => {
           message.reply(constants.help_in_game);
         } else {
           switch (user_msg[1]) {
+            case "check":
+              pok_functions.check(games, chat_id, message);
+              break;
+            case "raise":
+              pok_functions.raise(games, chat_id, message);
+              break;
+            case "fold":
+              pok_functions.fold(games, chat_id, message, full_name);
+              break;
+            case "call":
+              pok_functions.call(games, chat_id, message);
+              break;
             case "help":
               message.reply(constants.help_in_game);
               break;
@@ -94,6 +105,9 @@ whatsapp.on("message_create", async (msg) => {
               break;
             case "exit":
               pok_functions.exit(games, chat_id, message, contact);
+              break;
+            case "end":
+              pok_functions.end(games, chat_id, message);
               break;
             default:
               if (user_msg[1] === "start") {

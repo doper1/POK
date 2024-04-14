@@ -1,110 +1,88 @@
+class Node {
+  constructor(player) {
+    this.player = player;
+    this.next = null;
+  }
+}
+
 class LinkedList {
   constructor() {
     this.head = null;
-    this.tail = null;
-    this.length = 0;
+    this.player_id;
   }
-
-  /**
-   * Adds an element to the end of the linked list.
-   *
-   * @param {any} element The element to be added.
-   * @returns {void}
-   */
-  append(element) {
-    const node = {
-      element,
-      next: null,
-    };
-
-    if (this.length === 0) {
-      this.head = node;
-      this.tail = node;
-    } else {
-      this.tail.next = node;
-      this.tail = node;
+  append(player, id) {
+    const newNode = new Node(player);
+    if (!this.head) {
+      this.head = newNode;
+      this.player_id = id;
+      return;
     }
 
-    this.length++;
+    let current = this.head;
+    while (current.next) {
+      current = current.next;
+    }
+    current.next = newNode;
   }
 
-  /**
-   * Removes the first occurrence of a specific element from the linked list.
-   *
-   * @param {any} element The element to be removed.
-   * @returns {boolean} Returns `true` if the element is removed, otherwise `false`.
-   */
-  remove(element) {
+  printNumberedNodes() {
+    let current = this.head;
+    let output = "";
+    let count = 1;
+    while (current) {
+      output += `${count}. ${current.player}\n`;
+      current = current.next;
+      count++;
+    }
+    return output;
+  }
+
+  remove(player) {
+    if (!this.head) {
+      return;
+    }
+    if (this.head.player === player) {
+      this.head = this.head.next;
+      return;
+    }
     let current = this.head;
     let previous = null;
-
-    while (current !== null) {
-      if (current.element === element) {
-        if (previous === null) {
-          this.head = current.next;
-        } else {
-          previous.next = current.next;
-          if (current === this.tail) {
-            this.tail = previous;
-          }
-        }
-
-        this.length--;
-        return true;
-      }
-
+    while (current && current.player !== player) {
       previous = current;
       current = current.next;
     }
-
-    return false;
+    if (!current) {
+      return; // Node not found
+    }
+    previous.next = current.next;
   }
 
-  /**
-   * Returns the element at the specified index.
-   *
-   * @param {number} index The index of the element to be returned.
-   * @returns {any} The element at the specified index.
-   */
-  get(index) {
-    if (index < 0 || index >= this.length) {
-      throw new Error("Index out of range");
+  visualize() {
+    let current = this.head;
+    let output = "";
+
+    if (!current) {
+      return output;
     }
 
-    let current = this.head;
-    for (let i = 0; i < index; i++) {
+    if (!current.next) {
+      return current.player;
+    }
+
+    let initialNode = current;
+
+    while (current) {
+      output += current.player.name;
+      if (current.next && current.next !== initialNode) {
+        output += " ---> ";
+      } else {
+        break;
+      }
       current = current.next;
     }
 
-    return current.element;
-  }
-
-  /**
-   * Sets the element at the specified index.
-   *
-   * @param {number} index The index of the element to be set.
-   * @param {any} newElement The new element to be set.
-   * @returns {void}
-   */
-  set(index, newElement) {
-    if (index < 0 || index >= this.length) {
-      throw new Error("Index out of range");
-    }
-
-    let current = this.head;
-    for (let i = 0; i < index; i++) {
-      current = current.next;
-    }
-
-    current.element = newElement;
-  }
-
-  /**
-   * Returns the number of elements in the linked list.
-   *
-   * @returns {number} The number of elements in the linked list.
-   */
-  size() {
-    return this.length;
+    return output;
   }
 }
+
+module.exports = { LinkedList };

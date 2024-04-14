@@ -7,7 +7,9 @@ class Player {
     this.money = 1000;
     this.game_money = 0;
     this.currentBet = 0;
-    this.all_in = false;
+    this.is_all_in = false;
+    this.is_folded = false;
+    this.is_button = false;
   }
 
   getName() {
@@ -37,10 +39,6 @@ class Player {
 
   resetHoleCards() {
     this.hole_cards = [];
-  }
-
-  createFinalHand(community_cards) {
-    console.log("TO DO"); // Write a function to Caclulate the best hand after a round ends, then save it for each player with this one
   }
 
   getFinalHand() {

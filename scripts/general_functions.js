@@ -1,16 +1,4 @@
-// Function to deal a hand of cards
-function dealHand(deck, numCards) {
-  if (numCards > deck.length) {
-    console.log("Not enough cards in the deck!");
-    return [];
-  }
-  return deck.splice(0, numCards);
-}
-
-// Reverse string
-function reverseString(str) {
-  return str.split("").reverse().join("");
-}
+//let constants = require("../constants");
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
@@ -29,10 +17,13 @@ function hasTwoWords(string) {
   return /^\S+\s+\S+$/.test(string);
 }
 
+function emote(emojies) {
+  return emojies[Math.floor(Math.random() * emojies.length)];
+}
+
 module.exports = {
-  dealHand,
-  reverseString,
   shuffleArray,
   sort_cards,
   hasTwoWords,
+  emote,
 };
