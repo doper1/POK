@@ -102,4 +102,4 @@ function fold(games, chat_id, message, full_name) {
 }
 function call() {}
 
-module.exports = { join, show, exit, start, end, check, raise, fold, call };
+module.exports = { join, show, exit, start, end, fold, check, raise, call };

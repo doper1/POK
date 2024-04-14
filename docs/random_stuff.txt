@@ -6,3 +6,7 @@
     //     `Hole cards: ${player.getHoleCards()}`
     //   );
     // }
+
+    games[chat_id].players.forEach((player) => {
+    game_functions.update_hand_str(games[chat_id], player);
+  });

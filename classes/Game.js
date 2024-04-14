@@ -21,6 +21,10 @@ class Game {
     this.is_midround = false;
   }
 
+  getCommunityCards() {
+    return this.CommunityCards;
+  }
+
   addPlayer(name, phone_number) {
     let player = new Player(name, phone_number);
     this.players[phone_number] = player;

@@ -3,7 +3,7 @@ class Player {
     this.name = name;
     this.phone_number = phone_number;
     this.hole_cards = [];
-    this.hand_score = "";
+    this.hand_score = {};
     this.money = 1000;
     this.game_money = 0;
     this.currentBet = 0;
@@ -11,7 +11,12 @@ class Player {
     this.is_folded = false;
     this.is_button = false;
   }
-
+  getHandScore() {
+    return this.hand_score;
+  }
+  setHandScore(newScore) {
+    this.hand_score = newScore;
+  }
   getName() {
     return this.name;
   }
