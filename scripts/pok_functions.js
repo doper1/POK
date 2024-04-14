@@ -67,7 +67,7 @@ function start(games, chat_id, message, whatsapp, chat) {
 // pok end - ends the game
 function end(games, chat_id, message) {
   let msg = "";
-  if (games[chat_id] === undefined) {
+  if (games[chat_id] != undefined) {
     // for (let i = 0; i < games[chat_id].players.length; i++)
     //   msg += `${i + 1}. ${games[chat_id].players[i].name} has ${
     //     games[chat_id].players[i].money
