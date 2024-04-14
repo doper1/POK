@@ -140,6 +140,7 @@ Stack: $${games[chat_id].players[i].game_money}`
               pok_functions.end(games, chat_id, message);
               break;
             default:
+              //?
               if (user_msg[1] === "start") {
                 message.react("🧐");
                 message.reply("There is a game in progress");

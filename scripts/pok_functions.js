@@ -30,16 +30,18 @@ function show(games, chat_id, message) {
 
 // pok exit (the table)
 function exit(games, chat_id, message, full_name) {
-  if (
-    games[chat_id] === undefined ||
-    games[chat_id].players[message.author] === undefined
-  ) {
+  if (games[chat_id] === undefined)
+    if (games[chat_id].players[message.author] === undefined) {
+      message.react("🧐");
+      message.reply("You have not joined the game yet");
+    } else {
+      delete games[chat_id].players[message.author];
+      message.react("👋");
+      message.reply(`${full_name.split(" ")[0]} left the game`);
+    }
+  else {
     message.react("🧐");
     message.reply("You have not joined the game yet");
-  } else {
-    delete games[chat_id].players[message.author];
-    message.react("👋");
-    message.reply(`${full_name.split(" ")[0]} left the game`);
   }
 }
 
@@ -67,15 +69,18 @@ function start(games, chat_id, message, whatsapp, chat) {
 // pok end - ends the game
 function end(games, chat_id, message) {
   let msg = "";
-  if (games[chat_id] === undefined) {
+  console.log(games[chat_id]);
+  if (games[chat_id] != undefined) {
     // for (let i = 0; i < games[chat_id].players.length; i++)
     //   msg += `${i + 1}. ${games[chat_id].players[i].name} has ${
     //     games[chat_id].players[i].money
-    //   }\n`; // FIX
+    //   }\n`; // FIX print money
     msg += `*The game has ended!*`;
     delete games[chat_id];
     message.reply(msg);
-  } else message.reply("There are no players on the table :(");
+  } else {
+    message.reply("There are no players on the table :(");
+  }
 }
 
 function check() {
