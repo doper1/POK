@@ -9,9 +9,10 @@
  */
 
 class Player {
-  constructor(name, phone_number) {
+  constructor(name, phone_number, contact) {
     this.name = name;
     this.phone_number = phone_number;
+    this.contact = contact;
     this.hole_cards = [];
     /**
      * @param {int} str representing the strength of the hand 0-9 mentioned in  constants
@@ -26,10 +27,11 @@ class Player {
     this.hand_score = { str: undefined, cards: [] };
     this.money = 1000;
     this.game_money = 0;
-    this.currentBet = 0;
+    this.current_bet = 0;
     this.is_all_in = false;
     this.is_folded = false;
     this.is_button = false;
+    this.is_played = false;
   }
   getHandScore() {
     return this.hand_score;

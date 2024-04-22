@@ -21,9 +21,26 @@ function emote(emojies) {
   return emojies[Math.floor(Math.random() * emojies.length)];
 }
 
+function is_allowed(game, message) {
+  if (game.order.current_player.phone_number != message.author) {
+    // Current player check
+    message.react("😬");
+    game.chat.sendMessage(`It's not your turn,
+it's ${game.order.current_player.name} turn`);
+    return false;
+  } else if (game.order.current_player.is_folded) {
+    // Fold check
+    message.react("😬");
+    game.chat.sendMessage(`You already folded`);
+    return false;
+  }
+  return true;
+}
+
 module.exports = {
   shuffleArray,
   sort_cards,
   hasTwoWords,
   emote,
+  is_allowed,
 };

@@ -5,6 +5,7 @@ let { Client, LocalAuth } = require("whatsapp-web.js");
 // Scripts
 let constants = require("./constants");
 let pok_functions = require("./scripts/pok_functions");
+let general_functions = require("./scripts/general_functions");
 
 // Classes
 let game = require("./classes/Game");
@@ -33,10 +34,8 @@ whatsapp.on("message_create", async (msg) => {
   let message = await msg;
   let chat = await message.getChat();
   let chat_id = chat.id.user;
-
-  if (!chat.isGroup) return; // Prevents the bot from replaying to non-group chats
-
   let contact = await message.getContact();
+
   if (contact.pushname === undefined) {
     full_name = contact.id.user;
   } else {
@@ -61,7 +60,14 @@ whatsapp.on("message_create", async (msg) => {
               message.reply(constants.help_pre_game);
               break;
             case "join":
-              pok_functions.join(games, chat_id, message, full_name);
+              pok_functions.join(
+                games,
+                chat_id,
+                message,
+                full_name,
+                contact,
+                chat
+              );
               break;
             case "show":
               pok_functions.show(games, chat_id, message);
@@ -71,8 +77,6 @@ whatsapp.on("message_create", async (msg) => {
               break;
             case "start":
               pok_functions.start(games, chat_id, message, whatsapp, chat);
-              break;
-            case "open": // TO REMOVE
               break;
             default:
               message.reply(constants.help_pre_game);
@@ -84,22 +88,79 @@ whatsapp.on("message_create", async (msg) => {
         } else {
           switch (user_msg[1]) {
             case "check":
-              pok_functions.check(games, chat_id, message);
+              if (general_functions.is_allowed(games[chat_id], message)) {
+                if (games[chat_id].current_bet === 0) {
+                  pok_functions.check(games, chat_id, message);
+                } else {
+                  message.reply(
+                    `You need to call ($${
+                      games[chat_id].current_bet -
+                      games[chat_id].players[message.author].current_bet
+                    } more)`
+                  );
+                }
+              }
               break;
             case "raise":
-              pok_functions.raise(games, chat_id, message);
+              if (general_functions.is_allowed(games[chat_id], message)) {
+                if (user_msg.length === 3) {
+                  if (!Number.isInteger(Number(user_msg[2]))) {
+                    message.reply(
+                      `You need to specify a numerical raise amount (e.g. pok raise 100)
+                    or either raise all in (e. pok raise all in)`
+                    );
+                  } else if (
+                    games[chat_id].current_bet >
+                    Number(user_msg[2]) +
+                      games[chat_id].players[message.author].current_bet
+                  ) {
+                    message.reply(
+                      `You need to call ($${
+                        games[chat_id].current_bet -
+                        games[chat_id].players[message.author].current_bet
+                      } more)`
+                    );
+                  } else {
+                    pok_functions.raise(games, chat_id, Number(user_msg[2]));
+                  }
+                } else {
+                  message.react(
+                    general_functions.emote(constants.mistake_emojies)
+                  );
+                  message.reply(`You need to specify a raise amount`);
+                }
+              }
+
               break;
             case "fold":
-              pok_functions.fold(games, chat_id, message, full_name);
+              if (general_functions.is_allowed(games[chat_id], message)) {
+                pok_functions.fold(games, chat_id, message, full_name, chat);
+              }
               break;
             case "call":
-              pok_functions.call(games, chat_id, message);
+              if (general_functions.is_allowed(games[chat_id], message)) {
+                if (
+                  games[chat_id].current_bet ===
+                  games[chat_id].players[message.author].current_bet
+                ) {
+                  game.chat.sendMessage(`No one bet so you don't need to call`);
+                } else {
+                  pok_functions.call(games, chat_id);
+                }
+              }
               break;
             case "help":
               message.reply(constants.help_in_game);
               break;
             case "join":
-              pok_functions.join(games, chat_id, message, contact);
+              pok_functions.join(
+                games,
+                chat_id,
+                message,
+                full_name,
+                contact,
+                chat
+              );
               break;
             case "show":
               pok_functions.show(games, chat_id, message);
@@ -111,9 +172,10 @@ whatsapp.on("message_create", async (msg) => {
               pok_functions.end(games, chat_id, message);
               break;
             default:
-              //?
               if (user_msg[1] === "start") {
-                message.react("🧐");
+                message.react(
+                  general_functions.emote(constants.mistake_emojies)
+                );
                 message.reply("There is a game in progress");
               } else {
                 message.reply(constants.help_in_game);

@@ -1,8 +1,4 @@
-const { List } = require("whatsapp-web.js");
 let constants = require("../constants");
-//let Player = require("../classes/Player");
-
-// All in
 
 function print_cards(cards) {
   let to_string = "";
@@ -17,7 +13,7 @@ function print_cards(cards) {
 function parseCardNumber(card) {
   switch (card[1]) {
     case "A":
-      return [card[0], 14]; // Ace can be high (14) or low (1)
+      return [card[0], 14];
     case "K":
       return [card[0], 13];
     case "Q":
@@ -54,7 +50,7 @@ function isCardInCards(card, Cards) {
     if (Cards[i][0] === card[0] && Cards[i][1] === card[1]) return true; // Card is already in the hand
   return false;
 }
-
+// switch to param
 function c_count(cards, type) {
   let count_cards = {};
   cards.forEach((card) => {
@@ -166,7 +162,6 @@ function is_one_pair(cards) {
 /**
  * @param {Game} game - The game
  * @param {Player} player - The player in which you update the hand str
- *
  */
 function update_hand_str(game, player) {
   player.hand_score = {};
@@ -184,7 +179,6 @@ function update_hand_str(game, player) {
 
     //sorts from highest to lowest to determine calculation of hand highest = better
     tmpcards = sort_cards(tmpcards);
-    //console.log(`sorted tmpcards: ${tmpcards}`);
 
     if (is_straight_flush(tmpcards) != false) {
       let str_flush = is_straight(is_flush(tmpcards));
@@ -232,12 +226,11 @@ function update_hand_str(game, player) {
   }
 }
 /**
- * @param {Game} game - The game of which to generate the strength arr
+ * @param {Game} game - The game of which to generate the strength arr for all players
  * @returns {Dictionary}
- *
  * @example dict = {[0:player1], [4:player3], [8,[player4,player5]] }
  */
-function str_arr(game) {
+function calc_strength(game) {
   let strlist = [];
   for (phone in game.players) {
     strlist.push([game.players[phone].hand_score.str, game.players[phone]]);
@@ -286,35 +279,19 @@ function str_arr(game) {
   return dstrlist;
 }
 
-function showdown(whatsapp, game) {
+function showdown(game) {
   let msg = "פורמט הודעות x ניצח... ------\n";
-  let str_arr = str_arr(game);
+  let strength_dict = calc_strength(game); //{1-9 :[players]}
   let ind = 1;
-  // add current players?
-  for (str in str_arr) {
-    for (player in str_arr[str])
-      if (!player.folded) {
-        if (game.pot > 0) {
-          game.pot -= player.curbet;
-          game.players[player].money += player.curbet;
-          msg += `${ind}. ${player.name} won ${
-            player.curbet
-          } with ${print_cards(player.hand_score[str])}\n`;
-          ind++;
-        } else {
-          msg += `${ind}. ${player.name} lost ${
-            player.curbet
-          } with ${print_cards(player.hand_score[str])}\n`;
-          ind++;
-        }
-      } else if (player.curbet > 0) {
-        msg += `${ind}. ${player.name} lost ${player.curbet} with 
-          \n Fold.`;
-        ind++;
+  // add current players? // and can split to two loops to seperate winners and losers
+  for (strength in strength_dict) {
+    for (player in strength_dict[strength])
+      if (!player.is_folded) {
+        //.... add check game pot... and above
       }
   }
   // need to reset curbet?
-  whatsapp.send(game.chat.name, msg);
+  game.chat.send(msg);
 }
 
 module.exports = {
@@ -334,6 +311,6 @@ module.exports = {
   parseCardNumber,
   ReverseParseCardNumber,
   isCardInCards,
-  str_arr,
+  calc_strength,
   showdown,
 };
