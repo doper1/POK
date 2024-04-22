@@ -1,0 +1,6 @@
+won_by_fold:
+1. Give the Pot to the person that didn't folded
+2. Clean the pot
+3. Init the round
+
+Showdown:

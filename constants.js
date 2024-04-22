@@ -1,19 +1,3 @@
-module.exports.suits = ["♦️", "♥️", "♣️", "♠️"];
-module.exports.ranks = [
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "J",
-  "Q",
-  "K",
-  "A",
-];
 module.exports.strength_dict = {
   0: "Royal Flush",
   1: "Straight Flush",
@@ -105,3 +89,4 @@ module.exports.deck = [
 
 module.exports.fold_emojies = ["☹️", "😒", "🤒", "🤕", "😵", "😪", "😬", "😩"];
 module.exports.start_emojies = ["🥹", "😎", "😋", "🥳", "🤩", "🤠", "🤗", "😛"];
+module.exports.mistake_emojies = ["🫠", "😬", "🧐", "😳", "😑", "🤤", "🥴"];

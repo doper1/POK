@@ -16,7 +16,7 @@ function print_cards(cards) {
 function parseCardNumber(card) {
   switch (card[1]) {
     case "A":
-      return [card[0], 14]; // Ace can be high (14) or low (1)
+      return [card[0], 14];
     case "K":
       return [card[0], 13];
     case "Q":
@@ -182,7 +182,6 @@ function update_hand_str(game, player) {
 
     //sorts from highest to lowest to determine calculation of hand highest = better
     tmpcards = sort_cards(tmpcards);
-    //console.log(`sorted tmpcards: ${tmpcards}`);
 
     if (is_straight_flush(tmpcards) != false) {
       let str_flush = is_straight(is_flush(tmpcards));
@@ -211,8 +210,6 @@ function update_hand_str(game, player) {
 
     //determines which hand score player got
     let str_key = Object.keys(player.hand_score)[0];
-
-    //console.log(`hand score before add/remove ${player.hand_score[str_key]}`);
 
     // if cards <5 adds highest
     for (let i = 0; i < tmpcards.length; i++)

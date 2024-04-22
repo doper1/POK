@@ -1,71 +1,38 @@
-class Node {
-  constructor(player) {
-    this.player = player;
-    this.next = null;
-  }
-}
+let Player = require("./Player");
 
 class LinkedList {
   constructor() {
-    this.head = null;
-    this.player_id;
+    this.current_player = null;
   }
-  append(player, id) {
-    const newNode = new Node(player);
-    if (!this.head) {
-      this.head = newNode;
-      this.player_id = id;
+  append(player) {
+    const newPlayer = player;
+    if (!this.current_player) {
+      this.current_player = newPlayer;
       return;
     }
 
-    let current = this.head;
-    while (current.next) {
-      current = current.next;
+    let current = this.current_player;
+    while (current.next_player) {
+      current = current.next_player;
     }
-    current.next = newNode;
+    current.next_player = newPlayer;
   }
 
-  printNumberedNodes() {
-    let current = this.head;
-    let output = "";
-    let count = 1;
-    while (current) {
-      output += `${count}. ${current.player}\n`;
-      current = current.next;
-      count++;
-    }
-    return output;
-  }
-
-  remove(player) {
-    if (!this.head) {
-      return;
-    }
-    if (this.head.player === player) {
-      this.head = this.head.next;
-      return;
-    }
-    let current = this.head;
-    let previous = null;
-    while (current && current.player !== player) {
-      previous = current;
-      current = current.next;
-    }
-    if (!current) {
-      return; // Node not found
-    }
-    previous.next = current.next;
+  insertAfterCurrent(newPlayer) {
+    let nextPlayer = this.current_player.next_player;
+    this.current_player.next_player = newPlayer;
+    newPlayer.next_player = nextPlayer;
   }
 
   visualize() {
-    let current = this.head;
+    let current = this.current_player;
     let output = "";
 
     if (!current) {
       return output;
     }
 
-    if (!current.next) {
+    if (!current.next_player) {
       return current.player;
     }
 
@@ -73,12 +40,12 @@ class LinkedList {
 
     while (current) {
       output += current.player.name;
-      if (current.next && current.next !== initialNode) {
+      if (current.next_player && current.next_player !== initialNode) {
         output += " ---> ";
       } else {
         break;
       }
-      current = current.next;
+      current = current.next_player;
     }
 
     return output;

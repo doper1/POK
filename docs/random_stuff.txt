@@ -10,3 +10,8 @@
     games[chat_id].players.forEach((player) => {
     game_functions.update_hand_str(games[chat_id], player);
   });
+
+Mentions:
+chat.sendMessage(`Hello @${contact.id.user}`, {
+    mentions: [contact],
+  });
