@@ -180,6 +180,7 @@ Stack: $${current_player.game_money}`
 
         // Showdown
         case 5:
+          game_functions.showdown(this);
           this.community_cards = [];
           this.reset_players_status();
           break;

@@ -1,0 +1,50 @@
+2 players
+
+check commcards (0,3,4,5)
+    0 = open 3
+    3 = open 1
+    4 = open 1
+    5 
+
+generate round
+    dic players --> linked list
+
+initround-
+    new deck,
+    player hole cards
+    new order = generate round
+    put small blind first order and autobet
+    big second player and autobet
+    mention first turn to play
+
+fold
+    fold,
+    check if only 1 player not folded
+    folded win - X has won, move money . resetround
+
+first playe
+    call
+     in call cur head forward
+
+sec player 
+    check
+     in check cur head forward
+    if next player.curbet =this.curbet && first player.isplayed
+    check commcards
+    
+first playe
+    check
+     in call cur head forward
+
+sec player 
+    check
+     in check cur head forward
+    if next player.curbet =this.curbet && first player.isplayed
+    check commcards 5
+        showdown 
+
+showdown
+    done {show cards, winner , money}, button ,reset round
+
+
++

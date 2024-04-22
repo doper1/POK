@@ -160,7 +160,7 @@ whatsapp.on("message_create", async (msg) => {
                 full_name,
                 contact,
                 chat
-              ); // FIX: should be done as mid-round join
+              );
               break;
             case "show":
               pok_functions.show(games, chat_id, message);
@@ -172,7 +172,6 @@ whatsapp.on("message_create", async (msg) => {
               pok_functions.end(games, chat_id, message);
               break;
             default:
-              //?
               if (user_msg[1] === "start") {
                 message.react(
                   general_functions.emote(constants.mistake_emojies)
