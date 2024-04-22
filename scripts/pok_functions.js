@@ -30,18 +30,20 @@ function show(games, chat_id, message) {
 
 // pok exit (the table)
 function exit(games, chat_id, message, full_name) {
-  if (games[chat_id] === undefined)
-    if (games[chat_id].players[message.author] === undefined) {
-      message.react("🧐");
-      message.reply("You have not joined the game yet");
+  if (
+    games[chat_id] === undefined ||
+    games[chat_id].players[message.author] === undefined
+  ) {
+    message.react("🧐");
+    message.reply("You have not joined the game yet");
+  } else {
+    if (Object.keys(games[chat_id].players).length === 1) {
+      end(games, chat_id, message);
     } else {
       delete games[chat_id].players[message.author];
       message.react("👋");
-      message.reply(`${full_name.split(" ")[0]} left the game`);
+      message.reply(`${full_name} left the game`);
     }
-  else {
-    message.react("🧐");
-    message.reply("You have not joined the game yet");
   }
 }
 

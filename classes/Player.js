@@ -1,9 +1,29 @@
+/**
+ * @param {String} name name of player
+ * @param {String} phone_number phone number of player
+ * @param {Array} hole_cards of the form [card_suit, card_number],[card_suit, card_number]
+ * @param {Array} hand_score Array of the form [card_suit, card_number]*5
+ * @param {int} money of player
+ * //// to be continued
+ *
+ */
+
 class Player {
   constructor(name, phone_number) {
     this.name = name;
     this.phone_number = phone_number;
     this.hole_cards = [];
-    this.hand_score = {};
+    /**
+     * @param {int} str representing the strength of the hand 0-9 mentioned in  constants
+     * @param {Array}  cards of cards consistings of 5 cards
+     * @card Array of the form [card_suit, card_number]
+     *
+     * @example hand_score = {str: 1, cards: [["♦️", "1"], ["♦️", "J"], ["♣️", "K"], ["♥️", "A"], ["♠️", "7"]]}
+     * @note
+     * note that the cards of hand_score are consistings of the best possible layout of hole_cards and Community Cards in regular/chap
+     * in omaha, includes hand_score includes hole_cards
+     */
+    this.hand_score = { str: undefined, cards: [] };
     this.money = 1000;
     this.game_money = 0;
     this.currentBet = 0;

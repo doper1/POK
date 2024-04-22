@@ -1,3 +1,4 @@
+const { List } = require("whatsapp-web.js");
 let constants = require("../constants");
 //let Player = require("../classes/Player");
 
@@ -165,6 +166,7 @@ function is_one_pair(cards) {
 /**
  * @param {Game} game - The game
  * @param {Player} player - The player in which you update the hand str
+ *
  */
 function update_hand_str(game, player) {
   player.hand_score = {};
@@ -191,49 +193,128 @@ function update_hand_str(game, player) {
         isCardInCards([type, 13], str_flush) &&
         isCardInCards([type, 14], str_flush)
       )
-        player.hand_score = { 0: str_flush };
-      else player.hand_score = { 1: str_flush };
+        player.hand_score = { str: 0, cards: str_flush }; //royal flush
+      else player.hand_score = { str: 1, cards: str_flush };
     } else if (is_four_of_a_kind(tmpcards) != false)
-      player.hand_score = { 2: is_four_of_a_kind(tmpcards) };
+      player.hand_score = { str: 2, cards: is_four_of_a_kind(tmpcards) };
     else if (is_full_house(tmpcards) != false)
-      player.hand_score = { 3: is_full_house(tmpcards) };
+      player.hand_score = { str: 3, cards: is_full_house(tmpcards) };
     else if (is_flush(tmpcards) != false)
-      player.hand_score = { 4: is_flush(tmpcards) };
+      player.hand_score = { str: 4, cards: is_flush(tmpcards) };
     else if (is_straight(tmpcards) != false)
-      player.hand_score = { 5: is_straight(tmpcards) };
+      player.hand_score = { str: 5, cards: is_straight(tmpcards) };
     else if (is_three_of_a_kind(tmpcards) != false)
-      player.hand_score = { 6: is_three_of_a_kind(tmpcards) };
+      player.hand_score = { str: 6, cards: is_three_of_a_kind(tmpcards) };
     else if (is_two_pair(tmpcards) != false)
-      player.hand_score = { 7: is_two_pair(tmpcards) };
+      player.hand_score = { str: 7, cards: is_two_pair(tmpcards) };
     else if (is_one_pair(tmpcards) != false)
-      player.hand_score = { 8: is_one_pair(tmpcards) };
-    else player.hand_score = { 9: tmpcards };
-
-    //determines which hand score player got
-    let str_key = Object.keys(player.hand_score)[0];
-
-    //console.log(`hand score before add/remove ${player.hand_score[str_key]}`);
+      player.hand_score = { str: 8, cards: is_one_pair(tmpcards) };
+    else player.hand_score = { str: 9, cards: tmpcards };
 
     // if cards <5 adds highest
     for (let i = 0; i < tmpcards.length; i++)
-      if (player.hand_score[str_key].length < 5) {
+      if (player.hand_score.cards.length < 5) {
         let cardToAdd = tmpcards[i];
-        if (!isCardInCards(cardToAdd, player.hand_score[str_key])) {
-          player.hand_score[str_key].push(cardToAdd);
+        if (!isCardInCards(cardToAdd, player.hand_score.cards)) {
+          player.hand_score.cards.push(cardToAdd);
         }
       }
 
     //if cards > 5 removes weakest
-    while (player.hand_score[str_key].length > 5) {
-      player.hand_score[str_key].pop(player.hand_score[str_key][0]);
+    while (player.hand_score.cards.length > 5) {
+      player.hand_score.cards.pop(player.hand_score.cards[0]);
     }
-
     //reverses back to 11:J 13:K (14||1 :A) 12:Q
-    for (let i = 0; i < player.hand_score[str_key].length; i++)
-      player.hand_score[str_key][i] = ReverseParseCardNumber(
-        player.hand_score[str_key][i]
+    for (let i = 0; i < player.hand_score.cards.length; i++)
+      player.hand_score.cards[i] = ReverseParseCardNumber(
+        player.hand_score.cards[i]
       );
   }
+}
+/**
+ * @param {Game} game - The game of which to generate the strength arr
+ * @returns {Dictionary}
+ *
+ * @example dict = {[0:player1], [4:player3], [8,[player4,player5]] }
+ */
+function str_arr(game) {
+  let strlist = [];
+  for (phone in game.players) {
+    strlist.push([game.players[phone].hand_score.str, game.players[phone]]);
+  }
+  strlist = strlist.slice().sort((a, b) => a[0] - b[0]);
+  // works till here
+
+  for (let i = 0; i < strlist.length - 1; i++) {
+    console.log(
+      strlist[i][0],
+      strlist[i][1].name,
+      strlist[i][1].hand_score.cards
+    );
+    console.log(
+      strlist[i + 1][0],
+      strlist[i + 1][1].name,
+      strlist[i + 1][1].hand_score.cards
+    );
+    if (strlist[i][0] === strlist[i + 1][0]) {
+      let count = 0;
+      for (let j = 0; j < 5; j++) {
+        if (
+          strlist[i][1].hand_score.cards[j] <
+          strlist[i + 1][1].hand_score.cards[j]
+        ) {
+          let temp = strlist[i];
+          strlist[i][1] = strlist[i + 1][1];
+          strlist[i + 1][1] = temp;
+          break;
+        } else if (
+          strlist[i][1].hand_score.cards[j] >
+          strlist[i + 1][1].hand_score.cards[j]
+        )
+          break;
+        else count++;
+      }
+      if (count === 5) {
+        strlist[i][1] = [strlist[i][1], strlist[i + 1][1]];
+        strlist.splice(i + 1, i + 1);
+      }
+    }
+  }
+  //
+  let dstrlist = Object.fromEntries(strlist);
+  //
+  return dstrlist;
+}
+
+function showdown(whatsapp, game) {
+  let msg = "פורמט הודעות x ניצח... ------\n";
+  let str_arr = str_arr(game);
+  let ind = 1;
+  // add current players?
+  for (str in str_arr) {
+    for (player in str_arr[str])
+      if (!player.folded) {
+        if (game.pot > 0) {
+          game.pot -= player.curbet;
+          game.players[player].money += player.curbet;
+          msg += `${ind}. ${player.name} won ${
+            player.curbet
+          } with ${print_cards(player.hand_score[str])}\n`;
+          ind++;
+        } else {
+          msg += `${ind}. ${player.name} lost ${
+            player.curbet
+          } with ${print_cards(player.hand_score[str])}\n`;
+          ind++;
+        }
+      } else if (player.curbet > 0) {
+        msg += `${ind}. ${player.name} lost ${player.curbet} with 
+          \n Fold.`;
+        ind++;
+      }
+  }
+  // need to reset curbet?
+  whatsapp.send(game.chat.name, msg);
 }
 
 module.exports = {
@@ -253,4 +334,6 @@ module.exports = {
   parseCardNumber,
   ReverseParseCardNumber,
   isCardInCards,
+  str_arr,
+  showdown,
 };
