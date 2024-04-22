@@ -47,7 +47,7 @@ function exit(games, chat_id, message, full_name) {
   } else {
     delete games[chat_id].players[message.author];
     message.react("👋");
-    message.reply(`${full_name} left the game`);
+    message.reply(`${full_name.split(" ")[0]} left the game`);
 
     if (
       Object.keys(games[chat_id].players).length === 0 &&
@@ -115,16 +115,19 @@ function raise(games, chat_id, amount) {
     (games[chat_id].current_bet -
       games[chat_id].order.current_player.current_bet);
   games[chat_id].chat.sendMessage(
-    `${games[chat_id].order.current_player.name} raised $${amount}`
+    `${
+      games[chat_id].order.current_player.name.split(" ")[0]
+    } raised $${amount}`
   );
   games[chat_id].order.current_player.current_bet = games[chat_id].current_bet;
   games[chat_id].update_round();
+  6;
 }
 
 //Fold
 function fold(games, chat_id, message, full_name) {
   message.react(general_functions.emote(constants.fold_emojies));
-  games[chat_id].chat.sendMessage(`${full_name} folded`);
+  games[chat_id].chat.sendMessage(`${full_name.split(" ")[0]} folded`);
 
   games[chat_id].order.current_player.is_folded = true;
   games[chat_id].update_round();
@@ -137,7 +140,9 @@ function call(games, chat_id) {
   games[chat_id].pot += amount;
   games[chat_id].order.current_player.current_bet = games[chat_id].current_bet;
   games[chat_id].chat.sendMessage(
-    `${games[chat_id].order.current_player.name} called $${amount}`
+    `${
+      games[chat_id].order.current_player.name.split(" ")[0]
+    } called $${amount}`
   );
   games[chat_id].update_round();
 }

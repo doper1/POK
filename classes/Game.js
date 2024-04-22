@@ -16,6 +16,7 @@ class Game {
     this.order = new LinkedList();
     this.pot = 0;
     this.current_bet = 0;
+    this.all_ins = {}; // {phone_number: [120, 0], phone_number2: [pot, 50] } if(all_in.length != 0 ) -> call/raise + player.bet {Adam(id): [200, 0], Ben(id): [260, 0], Elad)id): [320, 30]}
     this.deck = [];
     this.type = 1; // for Omaha chap or more // 1,2,3
     this.burned = [];
@@ -130,7 +131,7 @@ Stack: $${current_player.game_money}`
     // the player after the button puts a small blind, the player after him put a big blind, and the action passes to UTG player
     this.order.current_player.game_money -= constants.small_blind;
     this.order.current_player.next_player.game_money -= constants.big_blind;
-    this.pot += constants.small_blind + constants.big_blind;
+    this.pot += Number(constants.small_blind) + Number(constants.big_blind);
   }
 
   update_round() {
