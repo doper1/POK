@@ -19,14 +19,9 @@ class Game {
     this.all_ins = {}; // {phone_number: [120, 0], phone_number2: [pot, 50] } if(all_in.length != 0 ) -> call/raise + player.bet {Adam(id): [200, 0], Ben(id): [260, 0], Elad)id): [320, 30]}
     this.deck = [];
     this.type = 1; // for Omaha chap or more // 1,2,3
-    this.burned = [];
     this.community_cards = []; //  if 0 and round end -> 3
     this.is_midround = false;
-    this.round = 1; // 1, 2, 3, 4
-  }
-
-  getCommunityCards() {
-    return this.CommunityCards;
+    this.folds = 0;
   }
 
   addPlayer(name, phone_number, contact) {
@@ -50,44 +45,62 @@ class Game {
   getOrderPretty() {
     // Should be a squere at the end
     let current_player = this.order.current_player;
-    let to_string = "";
+    let order_string = "";
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
-      to_string += `\n${i}. ${current_player.name}`;
+      if (current_player.is_button) {
+        order_string += `\n${i}. ${current_player.name} ⚪`;
+      } else {
+        order_string += `\n${i}. ${current_player.name}`;
+      }
       current_player = current_player.next_player;
     }
-    return `_Playing Order:_
-----------------${to_string}`;
+    return `*Playing Order:* ${order_string}`;
   }
   initRound(whatsapp, chat_name) {
     this.deck = general_functions.shuffleArray(constants.deck);
-    let current_player = this.order.current_player;
-    while (current_player) {
-      current_player.game_money = 100; // Change to some constants, also handle less money situations
-      current_player.money -= 100;
-      current_player.setHoleCards(this.deck.pop(), this.deck.pop());
+    let current = this.order.current_player;
+    do {
+      current.setHoleCards(this.deck.pop(), this.deck.pop());
       whatsapp.sendMessage(
-        current_player.phone_number,
-        `${chat_name}
+        current.phone_number,
+        `*Cards:* ${game_functions.print_cards(current.getHoleCards())}
+*Stack:* $${current.game_money}
 -------------
-Cards: ${game_functions.print_cards(current_player.getHoleCards())}
-Stack: $${current_player.game_money}`
+*${chat_name}*`
       );
-      if (current_player.is_button) break;
-      else current_player = current_player.next_player;
+      current = current.next_player;
+    } while (!current.is_button);
+    this.resetPlayersStatus();
+    this.community_cards = [];
+    this.folds = 0;
+    this.moveButton();
+    if (Object.keys(this.players).length === 2) {
+      this.order.next();
     }
-    //this.moveButton();
-    //this.putBlinds();
+    this.putBlinds();
+    this.chat.sendMessage(
+      `${this.getOrderPretty()}
+----------------
+Check your DM for your cards 🤫);
+----------------
+Action on @${this.order.current_player.contact.id.user} ($${
+        this.order.current_player.game_money
+      })`,
+      {
+        mentions: [this.order.current_player.contact.id._serialized],
+      }
+    );
   }
 
   setType() {
-    this.type = this.type; // for oma chap or more
+    this.type = this.type; // for omaha
   }
 
-  getIs_midround() {
+  getIsMidround() {
     return this.is_midround;
   }
 
-  setIs_midround(newMidround) {
+  setIsMidround(newMidround) {
     this.is_midround = newMidround;
   }
 
@@ -107,20 +120,28 @@ Stack: $${current_player.game_money}`
     }
     current.next_player = this.order.current_player;
     this.order.current_player.is_button = true;
-    this.order.current_player = this.order.current_player.next_player;
+  }
+  jumpToButton() {
+    let current = this.order.current_player;
+    while (!current.is_button) {
+      current = current.next_player;
+    }
+    this.order.current_player = current;
   }
 
   moveButton() {
+    this.jumpToButton();
     this.order.current_player.is_button = false;
-    this.order.current_player = this.order.current_player.next_player;
+    this.order.next();
+    this.order.current_player.is_button = true;
   }
 
   moveAction() {
-    this.order.current_player = this.order.current_player.next_player;
-
-    this.chat.sendMessage(`Pot: $${this.pot}`);
+    this.order.next();
     this.chat.sendMessage(
-      `Action on @${this.order.current_player.contact.id.user}`,
+      `Pot: $${this.pot}
+-------------
+Action on @${this.order.current_player.contact.id.user} ($${this.order.current_player.game_money})`,
       {
         mentions: [this.order.current_player.contact.id._serialized],
       }
@@ -128,16 +149,24 @@ Stack: $${current_player.game_money}`
   }
 
   putBlinds() {
-    // the player after the button puts a small blind, the player after him put a big blind, and the action passes to UTG player
+    this.current_bet = constants.big_blind;
+    this.order.next();
     this.order.current_player.game_money -= constants.small_blind;
-    this.order.current_player.next_player.game_money -= constants.big_blind;
-    this.pot += Number(constants.small_blind) + Number(constants.big_blind);
+    this.order.current_player.current_bet = constants.small_blind;
+    this.order.next();
+    this.order.current_player.game_money -= constants.big_blind;
+    this.order.current_player.current_bet = constants.big_blind;
+    this.pot += constants.small_blind + constants.big_blind;
+    this.order.next();
   }
 
-  update_round() {
-    if (this.order.current_player.next_player.is_folded) {
-      this.order.current_player = this.order.current_player.next_player;
-      this.update_round();
+  updateRound(whatsapp) {
+    if (this.folds === Object.keys(this.players).length - 1) {
+      game_functions.showdown(this);
+      this.initRound(whatsapp, this.chat.name);
+    } else if (this.order.current_player.next_player.is_folded) {
+      this.order.next();
+      this.updateRound();
     } else if (
       this.order.current_player.next_player.is_played &&
       this.order.current_player.next_player.current_bet === this.current_bet
@@ -152,7 +181,8 @@ Stack: $${current_player.game_money}`
             `*Cards:* \n${game_functions.print_cards(this.community_cards)}`
           );
           this.current_bet = 0;
-          this.reset_players_status();
+          this.jumpToButton();
+          this.resetPlayersStatus();
           this.moveAction();
           break;
 
@@ -163,7 +193,8 @@ Stack: $${current_player.game_money}`
             `*Cards:* \n${game_functions.print_cards(this.community_cards)}`
           );
           this.current_bet = 0;
-          this.reset_players_status();
+          this.jumpToButton();
+          this.resetPlayersStatus();
           this.moveAction();
           break;
 
@@ -174,15 +205,15 @@ Stack: $${current_player.game_money}`
             `*Cards:* \n${game_functions.print_cards(this.community_cards)}`
           );
           this.current_bet = 0;
-          this.reset_players_status();
+          this.jumpToButton();
+          this.resetPlayersStatus();
           this.moveAction();
           break;
 
         // Showdown
         case 5:
           game_functions.showdown(this);
-          this.community_cards = [];
-          this.reset_players_status();
+          this.initRound(whatsapp, this.chat.name);
           break;
       }
     } else {
@@ -191,23 +222,18 @@ Stack: $${current_player.game_money}`
     }
   }
 
-  jump_to_button() {
+  resetPlayersStatus() {
     let current = this.order.current_player;
-    while (!current.is_button) {
-      current = current.next_player;
-    }
-    this.order.current_player = current;
-  }
-
-  reset_players_status() {
-    this.jump_to_button();
-    let current = this.order.current_player;
-
     do {
-      current.is_played = false;
+      current.hole_cards = [];
+      current.hand_score = { str: undefined, cards: [] };
       current.current_bet = 0;
+      current.is_all_in = false;
+      current.is_folded = false;
+      current.is_played = false;
       current = current.next_player;
     } while (!current.is_button);
   }
 }
+
 module.exports = Game;

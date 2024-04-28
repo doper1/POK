@@ -50,6 +50,10 @@ class LinkedList {
 
     return output;
   }
+
+  next() {
+    this.current_player = this.current_player.next_player;
+  }
 }
 
 module.exports = { LinkedList };

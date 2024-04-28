@@ -22,7 +22,8 @@ function emote(emojies) {
 }
 
 function is_allowed(game, message) {
-  if (game.order.current_player.phone_number != message.author) {
+  let phone_number = format_phone_number(message.author);
+  if (game.order.current_player.phone_number != phone_number) {
     // Current player check
     message.react("😬");
     game.chat.sendMessage(`It's not your turn,
@@ -37,10 +38,15 @@ it's ${game.order.current_player.name} turn`);
   return true;
 }
 
+function format_phone_number(phone_number) {
+  return phone_number.replace(/:\d+@/, "@");
+}
+
 module.exports = {
   shuffleArray,
   sort_cards,
   hasTwoWords,
   emote,
   is_allowed,
+  format_phone_number,
 };

@@ -10,8 +10,8 @@ module.exports.strength_dict = {
   8: "Pair",
   9: "High Card",
 };
-module.exports.SB = 10;
-module.exports.BB = 20;
+module.exports.small_blind = 1;
+module.exports.big_blind = 2;
 module.exports.help_pre_game = `Possible Commands:
 --------------
 ♠️ pok help 

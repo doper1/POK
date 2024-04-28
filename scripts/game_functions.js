@@ -166,22 +166,22 @@ function is_one_pair(cards) {
 function update_hand_str(game, player) {
   player.hand_score = {};
   if ((game.type = 1)) {
-    let tmpcards = [];
+    let tmp_cards = [];
     // adds comm cards and player cards
-    for (let i = 0; i < game.CommunityCards.length; i++)
-      tmpcards.push(game.CommunityCards[i]);
+    for (let i = 0; i < game.community_cards.length; i++)
+      tmp_cards.push(game.community_cards[i]);
     for (let i = 0; i < player.hole_cards.length; i++)
-      tmpcards.push(player.hole_cards[i]);
+      tmp_cards.push(player.hole_cards[i]);
 
     // parses cards to numbers J:11 Q:12 K:13 A:14...
-    for (let i = 0; i < tmpcards.length; i++)
-      tmpcards[i] = parseCardNumber(tmpcards[i]);
+    for (let i = 0; i < tmp_cards.length; i++)
+      tmp_cards[i] = parseCardNumber(tmp_cards[i]);
 
     //sorts from highest to lowest to determine calculation of hand highest = better
-    tmpcards = sort_cards(tmpcards);
+    tmp_cards = sort_cards(tmp_cards);
 
-    if (is_straight_flush(tmpcards) != false) {
-      let str_flush = is_straight(is_flush(tmpcards));
+    if (is_straight_flush(tmp_cards) != false) {
+      let str_flush = is_straight(is_flush(tmp_cards));
       let type = str_flush[0][0];
       if (
         isCardInCards([type, 13], str_flush) &&
@@ -189,26 +189,26 @@ function update_hand_str(game, player) {
       )
         player.hand_score = { str: 0, cards: str_flush }; //royal flush
       else player.hand_score = { str: 1, cards: str_flush };
-    } else if (is_four_of_a_kind(tmpcards) != false)
-      player.hand_score = { str: 2, cards: is_four_of_a_kind(tmpcards) };
-    else if (is_full_house(tmpcards) != false)
-      player.hand_score = { str: 3, cards: is_full_house(tmpcards) };
-    else if (is_flush(tmpcards) != false)
-      player.hand_score = { str: 4, cards: is_flush(tmpcards) };
-    else if (is_straight(tmpcards) != false)
-      player.hand_score = { str: 5, cards: is_straight(tmpcards) };
-    else if (is_three_of_a_kind(tmpcards) != false)
-      player.hand_score = { str: 6, cards: is_three_of_a_kind(tmpcards) };
-    else if (is_two_pair(tmpcards) != false)
-      player.hand_score = { str: 7, cards: is_two_pair(tmpcards) };
-    else if (is_one_pair(tmpcards) != false)
-      player.hand_score = { str: 8, cards: is_one_pair(tmpcards) };
-    else player.hand_score = { str: 9, cards: tmpcards };
+    } else if (is_four_of_a_kind(tmp_cards) != false)
+      player.hand_score = { str: 2, cards: is_four_of_a_kind(tmp_cards) };
+    else if (is_full_house(tmp_cards) != false)
+      player.hand_score = { str: 3, cards: is_full_house(tmp_cards) };
+    else if (is_flush(tmp_cards) != false)
+      player.hand_score = { str: 4, cards: is_flush(tmp_cards) };
+    else if (is_straight(tmp_cards) != false)
+      player.hand_score = { str: 5, cards: is_straight(tmp_cards) };
+    else if (is_three_of_a_kind(tmp_cards) != false)
+      player.hand_score = { str: 6, cards: is_three_of_a_kind(tmp_cards) };
+    else if (is_two_pair(tmp_cards) != false)
+      player.hand_score = { str: 7, cards: is_two_pair(tmp_cards) };
+    else if (is_one_pair(tmp_cards) != false)
+      player.hand_score = { str: 8, cards: is_one_pair(tmp_cards) };
+    else player.hand_score = { str: 9, cards: tmp_cards };
 
     // if cards <5 adds highest
-    for (let i = 0; i < tmpcards.length; i++)
+    for (let i = 0; i < tmp_cards.length; i++)
       if (player.hand_score.cards.length < 5) {
-        let cardToAdd = tmpcards[i];
+        let cardToAdd = tmp_cards[i];
         if (!isCardInCards(cardToAdd, player.hand_score.cards)) {
           player.hand_score.cards.push(cardToAdd);
         }
@@ -231,67 +231,64 @@ function update_hand_str(game, player) {
  * @example dict = {[0:player1], [4:player3], [8,[player4,player5]] }
  */
 function calc_strength(game) {
-  let strlist = [];
+  let strength_list = [];
   for (phone in game.players) {
-    strlist.push([game.players[phone].hand_score.str, game.players[phone]]);
+    update_hand_str(game, game.players[phone]);
+    strength_list.push([
+      game.players[phone].hand_score.str,
+      game.players[phone],
+    ]);
   }
-  strlist = strlist.slice().sort((a, b) => a[0] - b[0]);
+  strength_list = strength_list.slice().sort((a, b) => a[0] - b[0]);
   // works till here
 
-  for (let i = 0; i < strlist.length - 1; i++) {
-    console.log(
-      strlist[i][0],
-      strlist[i][1].name,
-      strlist[i][1].hand_score.cards
-    );
-    console.log(
-      strlist[i + 1][0],
-      strlist[i + 1][1].name,
-      strlist[i + 1][1].hand_score.cards
-    );
-    if (strlist[i][0] === strlist[i + 1][0]) {
+  for (let i = 0; i < strength_list.length - 1; i++) {
+    game.chat.sendMessage(`${strength_list[i][1].name} Won with:
+${constants.strength_dict[strength_list[i][0]]}`);
+
+    if (strength_list[i][0] === strength_list[i + 1][0]) {
       let count = 0;
       for (let j = 0; j < 5; j++) {
         if (
-          strlist[i][1].hand_score.cards[j] <
-          strlist[i + 1][1].hand_score.cards[j]
+          strength_list[i][1].hand_score.cards[j] <
+          strength_list[i + 1][1].hand_score.cards[j]
         ) {
-          let temp = strlist[i];
-          strlist[i][1] = strlist[i + 1][1];
-          strlist[i + 1][1] = temp;
+          let temp = strength_list[i];
+          strength_list[i][1] = strength_list[i + 1][1];
+          strength_list[i + 1][1] = temp;
           break;
         } else if (
-          strlist[i][1].hand_score.cards[j] >
-          strlist[i + 1][1].hand_score.cards[j]
+          strength_list[i][1].hand_score.cards[j] >
+          strength_list[i + 1][1].hand_score.cards[j]
         )
           break;
         else count++;
       }
       if (count === 5) {
-        strlist[i][1] = [strlist[i][1], strlist[i + 1][1]];
-        strlist.splice(i + 1, i + 1);
+        strength_list[i][1] = [strength_list[i][1], strength_list[i + 1][1]];
+        strength_list.splice(i + 1, i + 1);
       }
     }
   }
   //
-  let dstrlist = Object.fromEntries(strlist);
+  let dstrength_list = Object.fromEntries(strength_list);
   //
-  return dstrlist;
+  return dstrength_list;
 }
 
 function showdown(game) {
-  let msg = "פורמט הודעות x ניצח... ------\n";
-  let strength_dict = calc_strength(game); //{1-9 :[players]}
-  let ind = 1;
+  let msg = "";
+  let strength_dict = calc_strength(game);
+  //{1-9 :[players]}
   // add current players? // and can split to two loops to seperate winners and losers
-  for (strength in strength_dict) {
-    for (player in strength_dict[strength])
-      if (!player.is_folded) {
-        //.... add check game pot... and above
-      }
-  }
-  // need to reset curbet?
-  game.chat.send(msg);
+  // for (strength in strength_dict) {
+  //   for (player in strength_dict[strength])
+  //     if (!player.is_folded) {
+  //       msg += `${player}`;
+  //.... add check game pot... and above
+  //   }
+  //}
+  //game.chat.sendMessage(msg);
 }
 
 module.exports = {
