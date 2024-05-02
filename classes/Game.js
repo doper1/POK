@@ -6,7 +6,8 @@ let game_functions = require("../scripts/game_functions");
 
 // Classes
 let Player = require("./Player");
-let { LinkedList } = require("./LinkedList");
+let LinkedList = require("./LinkedList");
+let Pot = require("./Pot");
 
 class Game {
   constructor(id, chat) {
@@ -14,12 +15,11 @@ class Game {
     this.chat = chat;
     this.players = {};
     this.order = new LinkedList();
-    this.pot = 0;
+    this.pot = 0; //new Pot();
     this.current_bet = 0;
-    this.all_ins = {}; // {phone_number: [120, 0], phone_number2: [pot, 50] } if(all_in.length != 0 ) -> call/raise + player.bet {Adam(id): [200, 0], Ben(id): [260, 0], Elad)id): [320, 30]}
     this.deck = [];
-    this.type = 1; // for Omaha chap or more // 1,2,3
-    this.community_cards = []; //  if 0 and round end -> 3
+    this.type = 1; // for Omaha // 1,2,3
+    this.community_cards = [];
     this.is_midround = false;
     this.folds = 0;
   }
@@ -31,6 +31,14 @@ class Game {
 
   getPlayers() {
     return this.players;
+  }
+
+  getIsMidround() {
+    return this.is_midround;
+  }
+
+  setIsMidround(newMidround) {
+    this.is_midround = newMidround;
   }
 
   getPlayersPretty() {
@@ -48,9 +56,9 @@ class Game {
     let order_string = "";
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
       if (current_player.is_button) {
-        order_string += `\n${i}. ${current_player.name} ⚪`;
+        order_string += `\n_${i}. ${current_player.name} ⚪_`;
       } else {
-        order_string += `\n${i}. ${current_player.name}`;
+        order_string += `\n_${i}. ${current_player.name}_`;
       }
       current_player = current_player.next_player;
     }
@@ -60,12 +68,11 @@ class Game {
     this.deck = general_functions.shuffleArray(constants.deck);
     let current = this.order.current_player;
     do {
-      current.setHoleCards(this.deck.pop(), this.deck.pop());
+      current.setHoleCards(...this.deck.splice(-2));
       whatsapp.sendMessage(
         current.phone_number,
         `*Cards:* ${game_functions.print_cards(current.getHoleCards())}
-*Stack:* $${current.game_money}
--------------
+*-------------*
 *${chat_name}*`
       );
       current = current.next_player;
@@ -73,6 +80,7 @@ class Game {
     this.resetPlayersStatus();
     this.community_cards = [];
     this.folds = 0;
+    this.pot = 0;
     this.moveButton();
     if (Object.keys(this.players).length === 2) {
       this.order.next();
@@ -92,22 +100,6 @@ Action on @${this.order.current_player.contact.id.user} ($${
     );
   }
 
-  setType() {
-    this.type = this.type; // for omaha
-  }
-
-  getIsMidround() {
-    return this.is_midround;
-  }
-
-  setIsMidround(newMidround) {
-    this.is_midround = newMidround;
-  }
-
-  getOrder() {
-    return this.order;
-  }
-
   generateOrder() {
     let players = general_functions.shuffleArray(Object.values(this.players));
     for (let i = 0; i < players.length; i++) {
@@ -121,6 +113,7 @@ Action on @${this.order.current_player.contact.id.user} ($${
     current.next_player = this.order.current_player;
     this.order.current_player.is_button = true;
   }
+
   jumpToButton() {
     let current = this.order.current_player;
     while (!current.is_button) {
@@ -174,40 +167,63 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
       // Flop
       switch (this.community_cards.length) {
         case 0:
-          this.community_cards.push(this.deck.pop());
-          this.community_cards.push(this.deck.pop());
-          this.community_cards.push(this.deck.pop());
-          this.chat.sendMessage(
-            `*Cards:* \n${game_functions.print_cards(this.community_cards)}`
-          );
+          this.community_cards.push(...this.deck.splice(-3));
+
           this.current_bet = 0;
-          this.jumpToButton();
           this.resetPlayersStatus();
-          this.moveAction();
+          this.order.next();
+          this.chat.sendMessage(
+            `*Cards:* \n${game_functions.print_cards(this.community_cards)}
+-------------
+Pot: $${this.pot}
+-------------
+Action on @${this.order.current_player.contact.id.user} ($${
+              this.order.current_player.game_money
+            })`,
+            {
+              mentions: [this.order.current_player.contact.id._serialized],
+            }
+          );
           break;
 
         // Turn
         case 3:
           this.community_cards.push(this.deck.pop());
-          this.chat.sendMessage(
-            `*Cards:* \n${game_functions.print_cards(this.community_cards)}`
-          );
           this.current_bet = 0;
-          this.jumpToButton();
           this.resetPlayersStatus();
-          this.moveAction();
+          this.order.next();
+          this.chat.sendMessage(
+            `*Cards:* \n${game_functions.print_cards(this.community_cards)}
+-------------
+Pot: $${this.pot}
+-------------
+Action on @${this.order.current_player.contact.id.user} ($${
+              this.order.current_player.game_money
+            })`,
+            {
+              mentions: [this.order.current_player.contact.id._serialized],
+            }
+          );
           break;
 
         // River
         case 4:
           this.community_cards.push(this.deck.pop());
-          this.chat.sendMessage(
-            `*Cards:* \n${game_functions.print_cards(this.community_cards)}`
-          );
           this.current_bet = 0;
-          this.jumpToButton();
           this.resetPlayersStatus();
-          this.moveAction();
+          this.order.next();
+          this.chat.sendMessage(
+            `*Cards:* \n${game_functions.print_cards(this.community_cards)}
+-------------
+Pot: $${this.pot}
+-------------
+Action on @${this.order.current_player.contact.id.user} ($${
+              this.order.current_player.game_money
+            })`,
+            {
+              mentions: [this.order.current_player.contact.id._serialized],
+            }
+          );
           break;
 
         // Showdown
@@ -223,6 +239,7 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
   }
 
   resetPlayersStatus() {
+    this.jumpToButton();
     let current = this.order.current_player;
     do {
       current.hole_cards = [];

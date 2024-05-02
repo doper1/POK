@@ -1,13 +1,11 @@
-let Player = require("./Player");
-
 class LinkedList {
   constructor() {
     this.current_player = null;
   }
   append(player) {
-    const newPlayer = player;
+    const new_player = player;
     if (!this.current_player) {
-      this.current_player = newPlayer;
+      this.current_player = new_player;
       return;
     }
 
@@ -15,13 +13,13 @@ class LinkedList {
     while (current.next_player) {
       current = current.next_player;
     }
-    current.next_player = newPlayer;
+    current.next_player = new_player;
   }
 
-  insertAfterCurrent(newPlayer) {
+  insertAfterCurrent(new_player) {
     let nextPlayer = this.current_player.next_player;
-    this.current_player.next_player = newPlayer;
-    newPlayer.next_player = nextPlayer;
+    this.current_player.next_player = new_player;
+    new_player.next_player = nextPlayer;
   }
 
   visualize() {
@@ -56,4 +54,4 @@ class LinkedList {
   }
 }
 
-module.exports = { LinkedList };
+module.exports = LinkedList;

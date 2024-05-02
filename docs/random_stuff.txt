@@ -17,5 +17,9 @@ chat.sendMessage(`Hello @${contact.id.user}`, {
   });
 
 
+Pop cards from the deck into the hole/community cards:
+this.community_cards.push(...this.deck.splice(-3)
+
+
 
       

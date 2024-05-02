@@ -15,6 +15,7 @@ function join(games, chat_id, message, full_name, contact, chat) {
   } else if (games[chat_id].is_midround === true) {
     games[chat_id].addPlayer(full_name, phone_number, contact);
     games[chat_id].players[phone_number].is_folded = true;
+    game.folds++;
     games[chat_id].order.insertAfterCurrent(
       games[chat_id].players[phone_number]
     );
@@ -104,7 +105,6 @@ function end(games, chat_id, message) {
 function check(game, message) {
   if (general_functions.is_allowed(game, message)) {
     if (game.current_bet === game.order.current_player.current_bet) {
-      game.chat.sendMessage(`${game.order.current_player.name} checked`);
       return true;
     } else {
       message.reply(
@@ -112,79 +112,51 @@ function check(game, message) {
           game.current_bet - game.order.current_player.current_bet
         } more)`
       );
+      return false;
     }
   }
 }
 
 function raise(game, message, user_msg) {
   if (general_functions.is_allowed(game, message)) {
-    if (user_msg.length === 4) {
-      if (user_msg[2] === "all" && user_msg[3] === "in") {
-        game.pot += game.order.current_player.game_money;
-        game.order.current_player.current_bet +=
-          game.order.current_player.game_money;
-        game.current_bet +=
-          game.order.current_player.game_money -
-          (game.current_bet - game.order.current_player.current_bet);
-        game.order.current_player.game_money = 0;
-        game.order.current_player.is_all_in = true;
-        game.chat.sendMessage(
-          `${game.order.current_player.name.split(" ")[0]} raised ALL IN ($${
-            game.order.current_player.current_bet
-          })`
-        );
-        return true;
-        // Finish the full all in system // NOT WORKING
-      }
-    } else if (user_msg.length === 3) {
-      if (user_msg[2] === "all") {
-        game_function.all_in(game, user_msg);
-      } else if (!Number.isInteger(Number(user_msg[2]))) {
-        message.reply(
-          `You need to specify a numerical raise amount (e.g. pok raise 100)
-        or either raise all in (e. pok raise all in)`
-        );
-      } else if (
-        game.current_bet >
-        Number(user_msg[2]) + game.order.current_player.current_bet
-      ) {
-        message.reply(
-          `You need to call, or raise at least $${
-            game.current_bet - game.order.current_player.current_bet
-          } more`
-        );
-      } else {
-        let amount = Number(user_msg[2]);
-        game.order.current_player.game_money -= amount;
-        game.pot += amount;
-        game.current_bet +=
-          amount - (game.current_bet - game.order.current_player.current_bet);
-        game.chat.sendMessage(
-          `${game.order.current_player.name.split(" ")[0]} raised $${amount}`
-        );
-        game.order.current_player.current_bet = game.current_bet;
-        return true;
-      }
+    let amount = Number(user_msg[2]);
+
+    if (user_msg[2] === "all") {
+      game_function.all_in(game, user_msg);
+      return true;
+    } else if (!Number.isInteger(amount)) {
+      message.reply(
+        "Specify a number (e.g. 'pok raise 100') or 'all in' (e.g. 'pok raise all in')."
+      );
+      return false;
+    } else if (
+      game.current_bet >
+      amount + game.order.current_player.current_bet
+    ) {
+      message.reply(
+        `You need to call, or raise at least $${
+          game.current_bet - game.order.current_player.current_bet
+        } more`
+      );
+      return false;
     } else {
-      message.react(general_functions.emote(constants.mistake_emojies));
-      message.reply(`You need to specify a raise amount`);
+      game.order.current_player.game_money -= amount;
+      game.pot += amount;
+      game.current_bet +=
+        amount - (game.current_bet - game.order.current_player.current_bet);
+      game.order.current_player.current_bet = game.current_bet;
+      return true;
     }
   }
 }
 
 //Fold
-function fold(game, message, full_name) {
+function fold(game, message) {
   if (general_functions.is_allowed(game, message)) {
-    if (game.current_bet === game.order.current_player.current_bet) {
-      game.chat.sendMessage(`No one bet so you don't need to fold`);
-    } else {
-      message.react(general_functions.emote(constants.fold_emojies));
-      game.chat.sendMessage(`${full_name.split(" ")[0]} folded`);
-
-      game.order.current_player.is_folded = true;
-      game.folds += 1;
-      return true;
-    }
+    message.react(general_functions.emote(constants.fold_emojies));
+    game.order.current_player.is_folded = true;
+    game.folds++;
+    return true;
   }
 }
 
@@ -192,14 +164,12 @@ function call(game, message) {
   if (general_functions.is_allowed(game, message)) {
     if (game.current_bet === game.order.current_player.current_bet) {
       game.chat.sendMessage(`No one bet so you don't need to call`);
+      return false;
     } else {
       let amount = game.current_bet - game.order.current_player.current_bet;
       game.order.current_player.game_money -= amount;
       game.pot += amount;
       game.order.current_player.current_bet = game.current_bet;
-      game.chat.sendMessage(
-        `${game.order.current_player.name.split(" ")[0]} called $${amount}`
-      );
       return true;
     }
   }
