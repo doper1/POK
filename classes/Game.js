@@ -15,8 +15,7 @@ class Game {
     this.chat = chat;
     this.players = {};
     this.order = new LinkedList();
-    this.pot = 0; //new Pot();
-    this.current_bet = 0;
+    this.pot = new Pot();
     this.deck = [];
     this.type = 1; // for Omaha // 1,2,3
     this.community_cards = [];
@@ -66,6 +65,7 @@ class Game {
   }
   initRound(whatsapp, chat_name) {
     this.deck = general_functions.shuffleArray(constants.deck);
+    this.jumpToButton();
     let current = this.order.current_player;
     do {
       current.setHoleCards(...this.deck.splice(-2));
@@ -80,20 +80,24 @@ class Game {
     this.resetPlayersStatus();
     this.community_cards = [];
     this.folds = 0;
-    this.pot = 0;
+    this.pot = new Pot();
     this.moveButton();
     if (Object.keys(this.players).length === 2) {
       this.order.next();
     }
     this.putBlinds();
     this.chat.sendMessage(
-      `${this.getOrderPretty()}
+      `Check your DM for your cards 🤫
 ----------------
-Check your DM for your cards 🤫);
+${this.getOrderPretty()}
+----------------
+Pot: $${this.pot.main_pot}
 ----------------
 Action on @${this.order.current_player.contact.id.user} ($${
         this.order.current_player.game_money
-      })`,
+      })
+----------------
+$${this.pot.current_bet - this.order.current_player.current_bet} to call`,
       {
         mentions: [this.order.current_player.contact.id._serialized],
       }
@@ -129,115 +133,103 @@ Action on @${this.order.current_player.contact.id.user} ($${
     this.order.current_player.is_button = true;
   }
 
-  moveAction() {
+  moveAction(action_message) {
     this.order.next();
-    this.chat.sendMessage(
-      `Pot: $${this.pot}
+    if (this.pot.current_bet - this.order.current_player.current_bet != 0) {
+      this.chat.sendMessage(
+        `${action_message}
+-------------
+Pot: $${this.pot.main_pot}
+-------------
+Action on @${this.order.current_player.contact.id.user} ($${
+          this.order.current_player.game_money
+        })
+-------------
+$${this.pot.current_bet - this.order.current_player.current_bet} to call`,
+        {
+          mentions: [this.order.current_player.contact.id._serialized],
+        }
+      );
+    } else {
+      this.chat.sendMessage(
+        `${action_message}
+-------------
+Pot: $${this.pot.main_pot}
 -------------
 Action on @${this.order.current_player.contact.id.user} ($${this.order.current_player.game_money})`,
-      {
-        mentions: [this.order.current_player.contact.id._serialized],
-      }
-    );
+        {
+          mentions: [this.order.current_player.contact.id._serialized],
+        }
+      );
+    }
   }
 
   putBlinds() {
-    this.current_bet = constants.big_blind;
+    this.pot.main_pot += constants.small_blind + constants.big_blind;
+    this.pot.current_bet = constants.big_blind;
+
     this.order.next();
     this.order.current_player.game_money -= constants.small_blind;
     this.order.current_player.current_bet = constants.small_blind;
     this.order.next();
     this.order.current_player.game_money -= constants.big_blind;
     this.order.current_player.current_bet = constants.big_blind;
-    this.pot += constants.small_blind + constants.big_blind;
     this.order.next();
   }
 
-  updateRound(whatsapp) {
-    if (this.folds === Object.keys(this.players).length - 1) {
+  updateRound(whatsapp, action_message) {
+    if (this.pot.all_ins.length + 1 >= Object.keys(this.players).length) {
+      this.moveRound(whatsapp);
+      this.updateRound(whatsapp, action_message);
+    } else if (this.folds === Object.keys(this.players).length - 1) {
+      this.pot.reorgAllIns();
       game_functions.showdown(this);
       this.initRound(whatsapp, this.chat.name);
-    } else if (this.order.current_player.next_player.is_folded) {
+    } else if (
+      this.order.current_player.next_player.is_folded ||
+      this.order.current_player.next_player.is_all_in
+    ) {
       this.order.next();
       this.updateRound();
     } else if (
       this.order.current_player.next_player.is_played &&
-      this.order.current_player.next_player.current_bet === this.current_bet
+      this.order.current_player.next_player.current_bet === this.pot.current_bet
     ) {
-      // Flop
-      switch (this.community_cards.length) {
-        case 0:
-          this.community_cards.push(...this.deck.splice(-3));
-
-          this.current_bet = 0;
-          this.resetPlayersStatus();
-          this.order.next();
-          this.chat.sendMessage(
-            `*Cards:* \n${game_functions.print_cards(this.community_cards)}
--------------
-Pot: $${this.pot}
--------------
-Action on @${this.order.current_player.contact.id.user} ($${
-              this.order.current_player.game_money
-            })`,
-            {
-              mentions: [this.order.current_player.contact.id._serialized],
-            }
-          );
-          break;
-
-        // Turn
-        case 3:
-          this.community_cards.push(this.deck.pop());
-          this.current_bet = 0;
-          this.resetPlayersStatus();
-          this.order.next();
-          this.chat.sendMessage(
-            `*Cards:* \n${game_functions.print_cards(this.community_cards)}
--------------
-Pot: $${this.pot}
--------------
-Action on @${this.order.current_player.contact.id.user} ($${
-              this.order.current_player.game_money
-            })`,
-            {
-              mentions: [this.order.current_player.contact.id._serialized],
-            }
-          );
-          break;
-
-        // River
-        case 4:
-          this.community_cards.push(this.deck.pop());
-          this.current_bet = 0;
-          this.resetPlayersStatus();
-          this.order.next();
-          this.chat.sendMessage(
-            `*Cards:* \n${game_functions.print_cards(this.community_cards)}
--------------
-Pot: $${this.pot}
--------------
-Action on @${this.order.current_player.contact.id.user} ($${
-              this.order.current_player.game_money
-            })`,
-            {
-              mentions: [this.order.current_player.contact.id._serialized],
-            }
-          );
-          break;
-
-        // Showdown
-        case 5:
-          game_functions.showdown(this);
-          this.initRound(whatsapp, this.chat.name);
-          break;
-      }
+      this.moveRound(whatsapp);
     } else {
       this.order.current_player.is_played = true;
-      this.moveAction();
+      this.moveAction(action_message);
     }
   }
 
+  moveRound(whatsapp) {
+    switch (this.community_cards.length) {
+      // Flop
+      case 0:
+        this.community_cards.push(...this.deck.splice(-3));
+        this.resetRound();
+        break;
+
+      // Turn
+      case 3:
+        this.community_cards.push(this.deck.pop());
+        this.resetRound();
+        break;
+
+      // River
+      case 4:
+        this.community_cards.push(this.deck.pop());
+        this.resetRound();
+        break;
+
+      // Showdown
+      case 5:
+        this.pot.reorgAllIns();
+        game_functions.showdown(this);
+        this.initRound(whatsapp, this.chat.name);
+        break;
+    }
+  }
   resetPlayersStatus() {
     this.jumpToButton();
     let current = this.order.current_player;
@@ -250,6 +242,46 @@ Action on @${this.order.current_player.contact.id.user} ($${
       current.is_played = false;
       current = current.next_player;
     } while (!current.is_button);
+  }
+
+  resetRound() {
+    this.pot.last_round_pot = this.pot.main_pot;
+    this.pot.current_bet = 0;
+    this.pot.current_round_bets = [];
+    this.pot.all_ins.forEach((all_in) => {
+      all_in.current_bet = -1;
+    });
+    this.resetPlayersStatus();
+    this.order.next();
+    if (this.pot.current_bet - this.order.current_player.current_bet != 0) {
+      this.chat.sendMessage(
+        `*Cards:* \n${game_functions.print_cards(this.community_cards)}
+-------------
+Pot: $${this.pot.main_pot}
+-------------
+Action on @${this.order.current_player.contact.id.user} ($${
+          this.order.current_player.game_money
+        })
+-------------
+$${this.pot.current_bet - this.order.current_player.current_bet} to call`,
+        {
+          mentions: [this.order.current_player.contact.id._serialized],
+        }
+      );
+    } else {
+      this.chat.sendMessage(
+        `*Cards:* \n${game_functions.print_cards(this.community_cards)}
+-------------
+Pot: $${this.pot.main_pot}
+-------------
+Action on @${this.order.current_player.contact.id.user} ($${
+          this.order.current_player.game_money
+        })`,
+        {
+          mentions: [this.order.current_player.contact.id._serialized],
+        }
+      );
+    }
   }
 }
 

@@ -2,6 +2,7 @@
 let Game = require("../classes/Game");
 let general_functions = require("./general_functions");
 let constants = require("../constants");
+let game_functions = require("./game_functions");
 
 // pok join (the game)
 function join(games, chat_id, message, full_name, contact, chat) {
@@ -104,12 +105,12 @@ function end(games, chat_id, message) {
 
 function check(game, message) {
   if (general_functions.is_allowed(game, message)) {
-    if (game.current_bet === game.order.current_player.current_bet) {
+    if (game.pot.current_bet === game.order.current_player.current_bet) {
       return true;
     } else {
       message.reply(
         `You need to call ($${
-          game.current_bet - game.order.current_player.current_bet
+          game.pot.current_bet - game.order.current_player.current_bet
         } more)`
       );
       return false;
@@ -121,8 +122,8 @@ function raise(game, message, user_msg) {
   if (general_functions.is_allowed(game, message)) {
     let amount = Number(user_msg[2]);
 
-    if (user_msg[2] === "all") {
-      game_function.all_in(game, user_msg);
+    if (user_msg[1] === "all" || user_msg[2] === "all") {
+      game_functions.all_in(game);
       return true;
     } else if (!Number.isInteger(amount)) {
       message.reply(
@@ -130,21 +131,37 @@ function raise(game, message, user_msg) {
       );
       return false;
     } else if (
-      game.current_bet >
+      game.pot.current_bet >
       amount + game.order.current_player.current_bet
     ) {
       message.reply(
         `You need to call, or raise at least $${
-          game.current_bet - game.order.current_player.current_bet
+          game.pot.current_bet - game.order.current_player.current_bet
         } more`
       );
       return false;
     } else {
       game.order.current_player.game_money -= amount;
-      game.pot += amount;
-      game.current_bet +=
-        amount - (game.current_bet - game.order.current_player.current_bet);
-      game.order.current_player.current_bet = game.current_bet;
+      if (game.order.current_player.game_money === 0) {
+        game.order.current_player.is_all_in = true;
+        game.order.current_player.is_played = true;
+      }
+      game.pot.main_pot += amount;
+      game.pot.current_round_bets.push(amount);
+      game.pot.current_bet +=
+        amount + game.order.current_player.current_bet - game.pot.current_bet;
+
+      game.pot.all_ins.forEach((all_in) => {
+        if (
+          all_in.current_bet === -1 ||
+          game.order.current_player.current_bet >= all_in.current_bet
+        )
+          return;
+
+        all_in.pot +=
+          all_in.current_bet - game.order.current_player.current_bet;
+      });
+      game.order.current_player.current_bet = game.pot.current_bet;
       return true;
     }
   }
@@ -162,14 +179,29 @@ function fold(game, message) {
 
 function call(game, message) {
   if (general_functions.is_allowed(game, message)) {
-    if (game.current_bet === game.order.current_player.current_bet) {
+    if (game.pot.current_bet === game.order.current_player.current_bet) {
       game.chat.sendMessage(`No one bet so you don't need to call`);
       return false;
     } else {
-      let amount = game.current_bet - game.order.current_player.current_bet;
+      let amount = game.pot.current_bet - game.order.current_player.current_bet;
       game.order.current_player.game_money -= amount;
-      game.pot += amount;
-      game.order.current_player.current_bet = game.current_bet;
+      if (game.order.current_player.game_money === 0) {
+        game.order.current_player.is_all_in = true;
+        game.order.current_player.is_played = true;
+      }
+      game.pot.main_pot += amount;
+      game.pot.current_round_bets.push(amount);
+      game.pot.all_ins.forEach((all_in) => {
+        if (
+          all_in.current_bet === -1 ||
+          game.order.current_player.current_bet >= all_in.current_bet
+        )
+          return;
+
+        all_in.pot +=
+          all_in.current_bet - game.order.current_player.current_bet;
+      });
+      game.order.current_player.current_bet = game.pot.current_bet;
       return true;
     }
   }

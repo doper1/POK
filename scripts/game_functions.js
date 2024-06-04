@@ -189,22 +189,23 @@ function update_hand_str(game, player) {
       )
         player.hand_score = { str: 0, cards: str_flush }; //royal flush
       else player.hand_score = { str: 1, cards: str_flush };
-    } else if (is_four_of_a_kind(tmp_cards) != false)
+    } else if (is_four_of_a_kind(tmp_cards))
       player.hand_score = { str: 2, cards: is_four_of_a_kind(tmp_cards) };
-    else if (is_full_house(tmp_cards) != false)
+    else if (is_full_house(tmp_cards))
       player.hand_score = { str: 3, cards: is_full_house(tmp_cards) };
-    else if (is_flush(tmp_cards) != false)
+    else if (is_flush(tmp_cards))
       player.hand_score = { str: 4, cards: is_flush(tmp_cards) };
-    else if (is_straight(tmp_cards) != false)
+    else if (is_straight(tmp_cards))
       player.hand_score = { str: 5, cards: is_straight(tmp_cards) };
-    else if (is_three_of_a_kind(tmp_cards) != false)
+    else if (is_three_of_a_kind(tmp_cards))
       player.hand_score = { str: 6, cards: is_three_of_a_kind(tmp_cards) };
-    else if (is_two_pair(tmp_cards) != false)
+    else if (is_two_pair(tmp_cards))
       player.hand_score = { str: 7, cards: is_two_pair(tmp_cards) };
-    else if (is_one_pair(tmp_cards) != false)
+    else if (is_one_pair(tmp_cards))
       player.hand_score = { str: 8, cards: is_one_pair(tmp_cards) };
     else player.hand_score = { str: 9, cards: tmp_cards };
 
+    console.log(tmp_cards, is_one_pair(tmp_cards));
     // if cards <5 adds highest
     for (let i = 0; i < tmp_cards.length; i++)
       if (player.hand_score.cards.length < 5) {
@@ -270,25 +271,65 @@ ${constants.strength_dict[strength_list[i][0]]}`);
       }
     }
   }
-  //
   let dstrength_list = Object.fromEntries(strength_list);
-  //
   return dstrength_list;
 }
 
 function showdown(game) {
-  let msg = "";
-  let strength_dict = calc_strength(game);
-  //{1-9 :[players]}
-  // add current players? // and can split to two loops to seperate winners and losers
-  // for (strength in strength_dict) {
-  //   for (player in strength_dict[strength])
-  //     if (!player.is_folded) {
-  //       msg += `${player}`;
-  //.... add check game pot... and above
-  //   }
-  //}
+  let losers = [];
+  let winners = [];
+  let msg = "Pot: " + game.pot + "\n\n";
+
+  let strength_array = calc_strength(game);
+  for (let i = 0; i < strength_array.length; i++) {
+    if (typeof strength_array[i] == Array)
+      for (let j = 0; j < strength_array[i].length; j++) {
+        if (strength_array[i][j].is_folded) losers.push(strength_array[i][j]);
+        else if (winners.length < 1) winners.push(strength_array[i][j]);
+        else losers.push(strength_array[i][j]);
+      }
+    else {
+      if (strength_array[i][1].is_folded) losers.push(strength_array[i][1]);
+      else if (winners.length < 1) winners.push(strength_array[i][1]);
+      else losers.push(strength_array[i][1]);
+    }
+  }
+  for (let i = 0; i < winners.length; i++) {
+    msg += `${winners[i].name} Won ${winners[i].game_money} with ${
+      constants.strength_dict[winners[i].hand_score.str]
+    }\n ${print_cards(winners[i].hand_score.cards)} \n;`;
+  }
+
+  for (let j = 0; j < losers.length; j++) {
+    if (losers[j].is_folded) {
+      msg += `${losers[j].name} Lost ${losers[j].game_money} By Fold`;
+    } else {
+      msg += `${losers[j].name} Lost ${losers[j].game_money} with ${
+        constants.strength_dict[losers[j].hand_score.str]
+      }\n ${print_cards(losers[j].hand_score.cards)} \n`;
+    }
+  }
+
   //game.chat.sendMessage(msg);
+}
+
+function all_in(game) {
+  let current = game.order.current_player;
+
+  current.is_all_in = true;
+  current.is_played = true;
+  game.pot.main_pot += current.game_money;
+  game.pot.current_round_bets.push(current.game_money);
+
+  if (current.game_money + current.current_bet > game.pot.current_bet)
+    game.pot.current_bet +=
+      current.game_money + current.current_bet - game.pot.current_bet;
+
+  current.current_bet = game.pot.current_bet;
+  current.game_money = 0;
+
+  game.pot.addAllIn(game);
+  return true;
 }
 
 module.exports = {
@@ -310,4 +351,5 @@ module.exports = {
   isCardInCards,
   calc_strength,
   showdown,
+  all_in,
 };
