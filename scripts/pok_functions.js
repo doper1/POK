@@ -16,7 +16,7 @@ function join(games, chat_id, message, full_name, contact, chat) {
   } else if (games[chat_id].is_midround === true) {
     games[chat_id].addPlayer(full_name, phone_number, contact);
     games[chat_id].players[phone_number].is_folded = true;
-    game.folds++;
+    games[chat_id].folds++;
     games[chat_id].order.insertAfterCurrent(
       games[chat_id].players[phone_number]
     );

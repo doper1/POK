@@ -63,11 +63,12 @@ class Game {
     }
     return `*Playing Order:* ${order_string}`;
   }
-  initRound(whatsapp, chat_name) {
+  initRound(whatsapp, chat_name, last_round_message = "") {
     this.deck = general_functions.shuffleArray(constants.deck);
     this.jumpToButton();
     let current = this.order.current_player;
     do {
+      current.hole_cards = [];
       current.setHoleCards(...this.deck.splice(-2));
       whatsapp.sendMessage(
         current.phone_number,
@@ -86,22 +87,41 @@ class Game {
       this.order.next();
     }
     this.putBlinds();
-    this.chat.sendMessage(
-      `Check your DM for your cards 🤫
+    if (last_round_message === "") {
+      this.chat.sendMessage(
+        `Check your DM for your cards 🤫
 ----------------
 ${this.getOrderPretty()}
 ----------------
 Pot: $${this.pot.main_pot}
 ----------------
 Action on @${this.order.current_player.contact.id.user} ($${
-        this.order.current_player.game_money
-      })
+          this.order.current_player.game_money
+        })
 ----------------
 $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
-      {
-        mentions: [this.order.current_player.contact.id._serialized],
-      }
-    );
+        {
+          mentions: [this.order.current_player.contact.id._serialized],
+        }
+      );
+    } else {
+      this.chat.sendMessage(
+        `${last_round_message}
+----------------
+${this.getOrderPretty()}
+----------------
+Pot: $${this.pot.main_pot}
+----------------
+Action on @${this.order.current_player.contact.id.user} ($${
+          this.order.current_player.game_money
+        })
+----------------
+$${this.pot.current_bet - this.order.current_player.current_bet} to call`,
+        {
+          mentions: [this.order.current_player.contact.id._serialized],
+        }
+      );
+    }
   }
 
   generateOrder() {
@@ -183,8 +203,15 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
       this.updateRound(whatsapp, action_message);
     } else if (this.folds === Object.keys(this.players).length - 1) {
       this.pot.reorgAllIns();
-      game_functions.showdown(this);
-      this.initRound(whatsapp, this.chat.name);
+      while (this.order.current_player.is_folded) {
+        this.order.next();
+      }
+      this.order.current_player.game_money += this.pot.main_pot;
+      this.initRound(
+        whatsapp,
+        this.chat.name,
+        `${this.order.current_player.name} Won $${this.pot.main_pot}`
+      );
     } else if (
       this.order.current_player.next_player.is_folded ||
       this.order.current_player.next_player.is_all_in
@@ -225,8 +252,8 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
       // Showdown
       case 5:
         this.pot.reorgAllIns();
-        game_functions.showdown(this);
-        this.initRound(whatsapp, this.chat.name);
+        let end_message = game_functions.showdown(this);
+        this.initRound(whatsapp, this.chat.name, end_message);
         break;
     }
   }
@@ -234,7 +261,6 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
     this.jumpToButton();
     let current = this.order.current_player;
     do {
-      current.hole_cards = [];
       current.hand_score = { str: undefined, cards: [] };
       current.current_bet = 0;
       current.is_all_in = false;
@@ -253,7 +279,16 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
     });
     this.resetPlayersStatus();
     this.order.next();
-    if (this.pot.current_bet - this.order.current_player.current_bet != 0) {
+    if (this.pot.all_ins.length + 1 >= Object.keys(this.players).length) {
+      this.chat.sendMessage(
+        `*Cards:* \n${game_functions.print_cards(this.community_cards)}
+-------------
+Pot: $${this.pot.main_pot}`
+      );
+    } else if (
+      this.pot.current_bet - this.order.current_player.current_bet !=
+      0
+    ) {
       this.chat.sendMessage(
         `*Cards:* \n${game_functions.print_cards(this.community_cards)}
 -------------

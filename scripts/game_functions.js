@@ -167,11 +167,11 @@ function update_hand_str(game, player) {
   player.hand_score = {};
   if ((game.type = 1)) {
     let tmp_cards = [];
+
     // adds comm cards and player cards
-    for (let i = 0; i < game.community_cards.length; i++)
-      tmp_cards.push(game.community_cards[i]);
-    for (let i = 0; i < player.hole_cards.length; i++)
-      tmp_cards.push(player.hole_cards[i]);
+    tmp_cards = [...game.community_cards];
+    tmp_cards.push(player.hole_cards[0]);
+    tmp_cards.push(player.hole_cards[1]);
 
     // parses cards to numbers J:11 Q:12 K:13 A:14...
     for (let i = 0; i < tmp_cards.length; i++)
@@ -189,23 +189,22 @@ function update_hand_str(game, player) {
       )
         player.hand_score = { str: 0, cards: str_flush }; //royal flush
       else player.hand_score = { str: 1, cards: str_flush };
-    } else if (is_four_of_a_kind(tmp_cards))
+    } else if (is_four_of_a_kind(tmp_cards) != false)
       player.hand_score = { str: 2, cards: is_four_of_a_kind(tmp_cards) };
-    else if (is_full_house(tmp_cards))
+    else if (is_full_house(tmp_cards) != false)
       player.hand_score = { str: 3, cards: is_full_house(tmp_cards) };
-    else if (is_flush(tmp_cards))
+    else if (is_flush(tmp_cards) != false)
       player.hand_score = { str: 4, cards: is_flush(tmp_cards) };
-    else if (is_straight(tmp_cards))
+    else if (is_straight(tmp_cards) != false)
       player.hand_score = { str: 5, cards: is_straight(tmp_cards) };
-    else if (is_three_of_a_kind(tmp_cards))
+    else if (is_three_of_a_kind(tmp_cards) != false)
       player.hand_score = { str: 6, cards: is_three_of_a_kind(tmp_cards) };
-    else if (is_two_pair(tmp_cards))
+    else if (is_two_pair(tmp_cards) != false)
       player.hand_score = { str: 7, cards: is_two_pair(tmp_cards) };
-    else if (is_one_pair(tmp_cards))
+    else if (is_one_pair(tmp_cards) != false)
       player.hand_score = { str: 8, cards: is_one_pair(tmp_cards) };
     else player.hand_score = { str: 9, cards: tmp_cards };
 
-    console.log(tmp_cards, is_one_pair(tmp_cards));
     // if cards <5 adds highest
     for (let i = 0; i < tmp_cards.length; i++)
       if (player.hand_score.cards.length < 5) {
@@ -233,20 +232,16 @@ function update_hand_str(game, player) {
  */
 function calc_strength(game) {
   let strength_list = [];
-  for (phone in game.players) {
-    update_hand_str(game, game.players[phone]);
-    strength_list.push([
-      game.players[phone].hand_score.str,
-      game.players[phone],
-    ]);
-  }
+  game.jumpToButton();
+  let current = game.order.current_player;
+  do {
+    update_hand_str(game, current);
+    strength_list.push([current.hand_score.str, current]);
+    current = current.next_player;
+  } while (!current.is_button);
+
   strength_list = strength_list.slice().sort((a, b) => a[0] - b[0]);
-  // works till here
-
   for (let i = 0; i < strength_list.length - 1; i++) {
-    game.chat.sendMessage(`${strength_list[i][1].name} Won with:
-${constants.strength_dict[strength_list[i][0]]}`);
-
     if (strength_list[i][0] === strength_list[i + 1][0]) {
       let count = 0;
       for (let j = 0; j < 5; j++) {
@@ -270,45 +265,53 @@ ${constants.strength_dict[strength_list[i][0]]}`);
         strength_list.splice(i + 1, i + 1);
       }
     }
+    let dstrength_list = Object.fromEntries(strength_list);
+    return dstrength_list;
   }
-  let dstrength_list = Object.fromEntries(strength_list);
-  return dstrength_list;
 }
 
 function showdown(game) {
-  let losers = [];
-  let winners = [];
-  let msg = "Pot: " + game.pot + "\n\n";
+  let strength_list = calc_strength(game);
+  let message = `${Object.values(strength_list)[0].name} Won $${
+    game.pot.main_pot
+  } with ${print_cards(Object.values(strength_list)[0].hole_cards)}
+${constants.strength_dict[Object.keys(strength_list)[0]]} - ${print_cards(
+    Object.values(strength_list)[0].hand_score.cards
+  )}`;
 
-  let strength_array = calc_strength(game);
-  for (let i = 0; i < strength_array.length; i++) {
-    if (typeof strength_array[i] == Array)
-      for (let j = 0; j < strength_array[i].length; j++) {
-        if (strength_array[i][j].is_folded) losers.push(strength_array[i][j]);
-        else if (winners.length < 1) winners.push(strength_array[i][j]);
-        else losers.push(strength_array[i][j]);
-      }
-    else {
-      if (strength_array[i][1].is_folded) losers.push(strength_array[i][1]);
-      else if (winners.length < 1) winners.push(strength_array[i][1]);
-      else losers.push(strength_array[i][1]);
-    }
-  }
-  for (let i = 0; i < winners.length; i++) {
-    msg += `${winners[i].name} Won ${winners[i].game_money} with ${
-      constants.strength_dict[winners[i].hand_score.str]
-    }\n ${print_cards(winners[i].hand_score.cards)} \n;`;
-  }
+  game.players[Object.values(strength_list)[0].phone_number].game_money +=
+    game.pot.main_pot;
+  game.pot.main_pot = 0;
 
-  for (let j = 0; j < losers.length; j++) {
-    if (losers[j].is_folded) {
-      msg += `${losers[j].name} Lost ${losers[j].game_money} By Fold`;
-    } else {
-      msg += `${losers[j].name} Lost ${losers[j].game_money} with ${
-        constants.strength_dict[losers[j].hand_score.str]
-      }\n ${print_cards(losers[j].hand_score.cards)} \n`;
-    }
-  }
+  return message;
+  // f.pot.main_pot = 0; (let i = 0; i < strength_array.length; i++) {
+  //   if (typeof strength_array[i] == Array)
+  //     for (let j = 0; j < strength_array[i].length; j++) {
+  //       if (strength_array[i][j].is_folded) losers.push(strength_array[i][j]);
+  //       else if (winners.length < 1) winners.push(strength_array[i][j]);
+  //       else losers.push(strength_array[i][j]);
+  //     }
+  //   else {
+  //     if (strength_array[i][1].is_folded) losers.push(strength_array[i][1]);
+  //     else if (winners.length < 1) winners.push(strength_array[i][1]);
+  //     else losers.push(strength_array[i][1]);
+  //   }
+  // }
+  // for (let i = 0; i < winners.length; i++) {
+  //   msg += `${winners[i].name} Won ${winners[i].game_money} with ${
+  //     constants.strength_dict[winners[i].hand_score.str]
+  //   }\n ${print_cards(winners[i].hand_score.cards)} \n;`;
+  // }
+
+  // for (let j = 0; j < losers.length; j++) {
+  //   if (losers[j].is_folded) {
+  //     msg += `${losers[j].name} Lost ${losers[j].game_money} By Fold`;
+  //   } else {
+  //     msg += `${losers[j].name} Lost ${losers[j].game_money} with ${
+  //       constants.strength_dict[losers[j].hand_score.str]
+  //     }\n ${print_cards(losers[j].hand_score.cards)} \n`;
+  //   }
+  // }
 
   //game.chat.sendMessage(msg);
 }
