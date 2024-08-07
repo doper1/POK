@@ -34,8 +34,8 @@ whatsapp.on("message_create", async (msg) => {
   let chat_id = chat.id.user;
   let user_msg = message.body.toLowerCase().split(" ");
 
-  if (message.timestamp - Math.floor(Date.now() / 1000) > 10) return;
-  // Do not respond to messages older than 10 seconds
+  if (Math.floor(Date.now() / 1000) - message.timestamp > 10) return;
+  // Do not respond to messages older than 10 seconds NOT WORKING - maybe working now???
 
   if (user_msg[0] != "pok") return; // Do not respond to messages that do not start with "pok"
 
