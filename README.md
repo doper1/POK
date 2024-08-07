@@ -1,4 +1,4 @@
-# POK - Poker WhatsApp Bot
+# POK
 
 ![License](https://img.shields.io/github/license/doper1/POK)
 ![Issues](https://img.shields.io/github/issues/doper1/POK)
