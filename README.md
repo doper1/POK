@@ -36,7 +36,7 @@ npm install
 ### Run the Bot
 
 ```bash
-npm start
+npm run dev
 ```
 
 ## Usage
@@ -83,7 +83,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-For issues, questions, or feedback, feel free to open an issue on GitHub or contact the maintainer at [email@example.com](mailto:email@example.com).
+For issues, questions, or feedback, feel free to open an issue on GitHub
 
 ---
 
