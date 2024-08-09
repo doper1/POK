@@ -7,9 +7,6 @@ let constants = require("./constants");
 let pok_functions = require("./scripts/pok_functions");
 let general_functions = require("./scripts/general_functions");
 
-// Classes
-let game = require("./classes/Game");
-
 whatsapp = new Client({
   authStrategy: new LocalAuth(),
 });
@@ -20,10 +17,11 @@ whatsapp.on("qr", (qr) => {
   });
 });
 
-whatsapp.on("call", async (call) => {
-  await call.reject();
-  await whatsapp.sendMessage(call.from, `Don't call me, I'm just a bot :)`);
-});
+// Should not work while testing
+// whatsapp.on("call", async (call) => {
+//   await call.reject();
+//   await whatsapp.sendMessage(call.from, `Don't call me, I'm just a bot :)`);
+// });
 
 let games = {};
 whatsapp.on("message_create", async (msg) => {
@@ -34,8 +32,8 @@ whatsapp.on("message_create", async (msg) => {
   let chat_id = chat.id.user;
   let user_msg = message.body.toLowerCase().split(" ");
 
-  if (Math.floor(Date.now() / 1000) - message.timestamp > 10) return;
-  // Do not respond to messages older than 10 seconds NOT WORKING - maybe working now???
+  const message_age = Math.floor(Date.now() / 1000) - message.timestamp;
+  if (message_age > constants.message_timeout) return;
 
   if (user_msg[0] != "pok") return; // Do not respond to messages that do not start with "pok"
 

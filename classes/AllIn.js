@@ -1,8 +1,8 @@
 class AllIn {
   constructor(current_player, pot) {
-    this._players = [current_player];
-    this._pot = pot;
-    this._current_bet = current_player.current_bet;
+    this.players = [current_player];
+    this.pot = pot;
+    this.current_bet = current_player.current_bet;
   }
 
   get players() {
@@ -10,11 +10,11 @@ class AllIn {
   }
 
   get pot() {
-    return this._pot;
+    return this.pot;
   }
 
   set pot(pot) {
-    this._pot = pot;
+    this.pot = pot;
   }
 
   get current_bet() {
@@ -22,11 +22,11 @@ class AllIn {
   }
 
   set current_bet(current_bet) {
-    this._current_bet = current_bet;
+    this.current_bet = current_bet;
   }
 
   addPlayer(player) {
-    this._players.push(player);
+    this.players.push(player);
   }
 }
 

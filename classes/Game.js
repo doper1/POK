@@ -198,9 +198,17 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
   }
 
   updateRound(whatsapp, action_message) {
-    if (this.pot.all_ins.length + 1 >= Object.keys(this.players).length) {
-      this.moveRound(whatsapp);
-      this.updateRound(whatsapp, action_message);
+    let next_player = this.order.current_player.next_player;
+
+    if (this.pot.all_ins.length + 1 == Object.keys(this.players).length) {
+      if (
+        next_player.is_folded ||
+        next_player.is_all_in ||
+        next_player.current_bet == this.pot.current_bet
+      ) {
+        this.moveRound(whatsapp);
+        this.updateRound(whatsapp, "");
+      }
     } else if (this.folds === Object.keys(this.players).length - 1) {
       this.pot.reorgAllIns();
       while (this.order.current_player.is_folded) {
@@ -212,15 +220,12 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
         this.chat.name,
         `${this.order.current_player.name} Won $${this.pot.main_pot}`
       );
-    } else if (
-      this.order.current_player.next_player.is_folded ||
-      this.order.current_player.next_player.is_all_in
-    ) {
+    } else if (next_player.is_folded || next_player.is_all_in) {
       this.order.next();
       this.updateRound();
     } else if (
-      this.order.current_player.next_player.is_played &&
-      this.order.current_player.next_player.current_bet === this.pot.current_bet
+      next_player.is_played &&
+      next_player.current_bet === this.pot.current_bet
     ) {
       this.moveRound(whatsapp);
     } else {
@@ -317,6 +322,19 @@ Action on @${this.order.current_player.contact.id.user} ($${
         }
       );
     }
+  }
+
+  show_hands() {
+    this.jumpToButton();
+    let current = this.order.current_player;
+    let hands = "";
+    do {
+      current = current.next_player();
+      hands += game_functions.format_hand(current.name, current.hole_cards);
+      hands += "-------------";
+    } while (current.is_button == false);
+
+    return hands;
   }
 }
 

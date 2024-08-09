@@ -335,6 +335,10 @@ function all_in(game) {
   return true;
 }
 
+const format_hand = (player_name, hole_cards) => {
+  return `${player_name}: ${print_cards(hole_cards)}\n`;
+};
+
 module.exports = {
   print_cards,
   sort_cards,
@@ -344,7 +348,6 @@ module.exports = {
   is_straight_flush,
   is_four_of_a_kind,
   is_full_house,
-  is_flush,
   is_three_of_a_kind,
   is_two_pair,
   is_one_pair,
@@ -355,4 +358,5 @@ module.exports = {
   calc_strength,
   showdown,
   all_in,
+  format_hand,
 };

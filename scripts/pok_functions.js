@@ -12,7 +12,7 @@ function join(games, chat_id, message, full_name, contact, chat) {
     games[chat_id].addPlayer(full_name, phone_number, contact);
     message.reply(`_*${full_name}*_ has joined the game!`);
   } else if (games[chat_id].players[phone_number] !== undefined) {
-    message.reply("you have already joined!");
+    message.reply("You have already joined!");
   } else if (games[chat_id].is_midround === true) {
     games[chat_id].addPlayer(full_name, phone_number, contact);
     games[chat_id].players[phone_number].is_folded = true;

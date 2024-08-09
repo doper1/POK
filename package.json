@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,8 @@
     "qrcode-terminal": "^0.12.0",
     "whatsapp": "^0.0.5-Alpha",
     "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
-

@@ -1,3 +1,4 @@
+module.exports.message_timeout = 10;
 module.exports.strength_dict = {
   0: "Royal Flush",
   1: "Straight Flush",
