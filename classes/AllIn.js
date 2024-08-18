@@ -5,28 +5,28 @@ class AllIn {
     this.current_bet = current_player.current_bet;
   }
 
-  get players() {
+  getPlayers() {
     return this._players;
   }
 
-  get pot() {
-    return this.pot;
-  }
-
-  set pot(pot) {
+  setPot(pot) {
     this.pot = pot;
   }
 
-  get current_bet() {
-    return this._current_bet;
-  }
-
-  set current_bet(current_bet) {
-    this.current_bet = current_bet;
+  getCurrentBet() {
+    return this.current_bet;
   }
 
   addPlayer(player) {
     this.players.push(player);
+  }
+
+  getPot() {
+    return this.pot;
+  }
+
+  setCurrentBet(current_bet) {
+    this.current_bet = current_bet;
   }
 }
 

@@ -200,15 +200,10 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
   updateRound(whatsapp, action_message) {
     let next_player = this.order.current_player.next_player;
 
-    if (this.pot.all_ins.length + 1 == Object.keys(this.players).length) {
-      if (
-        next_player.is_folded ||
-        next_player.is_all_in ||
-        next_player.current_bet == this.pot.current_bet
-      ) {
-        this.moveRound(whatsapp);
-        this.updateRound(whatsapp, "");
-      }
+    // if (this.pot.all_ins.length + 1 == Object.keys(this.players).length) {
+    if (next_player.is_folded || next_player.is_all_in) {
+      this.moveRound(whatsapp);
+      this.updateRound(whatsapp, "");
     } else if (this.folds === Object.keys(this.players).length - 1) {
       this.pot.reorgAllIns();
       while (this.order.current_player.is_folded) {

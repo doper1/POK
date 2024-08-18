@@ -17,11 +17,10 @@ whatsapp.on("qr", (qr) => {
   });
 });
 
-// Should not work while testing
-// whatsapp.on("call", async (call) => {
-//   await call.reject();
-//   await whatsapp.sendMessage(call.from, `Don't call me, I'm just a bot :)`);
-// });
+whatsapp.on("call", async (call) => {
+  await call.reject();
+  await whatsapp.sendMessage(call.from, `Don't call me, I'm just a bot :)`);
+});
 
 let games = {};
 whatsapp.on("message_create", async (msg) => {
@@ -77,15 +76,19 @@ whatsapp.on("message_create", async (msg) => {
           );
         break;
       case "raise":
-        if (pok_functions.raise(games[chat_id], message, user_msg))
-          if (user_msg[2] === "all")
+        let raise_amount = Number(user_msg[2]);
+
+        if (user_msg[2] == "all") {
+          if (pok_functions.all_in(games[chat_id], message, user_msg)) {
             games[chat_id].updateRound(
               whatsapp,
               `${
                 games[chat_id].order.current_player.name
               } is ALL IN for $${games[chat_id].pot.current_round_bets.at(-1)}`
             );
-          else {
+          }
+        } else if (!Number.isNaN(raise_amount)) {
+          if (pok_functions.raise(games[chat_id], message, raise_amount)) {
             games[chat_id].updateRound(
               whatsapp,
               `${games[chat_id].order.current_player.name} raised $${games[
@@ -93,15 +96,19 @@ whatsapp.on("message_create", async (msg) => {
               ].pot.current_round_bets.at(-1)}`
             );
           }
+        } else {
+          message.reply("Enter either amount (e.g. 3) or 'all in'");
+        }
         break;
       case "all":
-        if (pok_functions.raise(games[chat_id], message, user_msg))
+        if (pok_functions.all_in(games[chat_id], message, user_msg)) {
           games[chat_id].updateRound(
             whatsapp,
             `${games[chat_id].order.current_player.name} is ALL IN for $${games[
               chat_id
             ].pot.current_round_bets.at(-1)}`
           );
+        }
         break;
       case "fold":
         if (pok_functions.fold(games[chat_id], message))

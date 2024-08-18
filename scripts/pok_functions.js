@@ -118,11 +118,10 @@ function check(game, message) {
   }
 }
 
-function raise(game, message, user_msg) {
+function raise(game, message, amount) {
+  let current = game.order.current_player;
   if (general_functions.is_allowed(game, message)) {
-    let amount = Number(user_msg[2]);
-
-    if (user_msg[1] === "all" || user_msg[2] === "all") {
+    if (current.game_money === amount) {
       game_functions.all_in(game);
       return true;
     } else if (!Number.isInteger(amount)) {
@@ -130,41 +129,56 @@ function raise(game, message, user_msg) {
         "Specify a number (e.g. 'pok raise 100') or 'all in' (e.g. 'pok raise all in')."
       );
       return false;
-    } else if (
-      game.pot.current_bet >
-      amount + game.order.current_player.current_bet
-    ) {
+    } else if (game.pot.current_bet > amount + current.current_bet) {
       message.reply(
         `You need to call, or raise at least $${
-          game.pot.current_bet - game.order.current_player.current_bet
+          game.pot.current_bet - current.current_bet
         } more`
       );
       return false;
+    } else if (current.game_money < amount) {
+      message.react(general_functions.emote(constants.mistake_emojies));
+      message.reply(`You only have $${current.game_money}...`);
+      return false;
     } else {
-      game.order.current_player.game_money -= amount;
-      if (game.order.current_player.game_money === 0) {
-        game.order.current_player.is_all_in = true;
-        game.order.current_player.is_played = true;
-      }
+      current.game_money -= amount;
+      current.is_played = true;
       game.pot.main_pot += amount;
       game.pot.current_round_bets.push(amount);
       game.pot.current_bet +=
-        amount + game.order.current_player.current_bet - game.pot.current_bet;
+        amount + current.current_bet - game.pot.current_bet;
 
+      current.current_bet = game.pot.current_bet;
       game.pot.all_ins.forEach((all_in) => {
         if (
           all_in.current_bet === -1 ||
-          game.order.current_player.current_bet >= all_in.current_bet
+          current.current_bet >= all_in.current_bet
         )
-          return;
+          return true;
 
-        all_in.pot +=
-          all_in.current_bet - game.order.current_player.current_bet;
+        all_in.pot += all_in.current_bet - current.current_bet;
       });
-      game.order.current_player.current_bet = game.pot.current_bet;
       return true;
     }
   }
+}
+
+function all_in(game) {
+  let current = game.order.current_player;
+  current.is_all_in = true;
+  current.is_played = true;
+  game.pot.main_pot += current.game_money;
+  game.pot.current_round_bets.push(current.game_money);
+
+  if (current.game_money + current.current_bet > game.pot.current_bet)
+    game.pot.current_bet +=
+      current.game_money + current.current_bet - game.pot.current_bet;
+
+  current.current_bet = game.pot.current_bet;
+  current.game_money = 0;
+
+  game.pot.addAllIn(game);
+  return true;
 }
 
 //Fold
@@ -207,4 +221,15 @@ function call(game, message) {
   }
 }
 
-module.exports = { join, show, exit, start, end, fold, check, raise, call };
+module.exports = {
+  join,
+  show,
+  exit,
+  start,
+  end,
+  fold,
+  check,
+  raise,
+  call,
+  all_in,
+};

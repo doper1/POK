@@ -316,25 +316,6 @@ ${constants.strength_dict[Object.keys(strength_list)[0]]} - ${print_cards(
   //game.chat.sendMessage(msg);
 }
 
-function all_in(game) {
-  let current = game.order.current_player;
-
-  current.is_all_in = true;
-  current.is_played = true;
-  game.pot.main_pot += current.game_money;
-  game.pot.current_round_bets.push(current.game_money);
-
-  if (current.game_money + current.current_bet > game.pot.current_bet)
-    game.pot.current_bet +=
-      current.game_money + current.current_bet - game.pot.current_bet;
-
-  current.current_bet = game.pot.current_bet;
-  current.game_money = 0;
-
-  game.pot.addAllIn(game);
-  return true;
-}
-
 const format_hand = (player_name, hole_cards) => {
   return `${player_name}: ${print_cards(hole_cards)}\n`;
 };
@@ -357,6 +338,5 @@ module.exports = {
   isCardInCards,
   calc_strength,
   showdown,
-  all_in,
   format_hand,
 };
