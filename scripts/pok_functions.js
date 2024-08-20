@@ -2,7 +2,6 @@
 let Game = require("../classes/Game");
 let general_functions = require("./general_functions");
 let constants = require("../constants");
-let game_functions = require("./game_functions");
 
 // pok join (the game)
 function join(games, chat_id, message, full_name, contact, chat) {
@@ -20,7 +19,7 @@ function join(games, chat_id, message, full_name, contact, chat) {
     games[chat_id].order.insertAfterCurrent(
       games[chat_id].players[phone_number]
     );
-    message.reply(`${full_name} have joined the game!
+    message.reply(`_*${full_name}*_ have joined the game!
     Wait for the next round`);
   } else {
     games[chat_id].addPlayer(full_name, phone_number, contact);
@@ -122,7 +121,7 @@ function raise(game, message, amount) {
   let current = game.order.current_player;
   if (general_functions.is_allowed(game, message)) {
     if (current.game_money === amount) {
-      game_functions.all_in(game);
+      all_in(game);
       return true;
     } else if (!Number.isInteger(amount)) {
       message.reply(
