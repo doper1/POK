@@ -2,13 +2,14 @@
   "name": "POK",
   "version": "1.0.0",
   "description": "Poker bot for whatsapp",
+  "type": "commonjs",
   "main": "index.js",
   "directories": {
-    "doc": "docs"
+    "doc": "/docs"
   },
   "scripts": {
-    "dev": "node index.js",
-    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "start": "node --watch index.js",
     "test": "jest"
   },
   "repository": {
@@ -18,7 +19,8 @@
   "keywords": [
     "Poker",
     "chatbot",
-    "whatsapp"
+    "whatsapp",
+    "POK"
   ],
   "author": "Adam",
   "license": "MIT",

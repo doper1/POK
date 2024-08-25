@@ -1,4 +1,4 @@
-//let constants = require("../constants");
+let constants = require("../constants");
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
@@ -17,22 +17,33 @@ function hasTwoWords(string) {
   return /^\S+\s+\S+$/.test(string);
 }
 
-function emote(emojies) {
-  return emojies[Math.floor(Math.random() * emojies.length)];
+/** Choose a random emoji from the wanted emoji type
+ *  @param {String} emoji_type - type from the EMOJIES constant.
+ *  - Can handle both lower case and UPPER case */
+function emote(emoji_type) {
+  emoji_type = emoji_type.toUpperCase();
+  if (!constants.EMOJIES.hasOwnProperty(emoji_type)) {
+    throw new Error(`Emoji type '${emoji_type}' doesn't exists`);
+  } else {
+    let random_index = Math.floor(
+      Math.random() * constants.EMOJIES[emoji_type].length
+    );
+    return constants.EMOJIES[emoji_type][random_index];
+  }
 }
 
 function is_allowed(game, message) {
   let phone_number = format_phone_number(message.author);
   if (game.order.current_player.phone_number != phone_number) {
     // Current player check
-    message.react("😬");
+    message.react(emote("mistake"));
     game.chat.sendMessage(`It's not your turn,
 it's ${game.order.current_player.name} turn`);
     return false;
   } else if (game.order.current_player.is_folded) {
     // Fold check
-    message.react("😬");
-    game.chat.sendMessage(`You already folded`);
+    message.react(emote("mistake"));
+    game.chat.sendMessage(`You've already folded`);
     return false;
   }
   return true;

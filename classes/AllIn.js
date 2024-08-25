@@ -1,32 +1,32 @@
 class AllIn {
-  constructor(current_player, pot) {
-    this.players = [current_player];
-    this.pot = pot;
-    this.current_bet = current_player.current_bet;
+  constructor(players, pot, current_bet) {
+    this._players = players;
+    this._pot = pot;
+    this._current_bet = current_bet;
   }
 
-  getPlayers() {
+  get players() {
     return this._players;
   }
 
-  setPot(pot) {
-    this.pot = pot;
-  }
-
-  getCurrentBet() {
-    return this.current_bet;
-  }
-
   addPlayer(player) {
-    this.players.push(player);
+    this._players.push(player);
   }
 
-  getPot() {
-    return this.pot;
+  get pot() {
+    return this._pot;
   }
 
-  setCurrentBet(current_bet) {
-    this.current_bet = current_bet;
+  set pot(pot) {
+    this._pot = pot;
+  }
+
+  get current_bet() {
+    return this._current_bet;
+  }
+
+  set current_bet(current_bet) {
+    this._current_bet = current_bet;
   }
 }
 

@@ -1,5 +1,5 @@
-module.exports.message_timeout = 10;
-module.exports.strength_dict = {
+module.exports.MESSAGE_TIMEOUT = 10;
+module.exports.STRENGTH_DICT = {
   0: "Royal Flush",
   1: "Straight Flush",
   2: "Four of a Kind",
@@ -11,9 +11,9 @@ module.exports.strength_dict = {
   8: "Pair",
   9: "High Card",
 };
-module.exports.small_blind = 1;
-module.exports.big_blind = 2;
-module.exports.help_pre_game = `Possible Commands:
+module.exports.SMALL_BLIND = 1;
+module.exports.BIG_BLIND = 2;
+module.exports.HELP_PRE_GAME = `Possible Commands:
 --------------
 ♠️ pok help 
 ♥️ pok join
@@ -21,7 +21,7 @@ module.exports.help_pre_game = `Possible Commands:
 ♦️ pok exit
 ♠️ pok start`;
 
-module.exports.help_in_game = `Possible Commands (in game):
+module.exports.HELP_IN_GAME = `Possible Commands (in game):
 --------------
 ♠️ pok check
 ♥️ pok call
@@ -33,7 +33,7 @@ module.exports.help_in_game = `Possible Commands (in game):
 ♦️ pok exit
 ♠️ pok end`;
 
-module.exports.deck = [
+module.exports.DECK = [
   ["♦️", "2"],
   ["♦️", "3"],
   ["♦️", "4"],
@@ -88,6 +88,9 @@ module.exports.deck = [
   ["♠️", "A"],
 ];
 
-module.exports.fold_emojies = ["☹️", "😒", "🤒", "🤕", "😵", "😪", "😬", "😩"];
-module.exports.start_emojies = ["🥹", "😎", "😋", "🥳", "🤩", "🤠", "🤗", "😛"];
-module.exports.mistake_emojies = ["🫠", "😬", "🧐", "😳", "😑", "🤤", "🥴"];
+module.exports.EMOJIES = {
+  FOLD: ["☹️", "😒", "🤒", "🤕", "😵", "😪", "😬", "😩"],
+  HAPPY: ["🥹", "😎", "😋", "🥳", "🤩", "🤠", "🤗", "😛"],
+  MISTAKE: ["🫠", "😬", "🧐", "😳", "😑", "🤤", "🥴"],
+  SAD: ["😔", "😕", "🙁", "😫", "😖", "🙄", "😪"],
+};

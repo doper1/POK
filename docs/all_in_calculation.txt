@@ -1,0 +1,57 @@
+The all in has a complex architecture that is supported by few classes:
+
+Pot
+-----
+- Each game (group chat) has a single instance of Pot.
+- The purpose of the pot instance is to store all the related data to the "money on the table",
+  while the data on the each player money holding is saved at the own player instance 
+
+Pot properties:
+---------------
+main_pot: int = The total money in the pot
+
+last_round_pot: int = The total money in the pot of the last betting round
+
+all_ins: list = A list of all the all ins (more details explanation in a moment)
+
+current_bet: int = The highest bet of the current round which everyone should be either equal to at the end of the round or all in
+
+current_rounde_bets: list = List of all the bets in the current betting round
+
+AllIn
+-----
+- New AllIn instance is created whenever player goes all in
+- Each AllIn instance is tracking the players that have to possiblity to win
+  the pot including the current all in bet, the pot to this point, and the
+  raise the player who went all in did.
+
+AllIn properties
+---------------
+players: list = the players that are competing for the pot including the all in
+
+pot: int = the money the player with the best hand between the competing players will win
+
+current_bet: int = the bet amount that created the all in instance
+
+
+Flow chart
+---------------
+
+1. Player goes all in (raise all his game money/pok raise all/ pok all)
+
+2. The player is marked as 'all_in' and 'is_played' and his money is added into the pot and so on
+
+3. An AllIn instance is created under pot with the amount the player who put the all in is able to access
+
+4. Whenver a new 'All In' is happening the, all ins list is updates and reorganized is someone with less money went all in after somebody with more money.
+   Whenver a new raise is happening, if the current bet before this one wasn't enought to cover the current round all ins current bet- the amount
+   is added to the current round all in the fit this criteria.
+
+5. At the end of the river- a winner is checked for each individual winner, and his money counts goes up until all money is distributed and the main pot
+   is empty. Then, the amounts the winners got will be printed using the regular printing templates (hand, hand type, cards and amount)
+   The order the winner per pot is checked is from the first all in (the lowest one) to the last all in (the highest one).
+
+6. At the same round of the all in, if a player after the all in calls or reraise the all in- the amount that calls the all in is added to the current all in pot.
+   This operation happens for all the all ins that accured on the current round.
+
+20 | 10 , 20 ,10 (60) | 10 10 (20)

@@ -5,7 +5,7 @@ let { Client, LocalAuth } = require("whatsapp-web.js");
 // Scripts
 let constants = require("./constants");
 let pok_functions = require("./scripts/pok_functions");
-let general_functions = require("./scripts/general_functions");
+let { emote } = require("./scripts/general_functions");
 
 whatsapp = new Client({
   authStrategy: new LocalAuth(),
@@ -31,109 +31,95 @@ whatsapp.on("message_create", async (msg) => {
   let chat_id = chat.id.user;
   let user_msg = message.body.toLowerCase().split(" ");
 
+  // Prevents response to all messages
   const message_age = Math.floor(Date.now() / 1000) - message.timestamp;
-  if (message_age > constants.message_timeout) return;
+  if (message_age > constants.MESSAGE_TIMEOUT) return;
 
-  if (user_msg[0] != "pok") return; // Do not respond to messages that do not start with "pok"
+  // Prevents response to unrelated messages in groups the bot is a member of
+  if (user_msg[0] != "pok") return;
 
-  if (contact.pushname === undefined) {
-    // Prevent crushes when the user does not have a whatsapp name
+  // Prevent crushes when the user does not have a whatsapp name
+  if (contact.pushname == undefined) {
     full_name = contact.id.user;
   } else {
     full_name = contact.pushname;
   }
 
-  // Answer only when message starts with "pok"
-  if (!(games[chat_id] != undefined && games[chat_id].is_midround)) {
-    // Before the game starts
+  let game = games[chat_id];
+  if (!(game != undefined && game.is_midround)) {
+    // Before a game starts
     switch (user_msg[1]) {
       case "help":
-        message.reply(constants.help_pre_game);
+        message.reply(constants.HELP_PRE_GAME);
         break;
       case "join":
         pok_functions.join(games, chat_id, message, full_name, contact, chat);
         break;
       case "show":
-        pok_functions.show(games, chat_id, message);
+        pok_functions.show(game, message);
         break;
       case "exit":
         pok_functions.exit(games, chat_id, message, full_name);
         break;
       case "start":
-        pok_functions.start(games, chat_id, message, whatsapp, chat);
+        pok_functions.start(game, message, whatsapp, chat);
         break;
       default:
-        message.reply(constants.help_pre_game);
+        message.reply(constants.HELP_PRE_GAME);
     }
   } else {
-    // During the game
+    let current = game.order.current_player;
+    let raise_amount;
+
+    // During a game
     switch (user_msg[1]) {
       case "check":
-        if (pok_functions.check(games[chat_id], message))
-          games[chat_id].updateRound(
-            whatsapp,
-            `${games[chat_id].order.current_player.name} checked`
-          );
+        if (pok_functions.check(game, message))
+          game.updateRound(whatsapp, `${current.name} checked`);
         break;
       case "raise":
-        let raise_amount = Number(user_msg[2]);
+        raise_amount = Number(user_msg[2]);
 
-        if (user_msg[2] == "all") {
-          if (pok_functions.all_in(games[chat_id], message, user_msg)) {
-            games[chat_id].updateRound(
-              whatsapp,
-              `${
-                games[chat_id].order.current_player.name
-              } is ALL IN for $${games[chat_id].pot.current_round_bets.at(-1)}`
-            );
-          }
-        } else if (!Number.isNaN(raise_amount)) {
-          if (pok_functions.raise(games[chat_id], message, raise_amount)) {
-            games[chat_id].updateRound(
-              whatsapp,
-              `${games[chat_id].order.current_player.name} raised $${games[
-                chat_id
-              ].pot.current_round_bets.at(-1)}`
-            );
-          }
-        } else {
-          message.reply("Enter either amount (e.g. 3) or 'all in'");
+        if (
+          (user_msg[2] == "all" || current.game_money == raise_amount) &&
+          pok_functions.all_in(game, message, user_msg)
+        ) {
+          game.updateRound(
+            whatsapp,
+            `${current.name} is ALL IN for $${raise_amount}`
+          );
+        } else if (pok_functions.raise(game, message, raise_amount)) {
+          game.updateRound(whatsapp, `${current.name} raised $${raise_amount}`);
         }
         break;
       case "all":
-        if (pok_functions.all_in(games[chat_id], message, user_msg)) {
-          games[chat_id].updateRound(
+        raise_amount = game.order.current_player.game_money;
+
+        if (pok_functions.all_in(game, message, user_msg)) {
+          game.updateRound(
             whatsapp,
-            `${games[chat_id].order.current_player.name} is ALL IN for $${games[
-              chat_id
-            ].pot.current_round_bets.at(-1)}`
+            `${current.name} is ALL IN for $${raise_amount} more (total ${current.current_bet})`
           );
         }
         break;
       case "fold":
-        if (pok_functions.fold(games[chat_id], message))
-          games[chat_id].updateRound(
-            whatsapp,
-            `${games[chat_id].order.current_player.name} folded`
-          );
+        if (pok_functions.fold(game, message))
+          game.updateRound(whatsapp, `${current.name} folded`);
         break;
       case "call":
-        if (pok_functions.call(games[chat_id], message))
-          games[chat_id].updateRound(
-            whatsapp,
-            `${games[chat_id].order.current_player.name} calls $${games[
-              chat_id
-            ].pot.current_round_bets.at(-1)}`
-          );
+        let call_amount =
+          game.pot.current_bet - game.order.current_player.current_bet;
+        if (pok_functions.call(game, message))
+          game.updateRound(whatsapp, `${current.name} calls $${call_amount}`);
         break;
       case "help":
-        message.reply(constants.help_in_game);
+        message.reply(constants.HELP_IN_GAME);
         break;
       case "join":
         pok_functions.join(games, chat_id, message, full_name, contact, chat);
         break;
       case "show":
-        pok_functions.show(games, chat_id, message);
+        pok_functions.show(game, message);
         break;
       case "exit":
         pok_functions.exit(games, chat_id, message, contact);
@@ -142,11 +128,11 @@ whatsapp.on("message_create", async (msg) => {
         pok_functions.end(games, chat_id, message);
         break;
       default:
-        if (user_msg[1] === "start") {
-          message.react(general_functions.emote(constants.mistake_emojies));
+        if (user_msg[1] == "start") {
+          message.react(emote("mistake"));
           message.reply("There is a game in progress");
         } else {
-          message.reply(constants.help_in_game);
+          message.reply(constants.HELP_IN_GAME);
         }
     }
   }

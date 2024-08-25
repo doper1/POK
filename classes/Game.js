@@ -50,21 +50,29 @@ class Game {
   }
 
   getOrderPretty() {
-    // Should be a squere at the end
-    let current_player = this.order.current_player;
+    let current = this.order.current_player;
     let order_string = "";
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
-      if (current_player.is_button) {
-        order_string += `\n_${i}. ${current_player.name} ⚪_`;
+      if (current === this.order.current_player) {
+        order_string += `\n${i}. *${current.name}*`;
+      } else if (current.is_folded) {
+        order_string += `\n${i}. ~${current.name}~`;
       } else {
-        order_string += `\n_${i}. ${current_player.name}_`;
+        order_string += `\n${i}. ${current.name}`;
       }
-      current_player = current_player.next_player;
+      if (current.is_button) {
+        order_string += " ⚪";
+      }
+      if (current.is_all_in) {
+        order_string += " 🔴";
+      }
+      current = current.next_player;
     }
-    return `*Playing Order:* ${order_string}`;
+    return `*Pot:* $${this.pot.main_pot}\n\n*Playing Order:* ${order_string}`;
   }
+
   initRound(whatsapp, chat_name, last_round_message = "") {
-    this.deck = general_functions.shuffleArray(constants.deck);
+    this.deck = general_functions.shuffleArray(constants.DECK);
     this.jumpToButton();
     let current = this.order.current_player;
     do {
@@ -73,7 +81,7 @@ class Game {
       whatsapp.sendMessage(
         current.phone_number,
         `*Cards:* ${game_functions.print_cards(current.getHoleCards())}
-*-------------*
+
 *${chat_name}*`
       );
       current = current.next_player;
@@ -83,22 +91,18 @@ class Game {
     this.folds = 0;
     this.pot = new Pot();
     this.moveButton();
-    if (Object.keys(this.players).length === 2) {
+    if (Object.keys(this.players).length == 2) {
       this.order.next();
     }
     this.putBlinds();
-    if (last_round_message === "") {
+    if (last_round_message == "") {
       this.chat.sendMessage(
         `Check your DM for your cards 🤫
-----------------
-${this.getOrderPretty()}
-----------------
-Pot: $${this.pot.main_pot}
-----------------
+
 Action on @${this.order.current_player.contact.id.user} ($${
           this.order.current_player.game_money
         })
-----------------
+
 $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
         {
           mentions: [this.order.current_player.contact.id._serialized],
@@ -106,16 +110,16 @@ $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
       );
     } else {
       this.chat.sendMessage(
-        `${last_round_message}
-----------------
+        `Pot: $${this.pot.main_pot}
+
+${last_round_message}
+
 ${this.getOrderPretty()}
-----------------
-Pot: $${this.pot.main_pot}
-----------------
+
 Action on @${this.order.current_player.contact.id.user} ($${
           this.order.current_player.game_money
         })
-----------------
+
 $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
         {
           mentions: [this.order.current_player.contact.id._serialized],
@@ -157,14 +161,14 @@ $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
     this.order.next();
     if (this.pot.current_bet - this.order.current_player.current_bet != 0) {
       this.chat.sendMessage(
-        `${action_message}
--------------
-Pot: $${this.pot.main_pot}
--------------
+        `Pot: $${this.pot.main_pot}
+
+${action_message}
+
 Action on @${this.order.current_player.contact.id.user} ($${
           this.order.current_player.game_money
         })
--------------
+
 $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
         {
           mentions: [this.order.current_player.contact.id._serialized],
@@ -172,10 +176,10 @@ $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
       );
     } else {
       this.chat.sendMessage(
-        `${action_message}
--------------
-Pot: $${this.pot.main_pot}
--------------
+        `Pot: $${this.pot.main_pot}
+
+${action_message}
+
 Action on @${this.order.current_player.contact.id.user} ($${this.order.current_player.game_money})`,
         {
           mentions: [this.order.current_player.contact.id._serialized],
@@ -185,15 +189,15 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
   }
 
   putBlinds() {
-    this.pot.main_pot += constants.small_blind + constants.big_blind;
-    this.pot.current_bet = constants.big_blind;
+    this.pot.main_pot += constants.SMALL_BLIND + constants.BIG_BLIND;
+    this.pot.current_bet = constants.BIG_BLIND;
 
     this.order.next();
-    this.order.current_player.game_money -= constants.small_blind;
-    this.order.current_player.current_bet = constants.small_blind;
+    this.order.current_player.game_money -= constants.SMALL_BLIND;
+    this.order.current_player.current_bet = constants.SMALL_BLIND;
     this.order.next();
-    this.order.current_player.game_money -= constants.big_blind;
-    this.order.current_player.current_bet = constants.big_blind;
+    this.order.current_player.game_money -= constants.BIG_BLIND;
+    this.order.current_player.current_bet = constants.BIG_BLIND;
     this.order.next();
   }
 
@@ -204,7 +208,7 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
     if (next_player.is_folded || next_player.is_all_in) {
       this.moveRound(whatsapp);
       this.updateRound(whatsapp, "");
-    } else if (this.folds === Object.keys(this.players).length - 1) {
+    } else if (this.folds == Object.keys(this.players).length - 1) {
       this.pot.reorgAllIns();
       while (this.order.current_player.is_folded) {
         this.order.next();
@@ -220,7 +224,7 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
       this.updateRound();
     } else if (
       next_player.is_played &&
-      next_player.current_bet === this.pot.current_bet
+      next_player.current_bet == this.pot.current_bet
     ) {
       this.moveRound(whatsapp);
     } else {
@@ -273,7 +277,6 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
   resetRound() {
     this.pot.last_round_pot = this.pot.main_pot;
     this.pot.current_bet = 0;
-    this.pot.current_round_bets = [];
     this.pot.all_ins.forEach((all_in) => {
       all_in.current_bet = -1;
     });
@@ -281,23 +284,23 @@ Action on @${this.order.current_player.contact.id.user} ($${this.order.current_p
     this.order.next();
     if (this.pot.all_ins.length + 1 >= Object.keys(this.players).length) {
       this.chat.sendMessage(
-        `*Cards:* \n${game_functions.print_cards(this.community_cards)}
--------------
-Pot: $${this.pot.main_pot}`
+        `Pot: $${this.pot.main_pot}
+
+*Cards:* \n${game_functions.print_cards(this.community_cards)}`
       );
     } else if (
       this.pot.current_bet - this.order.current_player.current_bet !=
       0
     ) {
       this.chat.sendMessage(
-        `*Cards:* \n${game_functions.print_cards(this.community_cards)}
--------------
-Pot: $${this.pot.main_pot}
--------------
+        `Pot: $${this.pot.main_pot}
+
+*Cards:* \n${game_functions.print_cards(this.community_cards)}
+
 Action on @${this.order.current_player.contact.id.user} ($${
           this.order.current_player.game_money
         })
--------------
+
 $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
         {
           mentions: [this.order.current_player.contact.id._serialized],
@@ -305,10 +308,10 @@ $${this.pot.current_bet - this.order.current_player.current_bet} to call`,
       );
     } else {
       this.chat.sendMessage(
-        `*Cards:* \n${game_functions.print_cards(this.community_cards)}
--------------
-Pot: $${this.pot.main_pot}
--------------
+        `Pot: $${this.pot.main_pot}
+
+*Cards:* \n${game_functions.print_cards(this.community_cards)}
+
 Action on @${this.order.current_player.contact.id.user} ($${
           this.order.current_player.game_money
         })`,
@@ -325,8 +328,10 @@ Action on @${this.order.current_player.contact.id.user} ($${
     let hands = "";
     do {
       current = current.next_player();
-      hands += game_functions.format_hand(current.name, current.hole_cards);
-      hands += "-------------";
+      hands += `${game_functions.format_hand(
+        current.name,
+        current.hole_cards
+      )}\n`;
     } while (current.is_button == false);
 
     return hands;

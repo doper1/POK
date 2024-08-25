@@ -16,7 +16,6 @@ const {
   isCardInCards,
   calc_strength,
   showdown,
-  all_in,
   format_hand,
 } = require("../scripts/game_functions.js");
 

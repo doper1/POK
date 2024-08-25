@@ -2,7 +2,3 @@ node_modules
 /*.png
 .wwebjs_cache
 .wwebjs_auth
-*.drawio
-run.bat
-logo
-Legal_issues.txt

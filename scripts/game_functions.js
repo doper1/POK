@@ -47,7 +47,7 @@ function sort_cards(cards) {
 
 function isCardInCards(card, Cards) {
   for (let i = 0; i < Cards.length; i++)
-    if (Cards[i][0] === card[0] && Cards[i][1] === card[1]) return true; // Card is already in the hand
+    if (Cards[i][0] == card[0] && Cards[i][1] == card[1]) return true; // Card is already in the hand
   return false;
 }
 // switch to param
@@ -76,14 +76,14 @@ function is_flush(cards) {
  * @param {type} -type of card clubs, diamonds, hearts, spades specify only if given flush in cards
  */
 function is_straight(cards) {
-  if (cards === false) return false;
+  if (cards == false) return false;
   let Count = 1;
   let straight = [cards[0]];
   for (let i = 0; i < cards.length - 1; i++) {
-    if (cards[i][1] - 1 === cards[i + 1][1]) {
+    if (cards[i][1] - 1 == cards[i + 1][1]) {
       Count++;
       straight.push(cards[i + 1]);
-    } else if (cards[i][1] === cards[i + 1][1]) {
+    } else if (cards[i][1] == cards[i + 1][1]) {
     } else {
       Count = 1;
       straight = [];
@@ -96,7 +96,7 @@ function is_straight(cards) {
 }
 function is_straight_flush(cards) {
   let flush_Cards = is_flush(cards);
-  if (flush_Cards === false) return false;
+  if (flush_Cards == false) return false;
   return is_straight(flush_Cards);
 }
 
@@ -116,9 +116,9 @@ function is_four_of_a_kind(cards) {
 function is_full_house(cards) {
   let count_cards = c_count(cards, 1);
   for (let key in count_cards)
-    if (count_cards[key].length === 3)
+    if (count_cards[key].length == 3)
       for (let k in count_cards)
-        if (count_cards[k].length === 2)
+        if (count_cards[k].length == 2)
           return [
             count_cards[key][0],
             count_cards[key][1],
@@ -131,16 +131,16 @@ function is_full_house(cards) {
 function is_three_of_a_kind(cards) {
   let count_cards = c_count(cards, 1);
   for (let key in count_cards)
-    if (count_cards[key].length === 3)
+    if (count_cards[key].length == 3)
       return [count_cards[key][0], count_cards[key][1], count_cards[key][2]];
   return false;
 }
 function is_two_pair(cards) {
   let count_cards = c_count(cards, 1);
   for (let key in count_cards)
-    if (count_cards[key].length === 2)
+    if (count_cards[key].length == 2)
       for (let k in count_cards)
-        if (k != key && count_cards[k].length === 2)
+        if (k != key && count_cards[k].length == 2)
           return [
             count_cards[key][0],
             count_cards[key][1],
@@ -153,7 +153,7 @@ function is_two_pair(cards) {
 function is_one_pair(cards) {
   let count_cards = c_count(cards, 1);
   for (let key in count_cards) {
-    if (count_cards[key].length === 2)
+    if (count_cards[key].length == 2)
       return [count_cards[key][0], count_cards[key][1]];
   }
   return false;
@@ -242,7 +242,7 @@ function calc_strength(game) {
 
   strength_list = strength_list.slice().sort((a, b) => a[0] - b[0]);
   for (let i = 0; i < strength_list.length - 1; i++) {
-    if (strength_list[i][0] === strength_list[i + 1][0]) {
+    if (strength_list[i][0] == strength_list[i + 1][0]) {
       let count = 0;
       for (let j = 0; j < 5; j++) {
         if (
@@ -260,7 +260,7 @@ function calc_strength(game) {
           break;
         else count++;
       }
-      if (count === 5) {
+      if (count == 5) {
         strength_list[i][1] = [strength_list[i][1], strength_list[i + 1][1]];
         strength_list.splice(i + 1, i + 1);
       }
@@ -275,7 +275,7 @@ function showdown(game) {
   let message = `${Object.values(strength_list)[0].name} Won $${
     game.pot.main_pot
   } with ${print_cards(Object.values(strength_list)[0].hole_cards)}
-${constants.strength_dict[Object.keys(strength_list)[0]]} - ${print_cards(
+${constants.STRENGTH_DICT[Object.keys(strength_list)[0]]} - ${print_cards(
     Object.values(strength_list)[0].hand_score.cards
   )}`;
 
@@ -299,7 +299,7 @@ ${constants.strength_dict[Object.keys(strength_list)[0]]} - ${print_cards(
   // }
   // for (let i = 0; i < winners.length; i++) {
   //   msg += `${winners[i].name} Won ${winners[i].game_money} with ${
-  //     constants.strength_dict[winners[i].hand_score.str]
+  //     constants.STRENGTH_DICT[winners[i].hand_score.str]
   //   }\n ${print_cards(winners[i].hand_score.cards)} \n;`;
   // }
 
@@ -308,7 +308,7 @@ ${constants.strength_dict[Object.keys(strength_list)[0]]} - ${print_cards(
   //     msg += `${losers[j].name} Lost ${losers[j].game_money} By Fold`;
   //   } else {
   //     msg += `${losers[j].name} Lost ${losers[j].game_money} with ${
-  //       constants.strength_dict[losers[j].hand_score.str]
+  //       constants.STRENGTH_DICT[losers[j].hand_score.str]
   //     }\n ${print_cards(losers[j].hand_score.cards)} \n`;
   //   }
   // }
@@ -319,6 +319,21 @@ ${constants.strength_dict[Object.keys(strength_list)[0]]} - ${print_cards(
 const format_hand = (player_name, hole_cards) => {
   return `${player_name}: ${print_cards(hole_cards)}\n`;
 };
+
+function all_in(game) {
+  let current = game.order.current_player;
+  current.is_all_in = true;
+  current.is_played = true;
+  game.pot.main_pot += current.game_money;
+  current.current_bet += current.game_money;
+  current.game_money = 0;
+
+  if (current.current_bet > game.pot.current_bet) {
+    game.pot.current_bet = current.current_bet;
+  }
+
+  game.pot.addAllIn(game);
+}
 
 module.exports = {
   print_cards,
@@ -339,4 +354,5 @@ module.exports = {
   calc_strength,
   showdown,
   format_hand,
+  all_in,
 };
