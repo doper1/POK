@@ -225,6 +225,7 @@ function update_hand_str(game, player) {
       );
   }
 }
+
 /**
  * @param {Game} game - The game of which to generate the strength arr for all players
  * @returns {Dictionary}
@@ -272,15 +273,14 @@ function calc_strength(game) {
 
 function showdown(game) {
   let strength_list = calc_strength(game);
-  let message = `${Object.values(strength_list)[0].name} Won $${
-    game.pot.main_pot
-  } with ${print_cards(Object.values(strength_list)[0].hole_cards)}
-${constants.STRENGTH_DICT[Object.keys(strength_list)[0]]} - ${print_cards(
-    Object.values(strength_list)[0].hand_score.cards
-  )}`;
+  let best_hand = Object.values(strength_list)[0];
+  let message = `${best_hand.name} Won $${game.pot.main_pot} with ${print_cards(
+    best_hand.hole_cards
+  )}
+${constants.STRENGTH_DICT[Object.keys(strength_list)[0]]}:
+${print_cards(best_hand.hand_score.cards)}`;
 
-  game.players[Object.values(strength_list)[0].phone_number].game_money +=
-    game.pot.main_pot;
+  game.players[best_hand.phone_number].game_money += game.pot.main_pot;
   game.pot.main_pot = 0;
 
   return message;

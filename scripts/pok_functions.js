@@ -19,11 +19,11 @@ function join(games, chat_id, message, full_name, contact, chat) {
     games[chat_id].order.insertAfterCurrent(
       games[chat_id].players[phone_number]
     );
-    message.reply(`_*${full_name}*_ have joined the game!
+    message.reply(`_*${full_name}*_ has joined the game!
     Wait for the next round`);
   } else {
     games[chat_id].addPlayer(full_name, phone_number, contact);
-    message.reply(`${full_name} have joined the game!`);
+    message.reply(`${full_name} has joined the game!`);
   }
 }
 
@@ -102,6 +102,7 @@ function end(games, chat_id, message) {
   }
 }
 
+// pok check (checks the action)
 function check(game, message) {
   if (!is_allowed(game, message)) {
     return false;
@@ -117,6 +118,7 @@ function check(game, message) {
   }
 }
 
+// pok raise X / pok raise all / pok raise all in
 function raise(game, message, amount) {
   let current = game.order.current_player;
   if (!is_allowed(game, message)) {
@@ -166,6 +168,7 @@ function raise(game, message, amount) {
   }
 }
 
+// pok all / pok all in
 function all_in(game, message, user_msg) {
   if (!is_allowed(game, message)) {
     return false;
@@ -174,7 +177,8 @@ function all_in(game, message, user_msg) {
     return true;
   }
 }
-//Fold
+
+// pok fold
 function fold(game, message) {
   if (!is_allowed(game, message)) {
     return false;
@@ -186,21 +190,24 @@ function fold(game, message) {
   }
 }
 
+// pok call
 function call(game, message) {
   let current = game.order.current_player;
   if (!is_allowed(game, message)) {
     return false;
   } else if (game.pot.current_bet == current.current_bet) {
     message.react(emote("mistake"));
-    game.chat.sendMessage(`Since no one has bet, you don’t need to call`);
+    message.reply(`Since no one has bet, you don’t need to call`);
     return false;
+  } else if (
+    current.game_money + current.current_bet - game.pot.current_bet <=
+    0
+  ) {
+    game_functions.all_in(game);
   } else {
     let amount = game.pot.current_bet - current.current_bet;
     current.game_money -= amount;
     current.is_played = true;
-    if (current.game_money == 0) {
-      current.is_all_in = true;
-    }
     game.pot.main_pot += amount;
     game.pot.all_ins.forEach((all_in) => {
       if (all_in.current_bet == -1 || current.current_bet >= all_in.current_bet)

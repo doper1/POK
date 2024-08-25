@@ -18,8 +18,10 @@ function hasTwoWords(string) {
 }
 
 /** Choose a random emoji from the wanted emoji type
+ *  - Can handle both lower case and UPPER case
  *  @param {String} emoji_type - type from the EMOJIES constant.
- *  - Can handle both lower case and UPPER case */
+ *  @returns {String}
+ *  @example message.react(emote("mistake")); */
 function emote(emoji_type) {
   emoji_type = emoji_type.toUpperCase();
   if (!constants.EMOJIES.hasOwnProperty(emoji_type)) {
@@ -37,13 +39,8 @@ function is_allowed(game, message) {
   if (game.order.current_player.phone_number != phone_number) {
     // Current player check
     message.react(emote("mistake"));
-    game.chat.sendMessage(`It's not your turn,
+    message.reply(`It's not your turn,
 it's ${game.order.current_player.name} turn`);
-    return false;
-  } else if (game.order.current_player.is_folded) {
-    // Fold check
-    message.react(emote("mistake"));
-    game.chat.sendMessage(`You've already folded`);
     return false;
   }
   return true;

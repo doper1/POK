@@ -1,9 +1,7 @@
 const pok_functions = require("../scripts/pok_functions.js");
 const general_functions = require("../scripts/general_functions.js");
-const game_functions = require("../scripts/game_functions.js");
 const Game = require("../classes/Game.js");
 const LinkedList = require("../classes/LinkedList.js");
-const Player = require("../classes/Player.js");
 
 jest.mock("../classes/Game.js");
 jest.mock("../scripts/general_functions.js");
@@ -231,5 +229,23 @@ describe("pok raise", () => {
   test("Should raise the expected amount", () => {
     amount = 40;
     // TODO
+  });
+});
+
+describe("pok fold", () => {
+  let game = { order: { current_player: { is_folded: true } }, folds: 1 };
+  let message = { reply: jest.fn(), react: jest.fn() };
+
+  jest.spyOn(general_functions, "is_allowed").mockImplementation(() => {
+    return true;
+  });
+  jest.spyOn(general_functions, "emote").mockImplementation(() => {});
+  test("Should mark player as folded and print a message", () => {
+    let result = pok_functions.fold(game, message);
+
+    expect(message.react).toHaveBeenCalledWith(general_functions.emote("fold"));
+    expect(game.order.current_player.is_folded).toBeTruthy();
+    expect(game.folds).toBe(2);
+    expect(result).toBeTruthy();
   });
 });

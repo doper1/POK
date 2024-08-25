@@ -7,6 +7,21 @@ let constants = require("./constants");
 let pok_functions = require("./scripts/pok_functions");
 let { emote } = require("./scripts/general_functions");
 
+const mode = process.env.ENV;
+// Variables that differs between prod and dev
+let event;
+if (mode === "prod") {
+  console.log("PRODUCTION MODE");
+
+  // Prod variables
+  event = "message";
+} else {
+  console.log("DEVELOPEMNT MODE");
+
+  // Dev variables
+  event = "message_create";
+}
+
 whatsapp = new Client({
   authStrategy: new LocalAuth(),
 });
@@ -19,11 +34,10 @@ whatsapp.on("qr", (qr) => {
 
 whatsapp.on("call", async (call) => {
   await call.reject();
-  await whatsapp.sendMessage(call.from, `Don't call me, I'm just a bot :)`);
 });
 
 let games = {};
-whatsapp.on("message_create", async (msg) => {
+whatsapp.on(event, async (msg) => {
   // On production change from "message_create" to "message" -> to prevent spamming of this function
   let message = await msg;
   let contact = await message.getContact();
@@ -34,6 +48,9 @@ whatsapp.on("message_create", async (msg) => {
   // Prevents response to all messages
   const message_age = Math.floor(Date.now() / 1000) - message.timestamp;
   if (message_age > constants.MESSAGE_TIMEOUT) return;
+
+  // Prevents response to messages in DM
+  if (!chat.isGroup) return;
 
   // Prevents response to unrelated messages in groups the bot is a member of
   if (user_msg[0] != "pok") return;

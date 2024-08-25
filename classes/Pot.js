@@ -31,7 +31,7 @@ class Pot {
   addAllIn(game) {
     let current = game.order.current_player;
     let pot = 0;
-    let players = [current];
+    let players = [];
 
     for (const phone_number in game.players) {
       let player = game.players[phone_number];
@@ -47,11 +47,7 @@ class Pot {
   }
 
   reorgAllIns() {
-    this._all_ins.sort((a, b) => b.pot - a.pot); // sort the pots from large to small pot
-    for (let i = 0; i < this.all_ins.length; i++) {
-      console.log(this.all_ins[i]);
-    }
-    // Remove pots in showdown
+    this._all_ins.sort((a, b) => a.pot - b.pot); // sort the pots from smallest to largest
   }
 }
 

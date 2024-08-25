@@ -1,9 +1,9 @@
 module.exports.MESSAGE_TIMEOUT = 10;
 module.exports.STRENGTH_DICT = {
-  0: "Royal Flush",
-  1: "Straight Flush",
-  2: "Four of a Kind",
-  3: "Full House",
+  0: "*ROYAL FLUSH*",
+  1: "*STRAIGHT FLUSH*",
+  2: "*QUADS*",
+  3: "*FULL HOUSE*",
   4: "Flush",
   5: "Straight",
   6: "Three of a Kind",
