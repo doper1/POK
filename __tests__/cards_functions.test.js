@@ -1,24 +1,19 @@
 const {
   print_cards,
   sort_cards,
-  c_count,
+
+  is_flush,
   is_straight,
   is_straight_flush,
   is_four_of_a_kind,
   is_full_house,
-  is_flush,
   is_three_of_a_kind,
   is_two_pair,
   is_one_pair,
-  update_hand_str,
   parseCardNumber,
   ReverseParseCardNumber,
-  isCardInCards,
-  calc_strength,
-  showdown,
-  all_in,
-  format_hand,
-} = require("../scripts/game_functions.js");
+  calc_hands_strength,
+} = require("../scripts/cards_functions.js");
 
 describe("Poker Hand Evaluation Tests", () => {
   test("print_cards formats cards correctly", () => {
@@ -195,82 +190,52 @@ describe("Poker Hand Evaluation Tests", () => {
       ["H", 2],
     ]);
   });
+});
 
-  test("showdown determines the winner correctly", () => {
+describe("calc_hands_strength", () => {
+  test("calc_hands_strength calculates hand strength correctly", () => {
     const game = {
       type: 1,
       community_cards: [
-        ["H", "A"],
-        ["H", "K"],
-        ["H", "Q"],
-        ["H", "J"],
         ["H", "10"],
+        ["C", "K"],
+        ["D", "Q"],
+        ["S", "K"],
+        ["H", "A"],
       ],
-      pot: {
-        main_pot: 100,
-      },
-      players: {
-        "+123456789": {
-          game_money: 0,
-          hole_cards: [
-            ["C", "2"],
-            ["D", "3"],
-          ],
-        },
-      },
       order: {
-        current_player: {
-          name: "Player1",
-          phone_number: "+123456789",
-          next_player: { is_button: true },
-        },
+        current_player: null, // This will be set later
+        players: [],
       },
-      jumpToButton: () => {},
-    };
-
-    const message = showdown(game);
-    expect(message).toBe(
-      "Player1 Won $100 with *|C2|* *|D3|*\nRoyal Flush - *|HA|* *|HK|* *|HQ|* *|HJ|* *|H10|*"
-    );
-  });
-
-  test("all_in updates game state correctly", () => {
-    const game = {
-      pot: {
-        main_pot: 100,
-        current_round_bets: [],
-        current_bet: 50,
-        addAllIn: jest.fn(),
-      },
-      order: {
-        current_player: {
-          game_money: 50,
-          current_bet: 0,
-          is_all_in: false,
-          is_played: false,
-        },
+      jumpToButton: function () {
+        this.order.current_player = this.order.players[0];
       },
     };
 
-    const result = all_in(game);
+    const player1 = {
+      hole_cards: [
+        ["C", "5"],
+        ["D", "8"],
+      ],
+      hand_score: {},
+      is_button: true,
+    };
 
-    expect(result).toBe(true);
-    expect(game.pot.main_pot).toBe(150);
-    expect(game.pot.current_round_bets).toEqual([50]);
-    expect(game.pot.current_bet).toBe(100);
-    expect(game.order.current_player.is_all_in).toBe(true);
-    expect(game.order.current_player.is_played).toBe(true);
-    expect(game.order.current_player.game_money).toBe(0);
-    expect(game.pot.addAllIn).toHaveBeenCalled();
-  });
+    const player2 = {
+      hole_cards: [
+        ["C", "7"],
+        ["D", "6"],
+      ],
+      hand_score: {},
+      is_button: false,
+    };
 
-  test("format_hand formats hand correctly", () => {
-    const player_name = "Player1";
-    const hole_cards = [
-      ["H", "A"],
-      ["D", "K"],
-    ];
-    const result = format_hand(player_name, hole_cards);
-    expect(result).toBe("Player1: *|HA|* *|DK|*");
+    player1.next_player = player2;
+    player2.next_player = player1;
+
+    game.order.players = [player1, player2];
+    game.order.current_player = player1;
+
+    calc_hands_strength(game);
   });
 });

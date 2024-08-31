@@ -2,22 +2,26 @@
   "name": "POK",
   "version": "1.0.0",
   "description": "Poker bot for whatsapp",
+  "type": "commonjs",
   "main": "index.js",
   "directories": {
-    "doc": "docs"
+    "doc": "/docs"
   },
   "scripts": {
-    "dev": "node index.js",
-    "test": "jest"
+    "dev": "cross-env ENV=dev node --watch index.js",
+    "start": "cross-env ENV=prod node --watch index.js",
+    "test": "jest",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/doper1/pokair.git"
+    "url": "git+https://github.com/doper1/POK.git"
   },
   "keywords": [
     "Poker",
     "chatbot",
-    "whatsapp"
+    "whatsapp",
+    "POK"
   ],
   "author": "Adam",
   "license": "MIT",
@@ -32,6 +36,13 @@
     "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus"
   },
   "devDependencies": {
-    "jest": "^29.7.0"
+    "@eslint/js": "^9.9.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.9.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.9.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3"
   }
 }
