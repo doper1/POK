@@ -35,8 +35,16 @@ npm install
 
 ### Run the Bot
 
+- In development
+
 ```bash
 npm run dev
+```
+
+- In production
+
+```bash
+npm start
 ```
 
 ## Usage
@@ -84,7 +92,3 @@ This project is licensed under the MIT License.
 ## Contact
 
 For issues, questions, or feedback, feel free to open an issue on GitHub
-
----
-
-This README now accurately reflects the available commands for the bot, both before and during a game. Let me know if there are any further adjustments you'd like!

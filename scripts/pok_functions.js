@@ -9,7 +9,11 @@ function join(games, chat_id, message, full_name, contact, chat) {
   if (games[chat_id] == undefined) {
     games[chat_id] = new Game(chat_id, chat);
     games[chat_id].addPlayer(full_name, phone_number, contact);
-    message.reply(`_*${full_name}*_ has joined the game!`);
+
+    let current = games[chat_id].players[phone_number];
+    chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
+      mentions: [current.contact.id._serialized],
+    });
   } else if (games[chat_id].players[phone_number] !== undefined) {
     message.reply("You have already joined!");
   } else if (games[chat_id].is_midround == true) {
@@ -19,11 +23,20 @@ function join(games, chat_id, message, full_name, contact, chat) {
     games[chat_id].order.insertAfterCurrent(
       games[chat_id].players[phone_number]
     );
-    message.reply(`_*${full_name}*_ has joined the game!
-    Wait for the next round`);
+    let current = games[chat_id].players[phone_number];
+    chat.sendMessage(
+      `Some @${current.contact.id.user} has joined the game!
+Wait for the next round to start`,
+      {
+        mentions: [current.contact.id._serialized],
+      }
+    );
   } else {
     games[chat_id].addPlayer(full_name, phone_number, contact);
-    message.reply(`${full_name} has joined the game!`);
+    let current = games[chat_id].players[phone_number];
+    chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
+      mentions: [current.contact.id._serialized],
+    });
   }
 }
 
@@ -84,7 +97,7 @@ function start(game, message, whatsapp, chat) {
       current = current.next_player;
     } while (!current.is_button);
 
-    game.initRound(whatsapp, chat.name);
+    game.initRound(whatsapp);
     game.is_midround = true;
     message.react(emote("happy"));
   }
@@ -199,11 +212,6 @@ function call(game, message) {
     message.react(emote("mistake"));
     message.reply(`Since no one has bet, you don’t need to call`);
     return false;
-  } else if (
-    current.game_money + current.current_bet - game.pot.current_bet <=
-    0
-  ) {
-    game_functions.all_in(game);
   } else {
     let amount = game.pot.current_bet - current.current_bet;
     current.game_money -= amount;

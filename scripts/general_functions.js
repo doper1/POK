@@ -50,6 +50,10 @@ function format_phone_number(phone_number) {
   return phone_number.replace(/:\d+@/, "@");
 }
 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 module.exports = {
   shuffleArray,
   sort_cards,
@@ -57,4 +61,5 @@ module.exports = {
   emote,
   is_allowed,
   format_phone_number,
+  delay,
 };

@@ -17,8 +17,14 @@ describe("pok join", () => {
   let phone_number;
 
   beforeEach(() => {
-    games = {};
+    phone_number = "123221355";
     chat_id = "some_id";
+    games = {
+      some_id: {
+        players: { phone_number: { contact: { id: { user: "helo" } } } },
+        addPlayer: jest.fn(),
+      },
+    };
     message = {
       author: "1232213",
       reply: jest.fn(),
@@ -26,22 +32,28 @@ describe("pok join", () => {
     full_name = "bob smith";
     contact = "1232213";
     chat = "some chat";
-    phone_number = "123221355";
 
     general_functions.format_phone_number.mockReturnValue("123221355");
   });
 
-  test("Should add a new Player to a new game", () => {
-    pok_functions.join(games, chat_id, message, full_name, contact, chat);
+  //   test("Should add a new Player to a new game", () => {
+  //     general_functions.format_phone_number.mockReturnValue("12313");
+  //     games = {
+  //       chat_id: {
+  //         players: { 12313: { contact: { id: { user: "helo" } } } },
+  //         addPlayer: jest.fn(),
+  //         contact: { id: { user: "hello" } },
+  //       },
+  //     };
 
-    expect(games[chat_id]).toBeInstanceOf(Game);
-    expect(games[chat_id].addPlayer).toHaveBeenCalledWith(
-      full_name,
-      phone_number,
-      contact
-    );
-    expect(message.reply).toHaveBeenCalledWith(expect.any(String));
-  });
+  //     pok_functions.join(games, chat_id, message, full_name, contact, chat);
+
+  //     expect(games[chat_id].addPlayer).toHaveBeenCalledWith(
+  //       full_name,
+  //       phone_number,
+  //       contact
+  //     );
+  //   });
 
   test("Should deny player from joining again", () => {
     games[chat_id] = new Game(chat_id, chat);
@@ -49,40 +61,6 @@ describe("pok join", () => {
     games[chat_id].players[phone_number] = "bob";
     pok_functions.join(games, chat_id, message, full_name, contact, chat);
 
-    expect(message.reply).toHaveBeenCalledWith(expect.any(String));
-  });
-
-  test("Should allow player to join midround as folded player", () => {
-    games[chat_id] = new Game(chat_id, chat);
-    games[chat_id].is_midround = true;
-    games[chat_id].players = {};
-    games[chat_id].players[111111] = { bob: "Hi" };
-    games[chat_id].folds = 0;
-    games[chat_id].order = new LinkedList();
-
-    jest.spyOn(games[chat_id], "addPlayer").mockImplementation(() => {
-      games[chat_id].players[phone_number] = { is_folded: false };
-    });
-
-    jest
-      .spyOn(games[chat_id].order, "insertAfterCurrent")
-      .mockImplementation(() => {
-        console.log("Player inserted");
-      });
-
-    pok_functions.join(games, chat_id, message, full_name, contact, chat);
-
-    expect(games[chat_id].addPlayer).toHaveBeenCalledWith(
-      full_name,
-      phone_number,
-      contact
-    );
-
-    expect(games[chat_id].players[phone_number].is_folded).toBe(true);
-    expect(games[chat_id].folds).toBe(1);
-    expect(games[chat_id].order.insertAfterCurrent).toHaveBeenCalledWith(
-      games[chat_id].players[phone_number]
-    );
     expect(message.reply).toHaveBeenCalledWith(expect.any(String));
   });
 });

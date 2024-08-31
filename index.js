@@ -92,42 +92,55 @@ whatsapp.on(event, async (msg) => {
     switch (user_msg[1]) {
       case "check":
         if (pok_functions.check(game, message))
-          game.updateRound(whatsapp, `${current.name} checked`);
+          game.updateRound(whatsapp, `@${current.contact.id.user} checked`);
         break;
       case "raise":
         raise_amount = Number(user_msg[2]);
+        let all_in_amount = current.game_money;
 
-        if (
-          (user_msg[2] == "all" || current.game_money == raise_amount) &&
-          pok_functions.all_in(game, message, user_msg)
-        ) {
+        if (user_msg[2] == "all" || current.game_money == raise_amount) {
+          if (pok_functions.all_in(game, message, user_msg)) {
+            game.updateRound(
+              whatsapp,
+              `@${current.contact.id.user} is ALL IN for $${all_in_amount} more (total $${current.current_bet})`
+            );
+          }
+        } else if (pok_functions.raise(game, message, raise_amount)) {
           game.updateRound(
             whatsapp,
-            `${current.name} is ALL IN for $${raise_amount}`
+            `@${current.contact.id.user} raised $${raise_amount}`
           );
-        } else if (pok_functions.raise(game, message, raise_amount)) {
-          game.updateRound(whatsapp, `${current.name} raised $${raise_amount}`);
         }
         break;
       case "all":
-        raise_amount = game.order.current_player.game_money;
+        raise_amount = current.game_money;
 
         if (pok_functions.all_in(game, message, user_msg)) {
           game.updateRound(
             whatsapp,
-            `${current.name} is ALL IN for $${raise_amount} more (total ${current.current_bet})`
+            `@${current.contact.id.user} is ALL IN for $${raise_amount} more (total $${current.current_bet})`
           );
         }
         break;
       case "fold":
         if (pok_functions.fold(game, message))
-          game.updateRound(whatsapp, `${current.name} folded`);
+          game.updateRound(whatsapp, `@${current.contact.id.user} folded`);
         break;
       case "call":
         let call_amount =
           game.pot.current_bet - game.order.current_player.current_bet;
-        if (pok_functions.call(game, message))
-          game.updateRound(whatsapp, `${current.name} calls $${call_amount}`);
+        if (call_amount >= current.game_money) {
+          if (pok_functions.all_in(game, message, user_msg)) {
+            game.updateRound(
+              whatsapp,
+              `@${current.contact.id.user} is ALL IN for $${call_amount} more (total $${current.current_bet})`
+            );
+          }
+        } else if (pok_functions.call(game, message))
+          game.updateRound(
+            whatsapp,
+            `@${current.contact.id.user} calls $${call_amount}`
+          );
         break;
       case "help":
         message.reply(constants.HELP_IN_GAME);
