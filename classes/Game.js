@@ -106,7 +106,7 @@ class Game {
   }
 
   resetGameStatus() {
-    this.deck = shuffleArray(...constants.DECK);
+    this.deck = shuffleArray(constants.DECK.map(card => [...card]));
     this.community_cards = [];
     this.folds = 0;
     this.pot = new Pot();

@@ -5,27 +5,55 @@ function showdown(game) {
   let hands_strength_list = cards_functions.calc_hands_strength(game);
 
   let all_ins = [...game.pot.all_ins, game.pot.main_pot].map(
-    (value, index, array) => (index === 0 ? value : value - array[index - 1])
+    (value, index, array) => (index === 0 ? value : value - array[index - 1]),
   );
 
+  let winners = {};
   all_ins.forEach((all_in) => {
-    Object.entries([...hands_strength_list]).filter(([strength, players]) => {
-      hands_strength_list[strength];
-    });
+    for (let i = 0; i < Object.keys(strength_list).length; i += 1) {
+      let possible_winners = Object.values(strength_list)[i];
+      if (!Array.isArray(possible_winners)) {
+        let player = possible_winners;
+        if (is_valid_winner(player)) {
+          rake_to_winner(player);
+          break;
+        }
+      } else {
+        for (
+          let player_index = 0;
+          player_index < possible_winners;
+          player_index += 1
+        ) {
+          if (!is_valid_winner(possible_winners[player_index])) {
+            possible_winners.splice(player_index, 1);
+          }
+        }
+        if (possible_winners.length > 0) {
+          rake_to_winners(possible_winners);
+          break;
+        }
+      }
+    }
   });
 
+  function is_valid_winner(player) {}
+  function rake_to_winners(players, amount, players_count) {
+    let remainder = amount % players_count;
+    let amount_per_player = (amount - remainder) / players_count;
+
+    for (let i = 0; i < players.length; i += 1) {}
+  }
   // Should handle three cases:
   // 1. No one is all in and one player won
   // 2. No one is all in and few players won
   // 3. somebody is all in- check who win each all in pot and then who win the rest of the main pot
   // -------------
-  // CHAGNE CALC TO POPULATE THE PLAYER OBJECT SO THE VALUE W
-  // 0. calc hands strength
-  // 1. add the full pot with the remaining players to the all ins at the end of the game (exclude it if it's the same as the last all in)
-  // 2. add zero as the first all in, then map the all ins so each all is is minus the all in before him, then remove the zero again (to generalize to all ins to the amount someone would really get)
-  // 2. loop on the all ins from the first to last (biggest)
-  // 3. determine the winner/winners on each using a function
-  // 4. split the money by the amount of the winners to an object with the player phone number as a key, and the player with his earing in an array
+  // 1. calc hands strength V
+  // 2. loop on the all ins from the first to last (biggest) V
+  // 3. determine the winner/winners on each using an algorithm
+  // -> loop on each level -> if 1 player, check if he is eligble to win the pot (if he is append him to winners). if more than one player, loop and them and check for each one, append to winners
+  // -> if level has no winners, move to the next one -> when winners got appended to the winners list, start a side function to calculate winnings in a global winners list
+  // -> after all the money has been served, loop on the winners and add appropriet message to each winner
   // 6. when done, return the message to Game
   if (game.pot.all_ins.length == 0) {
     let best_hands = Object.values(strength_list)[0];
