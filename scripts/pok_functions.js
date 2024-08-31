@@ -55,10 +55,7 @@ function show(game, message) {
 // pok exit (the table)
 function exit(games, chat_id, message, full_name) {
   let phone_number = format_phone_number(message.author);
-  if (
-    !games.hasOwnProperty(chat_id) ||
-    !games[chat_id].players.hasOwnProperty(phone_number)
-  ) {
+  if (!(chat_id in games) || !(phone_number in games[chat_id].players)) {
     message.react(emote("mistake"));
     message.reply("You have not joined the game yet");
   } else {
@@ -79,7 +76,7 @@ function exit(games, chat_id, message, full_name) {
 }
 
 // pok start - start the game
-function start(game, message, whatsapp, chat) {
+function start(game, message, whatsapp) {
   let phone_number = format_phone_number(message.author);
   if (game == undefined) {
     message.reply("There are no players on the table :(");

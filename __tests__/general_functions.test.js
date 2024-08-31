@@ -1,5 +1,4 @@
 const general_functions = require("../scripts/general_functions.js");
-const Game = require("../classes/Game.js");
 
 jest.mock("../classes/Game.js");
 

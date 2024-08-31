@@ -1,16 +1,5 @@
 const Game = require("../classes/Game.js");
 
-let constants = require("../constants");
-
-// Scripts
-let { delay } = require("../scripts/general_functions");
-let game_functions = require("../scripts/game_functions");
-
-// Classes
-let Player = require("../classes/Player");
-let LinkedList = require("../classes/LinkedList");
-let Pot = require("../classes/Pot");
-
 describe("update_round", () => {
   let whatsapp;
   let action_message;

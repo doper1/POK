@@ -1,7 +1,6 @@
 const pok_functions = require("../scripts/pok_functions.js");
 const general_functions = require("../scripts/general_functions.js");
 const Game = require("../classes/Game.js");
-const LinkedList = require("../classes/LinkedList.js");
 
 jest.mock("../classes/Game.js");
 jest.mock("../scripts/general_functions.js");

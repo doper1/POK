@@ -106,7 +106,7 @@ class Game {
   }
 
   resetGameStatus() {
-    this.deck = shuffleArray(constants.DECK.map(card => [...card]));
+    this.deck = shuffleArray(constants.DECK.map((card) => [...card]));
     this.community_cards = [];
     this.folds = 0;
     this.pot = new Pot();
@@ -259,7 +259,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       );
 
       await delay(3000);
-      await this.rushRound(message);
+      await this.rushRound(message, whatsapp);
     } else if (next.is_all_in || next.is_folded) {
       this.order.next();
       this.updateRound(whatsapp, action_message);
@@ -294,13 +294,12 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       // Showdown
       case 5:
         this.pot.reorgAllIns();
-        let end_message = game_functions.showdown(this);
-        this.initRound(whatsapp, end_message);
+        this.initRound(whatsapp, game_functions.showdown(this));
         break;
     }
   }
 
-  async rushRound(message) {
+  async rushRound(message, whatsapp) {
     const edit_message = async (message) => {
       let new_message =
         message.body +
@@ -330,14 +329,16 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
 
       // Showdown
       case 5:
-        let end_message = game_functions.showdown(this);
-        this.initRound(whatsapp, end_message);
+        this.initRound(whatsapp, game_functions.showdown(this));
         return;
     }
     message = await edit_message(message);
-    await setTimeout(() => {
-      this.rushRound(message);
-    }, (this.community_cards.length - 1) * 1200);
+    await setTimeout(
+      () => {
+        this.rushRound(message, whatsapp);
+      },
+      (this.community_cards.length - 1) * 1200
+    );
   }
 
   resetPlayersStatus(is_new_hand) {

@@ -22,7 +22,7 @@ if (mode === "prod") {
   event = "message_create";
 }
 
-whatsapp = new Client({
+let whatsapp = new Client({
   authStrategy: new LocalAuth(),
 });
 
@@ -55,6 +55,7 @@ whatsapp.on(event, async (msg) => {
   // Prevents response to unrelated messages in groups the bot is a member of
   if (user_msg[0] != "pok") return;
 
+  let full_name;
   // Prevent crushes when the user does not have a whatsapp name
   if (contact.pushname == undefined) {
     full_name = contact.id.user;
@@ -79,7 +80,7 @@ whatsapp.on(event, async (msg) => {
         pok_functions.exit(games, chat_id, message, full_name);
         break;
       case "start":
-        pok_functions.start(game, message, whatsapp, chat);
+        pok_functions.start(game, message, whatsapp);
         break;
       default:
         message.reply(constants.HELP_PRE_GAME);
@@ -96,13 +97,12 @@ whatsapp.on(event, async (msg) => {
         break;
       case "raise":
         raise_amount = Number(user_msg[2]);
-        let all_in_amount = current.game_money;
 
         if (user_msg[2] == "all" || current.game_money == raise_amount) {
           if (pok_functions.all_in(game, message, user_msg)) {
             game.updateRound(
               whatsapp,
-              `@${current.contact.id.user} is ALL IN for $${all_in_amount} more (total $${current.current_bet})`
+              `@${current.contact.id.user} is ALL IN for $${current.game_money} more (total $${current.current_bet})`
             );
           }
         } else if (pok_functions.raise(game, message, raise_amount)) {
@@ -127,19 +127,19 @@ whatsapp.on(event, async (msg) => {
           game.updateRound(whatsapp, `@${current.contact.id.user} folded`);
         break;
       case "call":
-        let call_amount =
+        raise_amount =
           game.pot.current_bet - game.order.current_player.current_bet;
-        if (call_amount >= current.game_money) {
+        if (raise_amount >= current.game_money) {
           if (pok_functions.all_in(game, message, user_msg)) {
             game.updateRound(
               whatsapp,
-              `@${current.contact.id.user} is ALL IN for $${call_amount} more (total $${current.current_bet})`
+              `@${current.contact.id.user} is ALL IN for $${raise_amount} more (total $${current.current_bet})`
             );
           }
         } else if (pok_functions.call(game, message))
           game.updateRound(
             whatsapp,
-            `@${current.contact.id.user} calls $${call_amount}`
+            `@${current.contact.id.user} calls $${raise_amount}`
           );
         break;
       case "help":

@@ -24,7 +24,7 @@ function hasTwoWords(string) {
  *  @example message.react(emote("mistake")); */
 function emote(emoji_type) {
   emoji_type = emoji_type.toUpperCase();
-  if (!constants.EMOJIES.hasOwnProperty(emoji_type)) {
+  if (!(emoji_type in constants.EMOJIES)) {
     throw new Error(`Emoji type '${emoji_type}' doesn't exists`);
   } else {
     let random_index = Math.floor(

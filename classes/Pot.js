@@ -43,7 +43,7 @@ class Pot {
       }
     }
 
-    this.all_ins.push(new AllIn(players, pot, current.current_bet));
+    this._all_ins.push(new AllIn(players, pot, current.current_bet));
   }
 
   reorgAllIns() {
