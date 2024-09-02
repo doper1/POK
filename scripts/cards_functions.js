@@ -217,7 +217,7 @@ function update_hand_str(game, player) {
   //reverses back to 11:J 13:K (14||1 :A) 12:Q
   for (let i = 0; i < player.hand_score.cards.length; i++)
     player.hand_score.cards[i] = ReverseParseCardNumber(
-      player.hand_score.cards[i]
+      player.hand_score.cards[i],
     );
 }
 
@@ -268,7 +268,7 @@ function calc_hands_strength(game) {
 
   // Convert to expected format
   return Object.fromEntries(
-    new Map(strength_list.map(([str, player]) => [str, player]))
+    new Map(strength_list.map(([str, player]) => [str, player])),
   );
 }
 

@@ -11,7 +11,8 @@
     "dev": "cross-env ENV=dev node --watch index.js",
     "start": "cross-env ENV=prod node --watch index.js",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",

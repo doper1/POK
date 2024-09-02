@@ -23,12 +23,12 @@ if (mode === "prod") {
 }
 
 let whatsapp = new Client({
-  authStrategy: new LocalAuth(),
+  authStrategy: new LocalAuth()
 });
 
 whatsapp.on("qr", (qr) => {
   qrcode.generate(qr, {
-    small: true,
+    small: true
   });
 });
 

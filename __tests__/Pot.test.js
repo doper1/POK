@@ -14,17 +14,17 @@ describe("Pot", () => {
     players = {
       "+12345": { current_bet: 50 },
       "+67890": { current_bet: 100 },
-      "+54321": { current_bet: 75 },
+      "+54321": { current_bet: 75 }
     };
 
     game = {
       order: {
         current_player: {
           phone_number: "+67890",
-          current_bet: 100,
-        },
+          current_bet: 100
+        }
       },
-      players: players,
+      players: players
     };
   });
 

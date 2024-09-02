@@ -17,11 +17,11 @@ describe("update_round", () => {
     game.players = {
       p1: { contact: { id: { _serialized: "1234" } } },
       p2: { contact: { id: { _serialized: "12343333" } } },
-      P3: { contact: { id: { _serialized: "111134" } } },
+      P3: { contact: { id: { _serialized: "111134" } } }
     };
     game.pot = { all_ins: [1, 2, 3] };
     game.chat = {
-      sendMessage: jest.fn(),
+      sendMessage: jest.fn()
     };
     game.chat.sendMessage.mockReturnValue("message_data");
   });

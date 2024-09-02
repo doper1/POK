@@ -43,16 +43,21 @@ Flow chart
 
 3. An AllIn instance is created under pot with the amount the player who put the all in is able to access
 
-4. Whenver a new 'All In' is happening the, all ins list is updates and reorganized is someone with less money went all in after somebody with more money.
+3.5 after each successful raise, call or all in, if there is a successful action- the amount of the raise/call/all in will be added to the current round all ins (unless they already called the all in). If they called just part of the all in, this amount will be added to the all in pot. When there is a new round (flop/turn/river) the all in's 'current_bet' will be change from their sum to '-1'. This way we won't add to all ins the all the playing players called already. Also, after raise/call the player will be added as qualified to the all ins that were made in this round (and because of that all the rounds until that point). If two (or more) players went all in at the same round, it will be checked to see to which all ins they are qualified to participate in.
+
+4. Whenever a new 'All In' is happening the, all ins list is updates and reorganized if someone with less money went all in after somebody with more money.
    Whenver a new raise is happening, if the current bet before this one wasn't enought to cover the current round all ins current bet- the amount
    is added to the current round all in the fit this criteria.
 
 5. At the end of the river- a winner is checked for each individual winner, and his money counts goes up until all money is distributed and the main pot
    is empty. Then, the amounts the winners got will be printed using the regular printing templates (hand, hand type, cards and amount)
    The order the winner per pot is checked is from the first all in (the lowest one) to the last all in (the highest one).
-   Every time an all in is awarded to a player, the amount of the all in will be removed from the other all in pots (all_ins.map((all_in) => all_in.pot - current_all_in))
+   Before all ins are awarded to players, there is an 'generalization' were every all in is subtracted from the all in before him, this will make the total amount of all in equal to the full pot and will remove the overlapping parts.
 
 6. At the same round of the all in, if a player after the all in calls or reraise the all in- the amount that calls the all in is added to the current all in pot.
    This operation happens for all the all ins that accured on the current round.
 
-20 | 10 , 20 ,10 (60) | 10 10 (20)
+TODO: add the logic in raise and call to all in (modifications might be needed)
+Add the updating of all_in.current_bet to -1 in reorgAllIns()
+Review the flow chart again
+Learn about Jest and write unit and integration tests for this
