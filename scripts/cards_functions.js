@@ -217,7 +217,7 @@ function update_hand_str(game, player) {
   //reverses back to 11:J 13:K (14||1 :A) 12:Q
   for (let i = 0; i < player.hand_score.cards.length; i++)
     player.hand_score.cards[i] = ReverseParseCardNumber(
-      player.hand_score.cards[i],
+      player.hand_score.cards[i]
     );
 }
 
@@ -226,6 +226,12 @@ function update_hand_str(game, player) {
  * @returns {Dictionary}
  * @example dict = {[0:player1], [4:player3], [8,[player4,player5]] }
  */
+/**
+ * @param {Game} game - The game of which to generate the strength arr for all players
+ * @returns {Dictionary}
+ * @example dict = {[0:player1], [4:player3], [8,[player4,player5]] }
+ */
+
 function calc_hands_strength(game) {
   let strength_list = [];
   game.jumpToButton();
@@ -241,7 +247,7 @@ function calc_hands_strength(game) {
   // Sort by hand strength and then by kicker cards
   strength_list = strength_list.slice().sort(([strA, handA], [strB, handB]) => {
     if (strA !== strB) {
-      return strA - strB;
+      return strB - strA; // Sort in descending order
     }
 
     const cardsA = handA.hand_score.cards;
@@ -263,13 +269,19 @@ function calc_hands_strength(game) {
         }
       }
     }
-    return 0;
   });
 
-  // Convert to expected format
-  return Object.fromEntries(
-    new Map(strength_list.map(([str, player]) => [str, player])),
-  );
+  // Handle multiple winners with the same hand
+  let res = new Map();
+  strength_list.forEach(([str, player]) => {
+    if (!res.has(str)) {
+      res.set(str, []);
+    }
+    res.get(str).push(player);
+  });
+
+  // console.log(Object.fromEntries(res)); // for tests
+  return Object.fromEntries(res);
 }
 
 function format_hand(player_name, hole_cards) {

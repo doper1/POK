@@ -99,10 +99,11 @@ whatsapp.on(event, async (msg) => {
         raise_amount = Number(user_msg[2]);
 
         if (user_msg[2] == "all" || current.game_money == raise_amount) {
+          raise_amount = current.game_money;
           if (pok_functions.all_in(game, message, user_msg)) {
             game.updateRound(
               whatsapp,
-              `@${current.contact.id.user} is ALL IN for $${current.game_money} more (total $${current.current_bet})`
+              `@${current.contact.id.user} is ALL IN for $${raise_amount} more (total $${current.current_bet})`
             );
           }
         } else if (pok_functions.raise(game, message, raise_amount)) {

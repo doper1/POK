@@ -1,3 +1,4 @@
+const AllIn = require("../classes/AllIn");
 const constants = require("../constants");
 const cards_functions = require("./cards_functions");
 
@@ -10,44 +11,81 @@ function rake_to_winners(players, amount, winners) {
   if (players.length === 0) {
     return winners;
   }
+  players[0].game_money +=
+    (amount - (amount % players.length)) / players.length;
 
-  if (players[0].phone_number in winners) {
-    winners[players[0].phone_number] +=
-      (amount - (amount % players.length)) / players.length;
-  } else {
-    winners[players[0].phone_number] =
-      (amount - (amount % players.length)) / players.length;
+  if (!(players[0].phone_number in winners)) {
+    winners[players[0].phone_number] = players[0];
   }
   players.splice(0, 1);
 
   return rake_to_winners(players, amount, winners);
 }
 
+function get_winners(players) {
+  let winners = [players[0]];
+
+  for (let i = 1; i < players.length; i++) {
+    const currentPlayer = players[i];
+    const comparisonResult = compare_hands(
+      winners[0].hand_score.cards,
+      currentPlayer.hand_score.cards
+    );
+
+    if (comparisonResult < 0) {
+      winners = [currentPlayer];
+    } else if (comparisonResult === 0) {
+      winners.push(currentPlayer);
+    }
+  }
+
+  return winners;
+}
+
+function compare_hands(hand1, hand2) {
+  for (let i = 0; i < hand1.length; i++) {
+    if (hand1[i] > hand2[i]) {
+      return 1;
+    } else if (hand1[i] < hand2[i]) {
+      return -1;
+    }
+  }
+  return 0;
+}
+
+function random_winner_key(winners) {
+  return Object.keys(winners)[
+    Math.floor(Math.random() * Object.keys(winners).length)
+  ];
+}
+
 function showdown(game) {
   let hands_strength_list = cards_functions.calc_hands_strength(game);
-  console.log(hands_strength_list);
   game.jumpToButton();
   let current = game.order.current_player;
-  let last_pot = { pot: game.pot.main_pot, players: [] };
+  let last_pot = new AllIn([], game.pot.main_pot, -1);
   do {
     if (!current.is_folded) {
-      last_pot.players.push(current);
+      last_pot.addPlayer(current);
     }
     current = current.next_player;
   } while (!current.is_button);
-  let all_ins = [...game.pot.all_ins, last_pot].map((value, index, array) =>
-    index === 0 ? value : value - array[index - 1]
-  );
+
+  let all_ins = [...game.pot.all_ins, last_pot];
+  all_ins = all_ins.map((all_in, index) => {
+    if (index == 0) {
+      return new AllIn(all_in.players, all_in.pot, -1);
+    } else {
+      return new AllIn(all_in.players, all_in.pot - all_ins[index - 1].pot, -1);
+    }
+  });
 
   let winners = {};
   all_ins.forEach((all_in) => {
     for (let i = 0; i < Object.keys(hands_strength_list).length; i += 1) {
-      let possible_winners = Object.values(hands_strength_list)[i];
-      console.log("possible_winners:", possible_winners.length);
+      let possible_winners = get_winners(Object.values(hands_strength_list)[i]);
       if (!Array.isArray(possible_winners)) {
-        console.log("NOT ARRAY");
         if (is_valid_winner(possible_winners, all_in)) {
-          console.log("Valid, one player", possible_winners.phone_number);
           winners = rake_to_winners([possible_winners], all_in.pot, winners);
           break;
         }
@@ -63,12 +101,11 @@ function showdown(game) {
         }
         if (possible_winners.length > 0) {
           winners = rake_to_winners(possible_winners, all_in.pot, winners);
-          winners[
-            possible_winners[
-              Math.floor(Math.random() * (possible_winners.length + 1))
-            ].phone_number
-          ] += all_in.pot % all_in.players.length;
-          console.log("BREAK");
+
+          // If there is a reminder of the stack that cannot be split, gives it to random player from the winners
+          winners[random_winner_key(winners)].game_money +=
+            all_in.pot % all_in.players.length;
+
           break;
         }
       }
@@ -76,9 +113,9 @@ function showdown(game) {
   });
   let message = "";
   for (const phone_number in winners) {
-    let player = game.players[phone_number];
+    let player = winners[phone_number];
     message += `${player.name} Won $${
-      winners[phone_number]
+      player.game_money
     } with ${cards_functions.print_cards(player.hole_cards)}
   \n${constants.STRENGTH_DICT[player.hand_score.str]}:
   ${cards_functions.print_cards(player.hand_score.cards)}
@@ -116,5 +153,5 @@ function all_in_qualification(game) {
 module.exports = {
   showdown,
   all_in,
-  all_in_qualification
+  all_in_qualification,
 };
