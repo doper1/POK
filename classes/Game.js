@@ -150,7 +150,7 @@ Action on @${current.contact.id.user} ($${current.game_money})\n
 $${this.pot.current_bet - current.current_bet} to call`;
 
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 
@@ -195,7 +195,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 
@@ -254,12 +254,13 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       let message = await this.chat.sendMessage(
         action_message + players_in_all_in,
         {
-          mentions: this.getMentions(),
+          mentions: this.getMentions()
         }
       );
 
-      await delay(3000);
       await this.rushRound(message, whatsapp);
+      let end_message = game_functions.showdown(this);
+      this.initRound(whatsapp, end_message);
     } else if (next.is_all_in || next.is_folded) {
       this.order.next();
       this.updateRound(whatsapp, action_message);
@@ -272,28 +273,25 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
   }
 
   moveRound(whatsapp) {
+    this.pot.reorgAllIns();
     switch (this.community_cards.length) {
       // Flop
       case 0:
         this.community_cards.push(...this.deck.splice(-3));
         this.resetRoundStatus();
         break;
-
       // Turn
       case 3:
         this.community_cards.push(this.deck.pop());
         this.resetRoundStatus();
         break;
-
       // River
       case 4:
         this.community_cards.push(this.deck.pop());
         this.resetRoundStatus();
         break;
-
       // Showdown
       case 5:
-        this.pot.reorgAllIns();
         this.initRound(whatsapp, game_functions.showdown(this));
         break;
     }
@@ -326,19 +324,12 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       case 4:
         this.community_cards.push(this.deck.pop());
         break;
-
-      // Showdown
-      case 5:
-        this.initRound(whatsapp, game_functions.showdown(this));
+      default:
         return;
     }
     message = await edit_message(message);
-    await setTimeout(
-      () => {
-        this.rushRound(message, whatsapp);
-      },
-      (this.community_cards.length - 1) * 1200
-    );
+    await delay((this.community_cards.length - 1) * 1000);
+    await this.rushRound(message, whatsapp);
   }
 
   resetPlayersStatus(is_new_hand) {
@@ -373,7 +364,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 

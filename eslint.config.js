@@ -10,9 +10,12 @@ module.exports = [
       globals: {
         ...globals.browser,
         ...globals.node, // Add Node.js globals
-        ...globals.jest, // Add Jest globals
-      },
+        ...globals.jest // Add Jest globals
+      }
     },
+    rules: {
+      "comma-dangle": ["error", "never"]
+    }
   },
-  pluginJs.configs.recommended,
+  pluginJs.configs.recommended
 ];

@@ -11,7 +11,7 @@ describe("is_allowed", () => {
     message = {
       reply: jest.fn(),
       react: jest.fn(),
-      author: "different author",
+      author: "different author"
     };
 
     // jest.spyOn(general_functions, "emote")

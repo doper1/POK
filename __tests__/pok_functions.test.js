@@ -21,12 +21,12 @@ describe("pok join", () => {
     games = {
       some_id: {
         players: { phone_number: { contact: { id: { user: "helo" } } } },
-        addPlayer: jest.fn(),
-      },
+        addPlayer: jest.fn()
+      }
     };
     message = {
       author: "1232213",
-      reply: jest.fn(),
+      reply: jest.fn()
     };
     full_name = "bob smith";
     contact = "1232213";
@@ -123,13 +123,13 @@ describe("pok raise", () => {
           current_bet: 3,
           game_money: 100,
           is_all_in: false,
-          is_played: false,
-        },
+          is_played: false
+        }
       },
       pot: {
         main_pot: 0,
-        addAllIn: jest.fn(),
-      },
+        addAllIn: jest.fn()
+      }
     };
     message = { reply: jest.fn(), react: jest.fn() };
 

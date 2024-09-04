@@ -12,7 +12,7 @@ function join(games, chat_id, message, full_name, contact, chat) {
 
     let current = games[chat_id].players[phone_number];
     chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [current.contact.id._serialized],
+      mentions: [current.contact.id._serialized]
     });
   } else if (games[chat_id].players[phone_number] !== undefined) {
     message.reply("You have already joined!");
@@ -28,14 +28,14 @@ function join(games, chat_id, message, full_name, contact, chat) {
       `Some @${current.contact.id.user} has joined the game!
 Wait for the next round to start`,
       {
-        mentions: [current.contact.id._serialized],
+        mentions: [current.contact.id._serialized]
       }
     );
   } else {
     games[chat_id].addPlayer(full_name, phone_number, contact);
     let current = games[chat_id].players[phone_number];
     chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [current.contact.id._serialized],
+      mentions: [current.contact.id._serialized]
     });
   }
 }
@@ -129,6 +129,7 @@ function check(game, message) {
 }
 
 // pok raise X / pok raise all / pok raise all in
+// TODO: Move all the false entries to a different function (for all the pok functions)
 function raise(game, message, amount) {
   let current = game.order.current_player;
   if (!is_allowed(game, message)) {
@@ -162,18 +163,13 @@ function raise(game, message, amount) {
     message.reply(`You only have $${current.game_money}...`);
     return false;
   } else {
+    game_functions.all_in_qualification(game);
     current.game_money -= amount;
     current.is_played = true;
     current.current_bet = amount + current.current_bet;
     game.pot.main_pot += amount;
     game.pot.current_bet = current.current_bet;
 
-    game.pot.all_ins.forEach((all_in) => {
-      if (all_in.current_bet == -1 || current.current_bet >= all_in.current_bet)
-        return true;
-
-      all_in.pot += all_in.current_bet - current.current_bet;
-    });
     return true;
   }
 }
@@ -183,6 +179,7 @@ function all_in(game, message, user_msg) {
   if (!is_allowed(game, message)) {
     return false;
   } else {
+    game_functions.all_in_qualification(game);
     game_functions.all_in(game, message, user_msg);
     return true;
   }
@@ -210,16 +207,11 @@ function call(game, message) {
     message.reply(`Since no one has bet, you don’t need to call`);
     return false;
   } else {
+    game_functions.all_in_qualification(game);
     let amount = game.pot.current_bet - current.current_bet;
     current.game_money -= amount;
     current.is_played = true;
     game.pot.main_pot += amount;
-    game.pot.all_ins.forEach((all_in) => {
-      if (all_in.current_bet == -1 || current.current_bet >= all_in.current_bet)
-        return;
-
-      all_in.pot += all_in.current_bet - current.current_bet;
-    });
     current.current_bet = game.pot.current_bet;
     return true;
   }
@@ -235,5 +227,5 @@ module.exports = {
   check,
   raise,
   call,
-  all_in,
+  all_in
 };

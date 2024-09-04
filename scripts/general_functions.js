@@ -9,10 +9,6 @@ function shuffleArray(array) {
   return array;
 }
 
-function sort_cards(cards) {
-  return cards.slice().sort((a, b) => a[1] - b[1]);
-}
-
 function hasTwoWords(string) {
   return /^\S+\s+\S+$/.test(string);
 }
@@ -56,10 +52,9 @@ function delay(ms) {
 
 module.exports = {
   shuffleArray,
-  sort_cards,
   hasTwoWords,
   emote,
   is_allowed,
   format_phone_number,
-  delay,
+  delay
 };

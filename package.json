@@ -10,8 +10,8 @@
   "scripts": {
     "dev": "cross-env ENV=dev node --watch index.js",
     "start": "cross-env ENV=prod node --watch index.js",
-    "test": "jest",
-    "lint": "eslint ."
+    "test": "jest --coverage",
+    "lint": "eslint . --fix"
   },
   "repository": {
     "type": "git",

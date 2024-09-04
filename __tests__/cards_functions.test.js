@@ -12,7 +12,7 @@ const {
   is_one_pair,
   parseCardNumber,
   ReverseParseCardNumber,
-  calc_hands_strength,
+  calc_hands_strength
 } = require("../scripts/cards_functions.js");
 
 describe("Poker Hand Evaluation Tests", () => {
@@ -20,7 +20,7 @@ describe("Poker Hand Evaluation Tests", () => {
     const cards = [
       ["H", "A"],
       ["D", "10"],
-      ["S", "K"],
+      ["S", "K"]
     ];
     const result = print_cards(cards);
     expect(result).toBe("*|HA|* *|D10|* *|SK|*");
@@ -49,14 +49,14 @@ describe("Poker Hand Evaluation Tests", () => {
       ["H", "9"],
       ["H", "Q"],
       ["H", "K"],
-      ["D", "3"],
+      ["D", "3"]
     ];
     expect(is_flush(cards)).toEqual([
       ["H", "2"],
       ["H", "5"],
       ["H", "9"],
       ["H", "Q"],
-      ["H", "K"],
+      ["H", "K"]
     ]);
   });
 
@@ -67,14 +67,14 @@ describe("Poker Hand Evaluation Tests", () => {
       ["S", 8],
       ["D", 7],
       ["H", 6],
-      ["H", 2],
+      ["H", 2]
     ];
     expect(is_straight(cards)).toEqual([
       ["H", 10],
       ["C", 9],
       ["S", 8],
       ["D", 7],
-      ["H", 6],
+      ["H", 6]
     ]);
   });
 
@@ -85,14 +85,14 @@ describe("Poker Hand Evaluation Tests", () => {
       ["H", 8],
       ["H", 7],
       ["H", 6],
-      ["D", 3],
+      ["D", 3]
     ];
     expect(is_straight_flush(cards)).toEqual([
       ["H", 10],
       ["H", 9],
       ["H", 8],
       ["H", 7],
-      ["H", 6],
+      ["H", 6]
     ]);
   });
 
@@ -102,13 +102,13 @@ describe("Poker Hand Evaluation Tests", () => {
       ["D", 9],
       ["S", 9],
       ["C", 9],
-      ["H", 6],
+      ["H", 6]
     ];
     expect(is_four_of_a_kind(cards)).toEqual([
       ["H", 9],
       ["D", 9],
       ["S", 9],
-      ["C", 9],
+      ["C", 9]
     ]);
   });
 
@@ -118,14 +118,14 @@ describe("Poker Hand Evaluation Tests", () => {
       ["C", 10],
       ["S", 10],
       ["D", 6],
-      ["H", 6],
+      ["H", 6]
     ];
     expect(is_full_house(cards)).toEqual([
       ["H", 10],
       ["C", 10],
       ["S", 10],
       ["D", 6],
-      ["H", 6],
+      ["H", 6]
     ]);
   });
 
@@ -135,12 +135,12 @@ describe("Poker Hand Evaluation Tests", () => {
       ["C", 10],
       ["S", 10],
       ["D", 6],
-      ["H", 2],
+      ["H", 2]
     ];
     expect(is_three_of_a_kind(cards)).toEqual([
       ["H", 10],
       ["C", 10],
-      ["S", 10],
+      ["S", 10]
     ]);
   });
 
@@ -150,13 +150,13 @@ describe("Poker Hand Evaluation Tests", () => {
       ["C", 10],
       ["S", 6],
       ["D", 6],
-      ["H", 2],
+      ["H", 2]
     ];
     expect(is_two_pair(cards)).toEqual([
       ["H", 10],
       ["C", 10],
       ["S", 6],
-      ["D", 6],
+      ["D", 6]
     ]);
   });
 
@@ -166,11 +166,11 @@ describe("Poker Hand Evaluation Tests", () => {
       ["C", 10],
       ["S", 6],
       ["D", 7],
-      ["H", 2],
+      ["H", 2]
     ];
     expect(is_one_pair(cards)).toEqual([
       ["H", 10],
-      ["C", 10],
+      ["C", 10]
     ]);
   });
 
@@ -180,20 +180,20 @@ describe("Poker Hand Evaluation Tests", () => {
       ["H", 14],
       ["D", 10],
       ["C", 7],
-      ["S", 9],
+      ["S", 9]
     ];
     expect(sort_cards(cards)).toEqual([
       ["H", 14],
       ["D", 10],
       ["S", 9],
       ["C", 7],
-      ["H", 2],
+      ["H", 2]
     ]);
   });
 });
 
 describe("calc_hands_strength", () => {
-  test("calc_hands_strength calculates hand strength correctly", () => {
+  test("everybody tied", () => {
     const game = {
       type: 1,
       community_cards: [
@@ -201,41 +201,310 @@ describe("calc_hands_strength", () => {
         ["C", "K"],
         ["D", "Q"],
         ["S", "K"],
-        ["H", "A"],
+        ["H", "A"]
       ],
       order: {
-        current_player: null, // This will be set later
-        players: [],
+        current_player: null,
+        players: []
       },
       jumpToButton: function () {
         this.order.current_player = this.order.players[0];
-      },
+      }
     };
 
     const player1 = {
       hole_cards: [
-        ["C", "5"],
-        ["D", "8"],
+        ["C", "7"],
+        ["D", "10"]
       ],
       hand_score: {},
-      is_button: true,
+      is_button: true
     };
 
     const player2 = {
       hole_cards: [
-        ["C", "7"],
-        ["D", "6"],
+        ["C", "10"],
+        ["D", "7"]
       ],
       hand_score: {},
-      is_button: false,
+      is_button: false
     };
 
-    player1.next_player = player2;
-    player2.next_player = player1;
+    const player3 = {
+      hole_cards: [
+        ["H", "Q"],
+        ["S", "3"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
 
-    game.order.players = [player1, player2];
+    // Link players in a circular list
+    player1.next_player = player2;
+    player2.next_player = player3;
+    player3.next_player = player1;
+
+    game.order.players = [player1, player2, player3];
     game.order.current_player = player1;
 
-    calc_hands_strength(game);
+    const result = calc_hands_strength(game);
+  });
+
+  test("correctly identifies a tie between two players", () => {
+    const game = {
+      type: 1,
+      community_cards: [
+        ["H", "10"],
+        ["C", "K"],
+        ["D", "Q"],
+        ["S", "K"],
+        ["H", "A"]
+      ],
+      order: {
+        current_player: null,
+        players: []
+      },
+      jumpToButton: function () {
+        this.order.current_player = this.order.players[0];
+      }
+    };
+
+    const player1 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: true
+    };
+
+    const player2 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    const player3 = {
+      hole_cards: [
+        ["H", "2"],
+        ["S", "3"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    // Link players in a circular list
+    player1.next_player = player2;
+    player2.next_player = player3;
+    player3.next_player = player1;
+
+    game.order.players = [player1, player2, player3];
+    game.order.current_player = player1;
+
+    const result = calc_hands_strength(game);
+  });
+
+  test("correctly identifies multiple ties", () => {
+    const game = {
+      type: 1,
+      community_cards: [
+        ["H", "10"],
+        ["C", "K"],
+        ["D", "Q"],
+        ["S", "K"],
+        ["H", "A"]
+      ],
+      order: {
+        current_player: null,
+        players: []
+      },
+      jumpToButton: function () {
+        this.order.current_player = this.order.players[0];
+      }
+    };
+
+    const player1 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: true
+    };
+
+    const player2 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    const player3 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    const player4 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    // Link players in a circular list
+    player1.next_player = player2;
+    player2.next_player = player3;
+    player3.next_player = player4;
+    player4.next_player = player1;
+
+    game.order.players = [player1, player2, player3, player4];
+    game.order.current_player = player1;
+
+    const result = calc_hands_strength(game);
+  });
+
+  test("correctly handles a situation with a single winner and multiple losers", () => {
+    const game = {
+      type: 1,
+      community_cards: [
+        ["H", "10"],
+        ["C", "K"],
+        ["D", "Q"],
+        ["S", "K"],
+        ["H", "A"]
+      ],
+      order: {
+        current_player: null,
+        players: []
+      },
+      jumpToButton: function () {
+        this.order.current_player = this.order.players[0];
+      }
+    };
+
+    const player1 = {
+      hole_cards: [
+        ["C", "A"],
+        ["D", "A"]
+      ],
+      hand_score: {},
+      is_button: true
+    };
+
+    const player2 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "7"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    const player3 = {
+      hole_cards: [
+        ["H", "2"],
+        ["S", "3"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    const player4 = {
+      hole_cards: [
+        ["D", "4"],
+        ["C", "9"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    // Link players in a circular list
+    player1.next_player = player2;
+    player2.next_player = player3;
+    player3.next_player = player4;
+    player4.next_player = player1;
+
+    game.order.players = [player1, player2, player3, player4];
+    game.order.current_player = player1;
+
+    const result = calc_hands_strength(game);
+  });
+
+  test("correctly handles a situation with three winners with the same hand", () => {
+    const game = {
+      type: 1,
+      community_cards: [
+        ["H", "10"],
+        ["C", "K"],
+        ["D", "Q"],
+        ["S", "K"],
+        ["H", "A"]
+      ],
+      order: {
+        current_player: null,
+        players: []
+      },
+      jumpToButton: function () {
+        this.order.current_player = this.order.players[0];
+      }
+    };
+
+    const player1 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: true
+    };
+
+    const player2 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    const player3 = {
+      hole_cards: [
+        ["C", "10"],
+        ["D", "J"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    const player4 = {
+      hole_cards: [
+        ["H", "2"],
+        ["S", "3"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    // Link players in a circular list
+    player1.next_player = player2;
+    player2.next_player = player3;
+    player3.next_player = player4;
+    player4.next_player = player1;
+
+    game.order.players = [player1, player2, player3, player4];
+    game.order.current_player = player1;
+
+    const result = calc_hands_strength(game);
   });
 });
