@@ -1,41 +1,45 @@
 //imports
-let Game = require("../classes/Game");
-let { emote, is_allowed, format_phone_number } = require("./general_functions");
-let game_functions = require("../scripts/game_functions");
+const Game = require("../classes/Game");
+const {
+  emote,
+  is_allowed,
+  format_phone_number,
+} = require("../scripts/generalFunctions");
+const game_functions = require("../scripts/gameFunctions");
 
 // pok join (the game)
 function join(games, chat_id, message, full_name, contact, chat) {
+  let game = games[chat_id];
   let phone_number = format_phone_number(message.author);
-  if (games[chat_id] == undefined) {
+
+  if (game == undefined) {
     games[chat_id] = new Game(chat_id, chat);
-    games[chat_id].addPlayer(full_name, phone_number, contact);
+    games[chat_id].addPlayer(full_name, contact, phone_number);
 
     let current = games[chat_id].players[phone_number];
     chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [current.contact.id._serialized]
+      mentions: [phone_number],
     });
-  } else if (games[chat_id].players[phone_number] !== undefined) {
+  } else if (game.players[phone_number] !== undefined) {
     message.reply("You have already joined!");
-  } else if (games[chat_id].is_midround == true) {
-    games[chat_id].addPlayer(full_name, phone_number, contact);
-    games[chat_id].players[phone_number].is_folded = true;
-    games[chat_id].folds++;
-    games[chat_id].order.insertAfterCurrent(
-      games[chat_id].players[phone_number]
-    );
-    let current = games[chat_id].players[phone_number];
+  } else if (game.is_midround == true) {
+    game.addPlayer(full_name, contact, phone_number);
+    game.players[phone_number].is_folded = true;
+    game.folds++;
+    game.order.insertAfterCurrent(game.players[phone_number]);
+    let current = game.players[phone_number];
     chat.sendMessage(
       `Some @${current.contact.id.user} has joined the game!
 Wait for the next round to start`,
       {
-        mentions: [current.contact.id._serialized]
+        mentions: [phone_number],
       }
     );
   } else {
-    games[chat_id].addPlayer(full_name, phone_number, contact);
-    let current = games[chat_id].players[phone_number];
+    game.addPlayer(full_name, contact, phone_number);
+    let current = game.players[phone_number];
     chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [current.contact.id._serialized]
+      mentions: [phone_number],
     });
   }
 }
@@ -55,7 +59,8 @@ function show(game, message) {
 // pok exit (the table)
 function exit(games, chat_id, message, full_name) {
   let phone_number = format_phone_number(message.author);
-  if (!(chat_id in games) || !(phone_number in games[chat_id].players)) {
+
+  if (!(chat_id in games) || !(phone_number in game.players)) {
     message.react(emote("mistake"));
     message.reply("You have not joined the game yet");
   } else {
@@ -76,8 +81,9 @@ function exit(games, chat_id, message, full_name) {
 }
 
 // pok start - start the game
-function start(game, message, whatsapp) {
+function start(game, message, contact, whatsapp) {
   let phone_number = format_phone_number(message.author);
+
   if (game == undefined) {
     message.reply("There are no players on the table :(");
   } else if (game.players[phone_number] == undefined) {
@@ -227,5 +233,5 @@ module.exports = {
   check,
   raise,
   call,
-  all_in
+  all_in,
 };

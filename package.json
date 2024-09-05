@@ -1,21 +1,22 @@
 {
   "name": "POK",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Poker bot for whatsapp",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "main.js",
   "directories": {
     "doc": "/docs"
   },
   "scripts": {
-    "dev": "cross-env ENV=dev node --watch index.js",
-    "start": "cross-env ENV=prod node --watch index.js",
+    "dev": "cross-env ENV=dev node --watch src/app.js",
+    "start": "cross-env ENV=prod node --watch src/app.js",
     "test": "jest --coverage",
-    "lint": "eslint . --fix"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/doper1/POK.git"
+    "url": "https://github.com/doper1/POK"
   },
   "keywords": [
     "Poker",
@@ -32,6 +33,7 @@
   "dependencies": {
     "punycode": "^2.3.1",
     "qrcode-terminal": "^0.12.0",
+    "typescript": "^5.5.4",
     "whatsapp": "^0.0.5-Alpha",
     "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus"
   },

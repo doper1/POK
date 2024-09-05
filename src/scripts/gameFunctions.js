@@ -1,6 +1,6 @@
 const AllIn = require("../classes/AllIn");
 const constants = require("../constants");
-const cards_functions = require("./cards_functions");
+const cards_functions = require("./cardsFunctions");
 
 function is_valid_winner(player, all_in) {
   return all_in.players.some(
@@ -119,7 +119,7 @@ function showdown(game) {
     } with ${cards_functions.print_cards(player.hole_cards)}
   \n${constants.STRENGTH_DICT[player.hand_score.str]}:
   ${cards_functions.print_cards(player.hand_score.cards)}
-  ---------------------------------`;
+  ---------------------------------\n`;
   }
 
   return message;
@@ -153,5 +153,5 @@ function all_in_qualification(game) {
 module.exports = {
   showdown,
   all_in,
-  all_in_qualification,
+  all_in_qualification
 };
