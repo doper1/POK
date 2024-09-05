@@ -57,5 +57,5 @@ module.exports = {
   emote,
   is_allowed,
   format_phone_number,
-  delay,
+  delay
 };

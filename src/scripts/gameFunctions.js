@@ -117,30 +117,15 @@ function showdown(game) {
     message += `${player.name} Won $${
       player.game_money
     } with ${cards_functions.print_cards(player.hole_cards)}
-  \n${constants.STRENGTH_DICT[player.hand_score.str]}:
-  ${cards_functions.print_cards(player.hand_score.cards)}
-  ---------------------------------\n`;
+${constants.STRENGTH_DICT[player.hand_score.str]}:
+${cards_functions.print_cards(player.hand_score.cards)}
+---------------------------------\n`;
   }
 
   return message;
 }
 
-function all_in(game) {
-  let current = game.order.current_player;
-  current.is_all_in = true;
-  current.is_played = true;
-  game.pot.main_pot += current.game_money;
-  current.current_bet += current.game_money;
-  current.game_money = 0;
-
-  if (current.current_bet > game.pot.current_bet) {
-    game.pot.current_bet = current.current_bet;
-  }
-
-  game.pot.addAllIn(game);
-}
-
-function all_in_qualification(game) {
+function qualifyToAllIns(game) {
   let current = game.order.current_player;
   game.pot.all_ins.forEach((all_in) => {
     if (all_in.current_bet != -1 && current.current_bet < all_in.current_bet) {
@@ -152,6 +137,5 @@ function all_in_qualification(game) {
 
 module.exports = {
   showdown,
-  all_in,
-  all_in_qualification
+  qualifyToAllIns
 };

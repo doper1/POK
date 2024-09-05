@@ -148,7 +148,7 @@ Check your DM for your cards 🤫\n
 Action on @${current.contact.id.user} ($${current.game_money})\n
 $${this.pot.current_bet - current.current_bet} to call`;
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 
@@ -193,7 +193,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 
@@ -252,7 +252,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       let message = await this.chat.sendMessage(
         action_message + players_in_all_in,
         {
-          mentions: this.getMentions(),
+          mentions: this.getMentions()
         }
       );
 
@@ -362,7 +362,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 

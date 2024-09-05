@@ -18,12 +18,12 @@ if (mode === "prod") {
 }
 
 let whatsapp = new Client({
-  authStrategy: new LocalAuth(),
+  authStrategy: new LocalAuth()
 });
 
 whatsapp.on("qr", (qr) => {
   qrcode.generate(qr, {
-    small: true,
+    small: true
   });
 });
 
@@ -33,9 +33,9 @@ whatsapp.on("call", async (call) => {
 
 // The main entry point
 whatsapp.on(event, async (message_promise) => {
-  message = await message_promise;
-  const body = message.body.toLowerCase().split(" ");
+  let message = await message_promise;
   const chat = await message.getChat();
+  const body = message.body.toLowerCase().split(" ");
 
   if (router.validateMessage(message, body, chat)) {
     router.route(whatsapp, message, body, chat, games);
