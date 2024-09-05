@@ -1,4 +1,4 @@
-const { emote, is_allowed } = require("../../scripts/generalFunctions.js");
+const { emote, is_allowed } = require("../../generalFunctions.js");
 
 // globals
 let current;

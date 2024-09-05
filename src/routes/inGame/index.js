@@ -1,7 +1,7 @@
 const constants = require("../../constants");
 const actions = require("./actions.js");
 const validators = require("./validators.js");
-const { emote } = require("../../scripts/generalFunctions");
+const { emote } = require("../../generalFunctions");
 
 function inGameRoute(body, games, chat_id, message, whatsapp) {
   let game = games[chat_id];
@@ -34,11 +34,11 @@ function inGameRoute(body, games, chat_id, message, whatsapp) {
       if (validators.all_in(game, message)) actions.all_in(game, whatsapp);
       return true;
     case "fold":
-      if (validators.fold(game, message)) actions.fold(game, message);
+      if (validators.fold(game, message)) actions.fold(game, message, whatsapp);
       return true;
     case "call":
       if (game.pot.current_bet - current.current_bet >= current.game_money) {
-        if (validators.all_in(game, message)) actions.all_in(game, whatsapp);
+        if (validators.all_in(game, message)) actions.p(game, whatsapp);
         return true;
       } else if (validators.call(game, message)) actions.call(game, whatsapp);
       return true;

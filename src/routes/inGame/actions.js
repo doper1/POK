@@ -1,5 +1,5 @@
-const { emote } = require("../../scripts/generalFunctions");
-const game_functions = require("../../scripts/gameFunctions");
+const { emote } = require("../../generalFunctions");
+const game_functions = require("../../game/gameFunctions");
 
 // globals
 let new_message;

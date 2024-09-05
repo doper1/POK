@@ -1,4 +1,4 @@
-const constants = require("../constants");
+const constants = require("./constants");
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
@@ -57,5 +57,5 @@ module.exports = {
   emote,
   is_allowed,
   format_phone_number,
-  delay
+  delay,
 };

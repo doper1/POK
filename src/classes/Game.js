@@ -1,9 +1,9 @@
 const constants = require("../constants");
 
 // Scripts
-const { shuffleArray, delay } = require("../scripts/generalFunctions");
-const cards_functions = require("../scripts/cardsFunctions");
-const game_functions = require("../scripts/gameFunctions");
+const { shuffleArray, delay } = require("../generalFunctions.js");
+const cards_functions = require("../game/cardsFunctions.js");
+const game_functions = require("../game/gameFunctions.js");
 
 // Classes
 const Player = require("./Player");
@@ -148,7 +148,7 @@ Check your DM for your cards 🤫\n
 Action on @${current.contact.id.user} ($${current.game_money})\n
 $${this.pot.current_bet - current.current_bet} to call`;
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions()
+      mentions: this.getMentions(),
     });
   }
 
@@ -193,7 +193,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions()
+      mentions: this.getMentions(),
     });
   }
 
@@ -231,8 +231,8 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
     // More then one player is all in and everybody else folded
     else if (
       all_ins_count + this.folds == players_count ||
-      (all_ins_count == players_count - this.folds + 1 &&
-        current.current_bet >= this.pot.current_bet)
+      (all_ins_count == players_count - this.folds - 1 &&
+        next.current_bet == this.pot.current_bet)
     ) {
       // TODO: implemenet in seperate function so it will print the community cards from the first message
       // if (this.community_cards.length != 0)
@@ -240,9 +240,10 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       //     this.community_cards
       //   )}`;
       // else action_message += `\n*Community Cards:*`;
+
       let players_in_all_in = "\n\n";
       Object.values(this.players).forEach((player) => {
-        if (player.is_all_in) {
+        if (!player.is_folded) {
           players_in_all_in += `${cards_functions.format_hand(
             player.name,
             player.hole_cards
@@ -252,7 +253,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       let message = await this.chat.sendMessage(
         action_message + players_in_all_in,
         {
-          mentions: this.getMentions()
+          mentions: this.getMentions(),
         }
       );
 
@@ -354,6 +355,10 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
     this.resetPlayersStatus(false);
     this.order.next();
     let current = this.order.current_player;
+    while (current.is_all_in || current.is_folded) {
+      current = current.next_player;
+    }
+    this.order.current_player = current;
     let new_message = `Pot: $${this.pot.main_pot}\n
 *Community Cards:*\n${cards_functions.print_cards(this.community_cards)}\n
 Action on @${current.contact.id.user} ($${current.game_money})`;
@@ -362,7 +367,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions()
+      mentions: this.getMentions(),
     });
   }
 

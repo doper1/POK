@@ -1,4 +1,4 @@
-const { emote } = require("../../scripts/generalFunctions");
+const { emote } = require("../../generalFunctions");
 
 // pok start - start the game
 function start(game, message, whatsapp) {

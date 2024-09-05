@@ -1,5 +1,5 @@
 const Game = require("../../classes/Game");
-const { format_phone_number } = require("../../scripts/generalFunctions");
+const { format_phone_number } = require("../../generalFunctions");
 
 function join(games, chat_id, message, full_name, contact, chat) {
   let game = games[chat_id];
@@ -11,7 +11,7 @@ function join(games, chat_id, message, full_name, contact, chat) {
 
     let current = games[chat_id].players[phone_number];
     chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [phone_number]
+      mentions: [phone_number],
     });
   } else if (game.is_midround == true) {
     game.addPlayer(full_name, contact, phone_number);
@@ -23,14 +23,14 @@ function join(games, chat_id, message, full_name, contact, chat) {
       `Some @${current.contact.id.user} has joined the game!
 Wait for the next round to start`,
       {
-        mentions: [phone_number]
+        mentions: [phone_number],
       }
     );
   } else {
     game.addPlayer(full_name, contact, phone_number);
     let current = game.players[phone_number];
     chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [phone_number]
+      mentions: [phone_number],
     });
   }
 }
@@ -61,5 +61,5 @@ function exit(games, chat_id, message, full_name) {
 module.exports = {
   join,
   show,
-  exit
+  exit,
 };

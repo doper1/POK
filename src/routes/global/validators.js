@@ -1,7 +1,4 @@
-const {
-  format_phone_number,
-  emote
-} = require("../../scripts/generalFunctions");
+const { format_phone_number, emote } = require("../../generalFunctions");
 
 function join(game, message) {
   if (
