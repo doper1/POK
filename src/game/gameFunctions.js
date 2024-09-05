@@ -1,6 +1,6 @@
 const AllIn = require("../classes/AllIn");
 const constants = require("../constants");
-const cards_functions = require("./cards_functions");
+const cards_functions = require("./cardsFunctions");
 
 function is_valid_winner(player, all_in) {
   return all_in.players.some(
@@ -11,12 +11,13 @@ function rake_to_winners(players, amount, winners) {
   if (players.length === 0) {
     return winners;
   }
-  players[0].game_money +=
-    (amount - (amount % players.length)) / players.length;
-
   if (!(players[0].phone_number in winners)) {
-    winners[players[0].phone_number] = players[0];
+    winners[players[0].phone_number] = [players[0], 0];
   }
+  let winnings = (amount - (amount % players.length)) / players.length;
+  winners[players[0].phone_number][0].game_money += winnings;
+  winners[players[0].phone_number][1] += winnings;
+
   players.splice(0, 1);
 
   return rake_to_winners(players, amount, winners);
@@ -80,7 +81,7 @@ function showdown(game) {
     }
   });
 
-  let winners = {};
+  let winners = {}; // { phone_number: [player, player_winnings] ...}
   all_ins.forEach((all_in) => {
     for (let i = 0; i < Object.keys(hands_strength_list).length; i += 1) {
       let possible_winners = get_winners(Object.values(hands_strength_list)[i]);
@@ -103,7 +104,7 @@ function showdown(game) {
           winners = rake_to_winners(possible_winners, all_in.pot, winners);
 
           // If there is a reminder of the stack that cannot be split, gives it to random player from the winners
-          winners[random_winner_key(winners)].game_money +=
+          winners[random_winner_key(winners)][0].game_money +=
             all_in.pot % all_in.players.length;
 
           break;
@@ -114,33 +115,18 @@ function showdown(game) {
   let message = "";
   for (const phone_number in winners) {
     let player = winners[phone_number];
-    message += `${player.name} Won $${
-      player.game_money
-    } with ${cards_functions.print_cards(player.hole_cards)}
-  \n${constants.STRENGTH_DICT[player.hand_score.str]}:
-  ${cards_functions.print_cards(player.hand_score.cards)}
-  ---------------------------------`;
+    message += `${player[0].name} Won $${
+      player[1]
+    } with ${cards_functions.print_cards(player[0].hole_cards)}
+${constants.STRENGTH_DICT[player[0].hand_score.str]}:
+${cards_functions.print_cards(player[0].hand_score.cards)}
+---------------------------------\n`;
   }
 
   return message;
 }
 
-function all_in(game) {
-  let current = game.order.current_player;
-  current.is_all_in = true;
-  current.is_played = true;
-  game.pot.main_pot += current.game_money;
-  current.current_bet += current.game_money;
-  current.game_money = 0;
-
-  if (current.current_bet > game.pot.current_bet) {
-    game.pot.current_bet = current.current_bet;
-  }
-
-  game.pot.addAllIn(game);
-}
-
-function all_in_qualification(game) {
+function qualifyToAllIns(game) {
   let current = game.order.current_player;
   game.pot.all_ins.forEach((all_in) => {
     if (all_in.current_bet != -1 && current.current_bet < all_in.current_bet) {
@@ -152,6 +138,5 @@ function all_in_qualification(game) {
 
 module.exports = {
   showdown,
-  all_in,
-  all_in_qualification,
+  qualifyToAllIns,
 };

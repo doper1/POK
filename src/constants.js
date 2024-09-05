@@ -1,4 +1,4 @@
-module.exports.MESSAGE_TIMEOUT = 10;
+module.exports.MESSAGE_MAX_AGE = 10;
 module.exports.STRENGTH_DICT = {
   0: "*ROYAL FLUSH*",
   1: "*STRAIGHT FLUSH*",

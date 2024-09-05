@@ -1,4 +1,4 @@
-let AllIn = require("./AllIn");
+const AllIn = require("./AllIn");
 
 class Pot {
   constructor() {

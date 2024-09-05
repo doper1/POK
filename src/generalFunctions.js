@@ -1,4 +1,4 @@
-let constants = require("../constants");
+const constants = require("./constants");
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
@@ -32,6 +32,7 @@ function emote(emoji_type) {
 
 function is_allowed(game, message) {
   let phone_number = format_phone_number(message.author);
+
   if (game.order.current_player.phone_number != phone_number) {
     // Current player check
     message.react(emote("mistake"));
@@ -56,5 +57,5 @@ module.exports = {
   emote,
   is_allowed,
   format_phone_number,
-  delay
+  delay,
 };

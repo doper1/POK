@@ -105,7 +105,7 @@ function is_four_of_a_kind(cards) {
         count_cards[key][0],
         count_cards[key][1],
         count_cards[key][2],
-        count_cards[key][3],
+        count_cards[key][3]
       ];
   return false;
 }
@@ -121,7 +121,7 @@ function is_full_house(cards) {
             count_cards[key][1],
             count_cards[key][2],
             count_cards[k][0],
-            count_cards[k][1],
+            count_cards[k][1]
           ];
   return false;
 }
@@ -142,7 +142,7 @@ function is_two_pair(cards) {
             count_cards[key][0],
             count_cards[key][1],
             count_cards[k][0],
-            count_cards[k][1],
+            count_cards[k][1]
           ];
   // can reuse for making ispair just fix return and if downstairs[count_cards[key][0], count_cards[key][1]];
   return false;
@@ -305,5 +305,5 @@ module.exports = {
   ReverseParseCardNumber,
   isCardInCards,
   calc_hands_strength,
-  format_hand,
+  format_hand
 };
