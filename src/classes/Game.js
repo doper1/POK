@@ -24,8 +24,8 @@ class Game {
     this.folds = 0;
   }
 
-  addPlayer(name, contact, phone_number) {
-    this.players[phone_number] = new Player(name, phone_number, contact);
+  addPlayer(contact, phone_number) {
+    this.players[phone_number] = new Player(contact, phone_number);
   }
 
   getPlayers() {
@@ -81,17 +81,6 @@ class Game {
     let order_string = "";
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
       order_string += "\n";
-      if (v_current.is_button) {
-        order_string += "⚪";
-      } else {
-        order_string += "   ";
-      }
-      if (v_current.is_all_in) {
-        order_string += "🔴";
-      } else {
-        order_string += "   ";
-      }
-
       if (v_current === this.order.current_player) {
         order_string += `*${i}. @${v_current.contact.id.user}*`;
       } else if (v_current.is_folded) {
@@ -99,6 +88,13 @@ class Game {
       } else {
         order_string += `${i}. @${v_current.contact.id.user}`;
       }
+      if (v_current.is_button) {
+        order_string += "-⚪";
+      }
+      if (v_current.is_all_in) {
+        order_string += "-🔴";
+      }
+
       v_current = v_current.next_player;
     }
     return `*Pot:* $${this.pot.main_pot}\n\n*Playing Order:* ${order_string}`;
@@ -148,7 +144,7 @@ Check your DM for your cards 🤫\n
 Action on @${current.contact.id.user} ($${current.game_money})\n
 $${this.pot.current_bet - current.current_bet} to call`;
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 
@@ -193,7 +189,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 
@@ -241,21 +237,20 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       //   )}`;
       // else action_message += `\n*Community Cards:*`;
 
-      let players_in_all_in = "\n\n";
+      let new_message = `${action_message}\n\n`;
       Object.values(this.players).forEach((player) => {
         if (!player.is_folded) {
-          players_in_all_in += `${cards_functions.format_hand(
-            player.name,
+          new_message += `${cards_functions.format_hand(
+            player.contact.id.user,
             player.hole_cards
           )}`;
         }
       });
-      let message = await this.chat.sendMessage(
-        action_message + players_in_all_in,
-        {
-          mentions: this.getMentions(),
-        }
-      );
+
+      new_message += `\n*Pot:* $${this.pot.main_pot}`;
+      let message = await this.chat.sendMessage(new_message, {
+        mentions: this.getMentions()
+      });
 
       await this.rushRound(message, whatsapp);
       let end_message = game_functions.showdown(this);
@@ -300,10 +295,10 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
     const edit_message = async (message) => {
       let new_message =
         message.body +
-        `\n\n*Community Cards:*\n${cards_functions.print_cards(
+        `\n*Community Cards:*\n${cards_functions.print_cards(
           this.community_cards
         )}`;
-      message.edit(new_message);
+      message.edit(new_message, { mentions: this.getMentions() });
 
       return message;
     };
@@ -367,7 +362,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       new_message += `\n$${this.pot.current_bet - current.current_bet} to call`;
     }
     this.chat.sendMessage(new_message, {
-      mentions: this.getMentions(),
+      mentions: this.getMentions()
     });
   }
 
@@ -376,9 +371,9 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
     let current = this.order.current_player;
     let hands = "";
     do {
-      current = current.next_player();
+      current = current.next_player;
       hands += `${cards_functions.format_hand(
-        current.name,
+        current.contact.id.user,
         current.hole_cards
       )}\n`;
     } while (current.is_button == false);
@@ -387,9 +382,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
   }
 
   getMentions() {
-    return Object.values(this.players).map(
-      (player) => player.contact.id._serialized
-    );
+    return Object.values(this.players).map((player) => player.phone_number);
   }
 }
 

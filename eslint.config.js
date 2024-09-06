@@ -3,7 +3,6 @@ const pluginJs = require("@eslint/js");
 
 module.exports = [
   {
-    ignores: ["**/__tests__/"],
     files: ["**/*.js"],
     languageOptions: {
       sourceType: "commonjs",

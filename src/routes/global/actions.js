@@ -1,52 +1,45 @@
+const Mustache = require("mustache");
 const Game = require("../../classes/Game");
 const { format_phone_number } = require("../../generalFunctions");
 
-function join(games, chat_id, message, full_name, contact, chat) {
-  let game = games[chat_id];
+function join(games, chat_id, message, contact, chat) {
   let phone_number = format_phone_number(message.author);
+  let new_message = "Hi @{{name}}, welcome to the game!";
 
-  if (game == undefined) {
-    games[chat_id] = new Game(chat_id, chat);
-    games[chat_id].addPlayer(full_name, contact, phone_number);
+  if (games[chat_id] == undefined) games[chat_id] = new Game(chat_id, chat);
 
-    let current = games[chat_id].players[phone_number];
-    chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [phone_number],
-    });
-  } else if (game.is_midround == true) {
-    game.addPlayer(full_name, contact, phone_number);
+  let game = games[chat_id];
+  game.addPlayer(contact, phone_number);
+
+  if (game.is_midround) {
     game.players[phone_number].is_folded = true;
     game.folds++;
-    game.order.insertAfterCurrent(game.players[phone_number]);
-    let current = game.players[phone_number];
-    chat.sendMessage(
-      `Some @${current.contact.id.user} has joined the game!
-Wait for the next round to start`,
-      {
-        mentions: [phone_number],
-      }
-    );
-  } else {
-    game.addPlayer(full_name, contact, phone_number);
-    let current = game.players[phone_number];
-    chat.sendMessage(`Some @${current.contact.id.user} has joined the game!`, {
-      mentions: [phone_number],
-    });
+    game.order.insertAfterCurrent(game.players[phone_number]); // TODO: needs to be tested
+    new_message += "Wait for the next round to start";
   }
+
+  chat.sendMessage(
+    Mustache.render(new_message, {
+      name: game.players[phone_number].contact.id.user
+    }),
+    {
+      mentions: [phone_number]
+    }
+  );
 }
 
-function show(game, message) {
+function show(game, chat) {
   if (game.is_midround == true) {
-    message.reply(game.getOrderPretty());
+    chat.sendMessage(game.getOrderPretty(), { mentions: game.getMentions() });
   } else {
-    message.reply(game.getPlayersPretty());
+    chat.sendMessage(game.getPlayersPretty(), { mentions: game.getMentions() });
   }
 }
 
-function exit(games, chat_id, message, full_name) {
+function exit(games, chat_id, message) {
   delete games[chat_id].players[format_phone_number(message.author)];
   message.react("👋");
-  message.reply(`${full_name.split(" ")[0]} left the game`);
+  message.reply("Goodbye!");
   if (
     Object.keys(games[chat_id].players).length == 0 &&
     games[chat_id].is_midround
@@ -61,5 +54,5 @@ function exit(games, chat_id, message, full_name) {
 module.exports = {
   join,
   show,
-  exit,
+  exit
 };

@@ -34,10 +34,8 @@ function is_allowed(game, message) {
   let phone_number = format_phone_number(message.author);
 
   if (game.order.current_player.phone_number != phone_number) {
-    // Current player check
     message.react(emote("mistake"));
-    message.reply(`It's not your turn,
-it's ${game.order.current_player.name} turn`);
+    message.reply("It's not your turn");
     return false;
   }
   return true;
@@ -57,5 +55,5 @@ module.exports = {
   emote,
   is_allowed,
   format_phone_number,
-  delay,
+  delay
 };

@@ -1,6 +1,6 @@
 const AllIn = require("../classes/AllIn");
 const constants = require("../constants");
-const cards_functions = require("./cardsFunctions");
+const cardsFunctions = require("./cardsFunctions");
 
 function is_valid_winner(player, all_in) {
   return all_in.players.some(
@@ -20,9 +20,10 @@ function rake_to_winners(players, amount, winners) {
 
   players.splice(0, 1);
 
-  return rake_to_winners(players, amount, winners);
+  return rake_to_winners(players, amount - winnings, winners);
 }
 
+// Checking for ties and returning the right winner(s) accordingly
 function get_winners(players) {
   let winners = [players[0]];
 
@@ -33,7 +34,7 @@ function get_winners(players) {
       currentPlayer.hand_score.cards
     );
 
-    if (comparisonResult < 0) {
+    if (comparisonResult > 0) {
       winners = [currentPlayer];
     } else if (comparisonResult === 0) {
       winners.push(currentPlayer);
@@ -45,9 +46,12 @@ function get_winners(players) {
 
 function compare_hands(hand1, hand2) {
   for (let i = 0; i < hand1.length; i++) {
-    if (hand1[i] > hand2[i]) {
+    card1 = cardsFunctions.parseCardNumber(hand1[i])[1];
+    card2 = cardsFunctions.parseCardNumber(hand2[i])[1];
+    console.log(card1, card2);
+    if (card1 < card2) {
       return 1;
-    } else if (hand1[i] < hand2[i]) {
+    } else if (card1 > card2) {
       return -1;
     }
   }
@@ -61,7 +65,7 @@ function random_winner_key(winners) {
 }
 
 function showdown(game) {
-  let hands_strength_list = cards_functions.calc_hands_strength(game);
+  let hands_strength_list = cardsFunctions.calc_hands_strength(game);
   game.jumpToButton();
   let current = game.order.current_player;
   let last_pot = new AllIn([], game.pot.main_pot, -1);
@@ -115,12 +119,12 @@ function showdown(game) {
   let message = "";
   for (const phone_number in winners) {
     let player = winners[phone_number];
-    message += `${player[0].name} Won $${
+    message += `@${player[0].contact.id.user} Won $${
       player[1]
-    } with ${cards_functions.print_cards(player[0].hole_cards)}
+    } with ${cardsFunctions.print_cards(player[0].hole_cards)}
 ${constants.STRENGTH_DICT[player[0].hand_score.str]}:
-${cards_functions.print_cards(player[0].hand_score.cards)}
----------------------------------\n`;
+${cardsFunctions.print_cards(player[0].hand_score.cards)}
+---------------------------------`;
   }
 
   return message;
@@ -139,4 +143,9 @@ function qualifyToAllIns(game) {
 module.exports = {
   showdown,
   qualifyToAllIns,
+  is_valid_winner,
+  rake_to_winners,
+  get_winners,
+  compare_hands,
+  random_winner_key
 };

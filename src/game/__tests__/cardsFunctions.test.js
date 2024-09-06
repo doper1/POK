@@ -1,7 +1,6 @@
 const {
   print_cards,
   sort_cards,
-
   is_flush,
   is_straight,
   is_straight_flush,
@@ -12,8 +11,12 @@ const {
   is_one_pair,
   parseCardNumber,
   ReverseParseCardNumber,
-  calc_hands_strength
-} = require("../scripts/cards_functions.js");
+  calc_hands_strength,
+  c_count,
+  isCardInCards,
+  update_hand_str,
+  format_hand
+} = require("../cardsFunctions.js");
 
 describe("Poker Hand Evaluation Tests", () => {
   test("print_cards formats cards correctly", () => {
@@ -248,6 +251,11 @@ describe("calc_hands_strength", () => {
     game.order.current_player = player1;
 
     const result = calc_hands_strength(game);
+
+    // New assertion based on console.log output
+    expect(result).toEqual({
+      7: [player1, player2, player3]
+    });
   });
 
   test("correctly identifies a tie between two players", () => {
@@ -305,6 +313,12 @@ describe("calc_hands_strength", () => {
     game.order.current_player = player1;
 
     const result = calc_hands_strength(game);
+
+    // New assertion based on console.log output
+    expect(result).toEqual({
+      7: [player1, player2],
+      8: [player3]
+    });
   });
 
   test("correctly identifies multiple ties", () => {
@@ -372,6 +386,11 @@ describe("calc_hands_strength", () => {
     game.order.current_player = player1;
 
     const result = calc_hands_strength(game);
+
+    // New assertion based on console.log output
+    expect(result).toEqual({
+      7: [player1, player2, player3, player4]
+    });
   });
 
   test("correctly handles a situation with a single winner and multiple losers", () => {
@@ -439,6 +458,13 @@ describe("calc_hands_strength", () => {
     game.order.current_player = player1;
 
     const result = calc_hands_strength(game);
+
+    // New assertion based on console.log output
+    expect(result).toEqual({
+      3: [player1],
+      7: [player2],
+      8: [player3, player4]
+    });
   });
 
   test("correctly handles a situation with three winners with the same hand", () => {
@@ -506,5 +532,155 @@ describe("calc_hands_strength", () => {
     game.order.current_player = player1;
 
     const result = calc_hands_strength(game);
+
+    // New assertion based on console.log output
+    expect(result).toEqual({
+      7: [player1, player2, player3],
+      8: [player4]
+    });
+  });
+
+  test("everybody tied (with two players)", () => {
+    const game = {
+      type: 1,
+      community_cards: [
+        ["H", "10"],
+        ["D", "8"],
+        ["S", "4"],
+        ["C", "K"],
+        ["C", "2"]
+      ],
+      order: {
+        current_player: null,
+        players: []
+      },
+      jumpToButton: function () {
+        this.order.current_player = this.order.players[0];
+      }
+    };
+
+    const player1 = {
+      hole_cards: [
+        ["H", "7"],
+        ["C", "A"]
+      ],
+      hand_score: {},
+      is_button: true
+    };
+
+    const player2 = {
+      hole_cards: [
+        ["D", "6"],
+        ["D", "A"]
+      ],
+      hand_score: {},
+      is_button: false
+    };
+
+    // Link players in a circular list
+    player1.next_player = player2;
+    player2.next_player = player1;
+
+    game.order.players = [player1, player2];
+    game.order.current_player = player1;
+
+    const result = calc_hands_strength(game);
+
+    // New assertion based on console.log output
+    expect(result).toEqual({
+      9: [player1, player2]
+    });
+  });
+});
+
+describe("Additional Card Function Tests", () => {
+  test("c_count handles different card types", () => {
+    const cards = [
+      ["H", 2],
+      ["H", 3],
+      ["D", 2],
+      ["S", 4],
+      ["H", 5]
+    ];
+    const result = c_count(cards, 0);
+    expect(result).toEqual({
+      " H": [
+        ["H", 2],
+        ["H", 3],
+        ["H", 5]
+      ],
+      " D": [["D", 2]],
+      " S": [["S", 4]]
+    });
+  });
+
+  test("isCardInCards returns true when card is present", () => {
+    const cards = [
+      ["H", 2],
+      ["D", 3],
+      ["S", 4]
+    ];
+    expect(isCardInCards(["H", 2], cards)).toBe(true);
+  });
+
+  test("isCardInCards returns false when card is not present", () => {
+    const cards = [
+      ["H", 2],
+      ["D", 3],
+      ["S", 4]
+    ];
+    expect(isCardInCards(["C", 5], cards)).toBe(false);
+  });
+
+  test("update_hand_str handles royal flush", () => {
+    const game = {
+      community_cards: [
+        ["H", "10"],
+        ["H", "J"],
+        ["H", "Q"],
+        ["H", "K"],
+        ["S", "2"]
+      ]
+    };
+    const player = {
+      hole_cards: [
+        ["H", "A"],
+        ["D", "2"]
+      ],
+      hand_score: {}
+    };
+    update_hand_str(game, player);
+    expect(player.hand_score.str).toBe(0);
+  });
+
+  test("update_hand_str handles high card", () => {
+    const game = {
+      community_cards: [
+        ["H", "2"],
+        ["D", "4"],
+        ["S", "6"],
+        ["C", "8"],
+        ["H", "10"]
+      ]
+    };
+    const player = {
+      hole_cards: [
+        ["S", "A"],
+        ["D", "K"]
+      ],
+      hand_score: {}
+    };
+    update_hand_str(game, player);
+    expect(player.hand_score.str).toBe(9);
+  });
+
+  test("format_hand correctly formats player's hand", () => {
+    const playerName = "John";
+    const holeCards = [
+      ["H", "A"],
+      ["D", "K"]
+    ];
+    const result = format_hand(playerName, holeCards);
+    expect(result).toBe("@John: *|HA|* *|DK|*\n");
   });
 });
