@@ -20,7 +20,7 @@ function rake_to_winners(players, amount, winners) {
 
   players.splice(0, 1);
 
-  return rake_to_winners(players, amount, winners);
+  return rake_to_winners(players, amount - winnings, winners);
 }
 
 function get_winners(players) {
@@ -115,12 +115,12 @@ function showdown(game) {
   let message = "";
   for (const phone_number in winners) {
     let player = winners[phone_number];
-    message += `${player[0].name} Won $${
+    message += `@${player[0].contact.id.user} Won $${
       player[1]
     } with ${cards_functions.print_cards(player[0].hole_cards)}
 ${constants.STRENGTH_DICT[player[0].hand_score.str]}:
 ${cards_functions.print_cards(player[0].hand_score.cards)}
----------------------------------\n`;
+---------------------------------`;
   }
 
   return message;
@@ -139,4 +139,9 @@ function qualifyToAllIns(game) {
 module.exports = {
   showdown,
   qualifyToAllIns,
+  is_valid_winner,
+  rake_to_winners,
+  get_winners,
+  compare_hands,
+  random_winner_key
 };

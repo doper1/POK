@@ -20,15 +20,7 @@ async function route(whatsapp, message, body, chat, games) {
   let contact = await message.getContact();
   let chat_id = chat.id.user;
 
-  // Handle missing WhatsApp name (e.g., bot's own account).
-  let full_name;
-  if (contact.pushname == undefined) {
-    full_name = contact.id.user;
-  } else {
-    full_name = contact.pushname;
-  }
-
-  if (globalRoute(body, games, chat_id, message, full_name, contact, chat)) {
+  if (globalRoute(body, games, chat_id, message, contact, chat)) {
     return true;
   } else if (games[chat_id] == undefined || !games[chat_id].is_midround) {
     preGameRoute(body, games[chat_id], message, whatsapp);

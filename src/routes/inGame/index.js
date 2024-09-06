@@ -38,7 +38,7 @@ function inGameRoute(body, games, chat_id, message, whatsapp) {
       return true;
     case "call":
       if (game.pot.current_bet - current.current_bet >= current.game_money) {
-        if (validators.all_in(game, message)) actions.p(game, whatsapp);
+        if (validators.all_in(game, message)) actions.all_in(game, whatsapp);
         return true;
       } else if (validators.call(game, message)) actions.call(game, whatsapp);
       return true;

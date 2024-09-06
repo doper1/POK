@@ -1,7 +1,7 @@
-const Pot = require("../classes/Pot.js");
-const AllIn = require("../classes/AllIn.js");
+const Pot = require("../Pot.js");
+const AllIn = require("../AllIn.js");
 
-jest.mock("../Classes/AllIn.js");
+jest.mock("../AllIn.js");
 
 describe("Pot", () => {
   let pot;

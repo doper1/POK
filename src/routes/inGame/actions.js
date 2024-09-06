@@ -76,5 +76,5 @@ module.exports = {
   check,
   raise,
   call,
-  all_in,
+  all_in
 };

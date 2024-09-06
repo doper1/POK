@@ -280,12 +280,11 @@ function calc_hands_strength(game) {
     res.get(str).push(player);
   });
 
-  // console.log(Object.fromEntries(res)); // for tests
   return Object.fromEntries(res);
 }
 
 function format_hand(player_name, hole_cards) {
-  return `${player_name}: ${print_cards(hole_cards)}\n`;
+  return `@${player_name}: ${print_cards(hole_cards)}\n`;
 }
 
 module.exports = {
