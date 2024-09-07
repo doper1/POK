@@ -64,6 +64,7 @@ function random_winner_key(winners) {
 }
 
 function showdown(game) {
+  game.pot.reorgAllIns();
   let hands_strength_list = cardsFunctions.calc_hands_strength(game);
   game.jumpToButton();
   let current = game.order.current_player;
@@ -117,8 +118,9 @@ function showdown(game) {
   });
   let message = "";
   for (const phone_number in winners) {
+    if (message.length > 0) message += "\n";
     let player = winners[phone_number];
-    message += `\nCongrats! @${player[0].contact.id.user} Won $${
+    message += `Congrats! @${player[0].contact.id.user} Won $${
       player[1]
     }\nwith ${cardsFunctions.print_cards(player[0].hole_cards)}\n
 ${constants.STRENGTH_DICT[player[0].hand_score.str]}:
@@ -129,12 +131,16 @@ ${cardsFunctions.print_cards(player[0].hand_score.cards)}
   return message;
 }
 
-function qualifyToAllIns(game) {
+function qualifyToAllIns(game, amount) {
   let current = game.order.current_player;
   game.pot.all_ins.forEach((all_in) => {
-    if (all_in.current_bet != -1 && current.current_bet < all_in.current_bet) {
-      all_in.pot += all_in.current_bet - current.current_bet;
-      all_in.players.push(current);
+    if (all_in.current_bet != -1) {
+      if (amount < all_in.current_bet) {
+        all_in.pot += amount;
+      } else {
+        all_in.pot += all_in.current_bet;
+        all_in.players.push(current);
+      }
     }
   });
 }
