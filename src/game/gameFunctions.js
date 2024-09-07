@@ -46,9 +46,8 @@ function get_winners(players) {
 
 function compare_hands(hand1, hand2) {
   for (let i = 0; i < hand1.length; i++) {
-    card1 = cardsFunctions.parseCardNumber(hand1[i])[1];
-    card2 = cardsFunctions.parseCardNumber(hand2[i])[1];
-    console.log(card1, card2);
+    let card1 = cardsFunctions.parseCardNumber(hand1[i])[1];
+    let card2 = cardsFunctions.parseCardNumber(hand2[i])[1];
     if (card1 < card2) {
       return 1;
     } else if (card1 > card2) {
@@ -119,9 +118,9 @@ function showdown(game) {
   let message = "";
   for (const phone_number in winners) {
     let player = winners[phone_number];
-    message += `@${player[0].contact.id.user} Won $${
+    message += `\nCongrats! @${player[0].contact.id.user} Won $${
       player[1]
-    } with ${cardsFunctions.print_cards(player[0].hole_cards)}
+    }\nwith ${cardsFunctions.print_cards(player[0].hole_cards)}\n
 ${constants.STRENGTH_DICT[player[0].hand_score.str]}:
 ${cardsFunctions.print_cards(player[0].hand_score.cards)}
 ---------------------------------`;

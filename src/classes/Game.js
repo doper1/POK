@@ -1,8 +1,8 @@
 const constants = require("../constants");
 
 // Scripts
-const { shuffleArray, delay } = require("../generalFunctions.js");
-const cards_functions = require("../game/cardsFunctions.js");
+const { shuffleArray, delay, setLock } = require("../generalFunctions.js");
+const cardsFunctions = require("../game/cardsFunctions.js");
 const game_functions = require("../game/gameFunctions.js");
 
 // Classes
@@ -82,22 +82,28 @@ class Game {
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
       order_string += "\n";
       if (v_current === this.order.current_player) {
-        order_string += `*${i}. @${v_current.contact.id.user}*`;
+        order_string += `_*${i}.@${v_current.contact.id.user}*_ I`;
       } else if (v_current.is_folded) {
-        order_string += `~${i}. @${v_current.contact.id.user}~`;
+        order_string += `~${i}.@${v_current.contact.id.user}~ I`;
       } else {
-        order_string += `${i}. @${v_current.contact.id.user}`;
+        order_string += `${i}.@${v_current.contact.id.user}I`;
       }
+
+      order_string += ` $${v_current.current_bet} I $${v_current.game_money}`;
       if (v_current.is_button) {
-        order_string += "-⚪";
+        order_string += " I⚪";
       }
       if (v_current.is_all_in) {
-        order_string += "-🔴";
+        order_string += " I🔴";
       }
 
       v_current = v_current.next_player;
     }
-    return `*Pot:* $${this.pot.main_pot}\n\n*Playing Order:* ${order_string}`;
+
+    if (this.community_cards.length != 0) {
+      return `*Pot:* $${this.pot.main_pot}\n\n*Community Cards:*\n${cardsFunctions.print_cards(this.community_cards)}\n\n*Playing Order | Bet | Stack* ${order_string}`;
+    }
+    return `*Pot:* $${this.pot.main_pot}\n\n*Playing Order | Bet | Stack* ${order_string}`;
   }
 
   resetGameStatus() {
@@ -116,7 +122,7 @@ class Game {
       current.setHoleCards(...this.deck.splice(-2));
       whatsapp.sendMessage(
         current.phone_number,
-        `${cards_functions.print_cards(current.getHoleCards())}\n
+        `${cardsFunctions.print_cards(current.getHoleCards())}\n
 ${this.chat.name}`
       );
       current = current.next_player;
@@ -220,7 +226,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       current.game_money += this.pot.main_pot;
       this.initRound(
         whatsapp,
-        `${current.name} Won $${this.pot.main_pot}!
+        `@${current.contact.id.user} Won $${this.pot.main_pot}!
 ---------------------------------`
       );
     }
@@ -230,31 +236,30 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       (all_ins_count == players_count - this.folds - 1 &&
         next.current_bet == this.pot.current_bet)
     ) {
-      // TODO: implemenet in seperate function so it will print the community cards from the first message
-      // if (this.community_cards.length != 0)
-      //   action_message += `\n*Community Cards:*\n${cards_functions.print_cards(
-      //     this.community_cards
-      //   )}`;
-      // else action_message += `\n*Community Cards:*`;
-
-      let new_message = `${action_message}\n\n`;
+      setLock(true);
+      let new_message = `${action_message}\n\n*Pot:* $${this.pot.main_pot}\n\n`;
       Object.values(this.players).forEach((player) => {
         if (!player.is_folded) {
-          new_message += `${cards_functions.format_hand(
+          new_message += `${cardsFunctions.format_hand(
             player.contact.id.user,
             player.hole_cards
           )}`;
         }
       });
-
-      new_message += `\n*Pot:* $${this.pot.main_pot}`;
+      if (this.community_cards.length != 0) {
+        new_message += `\n*Community Cards:*\n${cardsFunctions.print_cards(this.community_cards)}`;
+      } else {
+        new_message += "\n*Community Cards:*\n-";
+      }
       let message = await this.chat.sendMessage(new_message, {
         mentions: this.getMentions()
       });
 
-      await this.rushRound(message, whatsapp);
+      await delay(1000);
+      await this.rushRound(message, whatsapp, new_message);
       let end_message = game_functions.showdown(this);
       this.initRound(whatsapp, end_message);
+      setLock(false);
     } else if (next.is_all_in || next.is_folded) {
       this.order.next();
       this.updateRound(whatsapp, action_message);
@@ -274,12 +279,8 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
         this.community_cards.push(...this.deck.splice(-3));
         this.resetRoundStatus();
         break;
-      // Turn
+      // Turn / River
       case 3:
-        this.community_cards.push(this.deck.pop());
-        this.resetRoundStatus();
-        break;
-      // River
       case 4:
         this.community_cards.push(this.deck.pop());
         this.resetRoundStatus();
@@ -291,14 +292,11 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
     }
   }
 
-  async rushRound(message, whatsapp) {
+  async rushRound(message, whatsapp, body) {
     const edit_message = async (message) => {
-      let new_message =
-        message.body +
-        `\n*Community Cards:*\n${cards_functions.print_cards(
-          this.community_cards
-        )}`;
-      message.edit(new_message, { mentions: this.getMentions() });
+      let new_message = body.replace(/\n.*$/, "").trim();
+      new_message += `\n${cardsFunctions.print_cards(this.community_cards)}`;
+      await message.edit(new_message, { mentions: this.getMentions() });
 
       return message;
     };
@@ -307,23 +305,20 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       // Flop
       case 0:
         this.community_cards.push(...this.deck.splice(-3));
+        message = await edit_message(message);
         break;
-
-      // Turn
+      // Turn / River
       case 3:
-        this.community_cards.push(this.deck.pop());
-        break;
-
-      // River
       case 4:
         this.community_cards.push(this.deck.pop());
+        message = await edit_message(message);
         break;
       default:
         return;
     }
-    message = await edit_message(message);
+
     await delay((this.community_cards.length - 1) * 1000);
-    await this.rushRound(message, whatsapp);
+    await this.rushRound(message, whatsapp, body);
   }
 
   resetPlayersStatus(is_new_hand) {
@@ -355,7 +350,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
     }
     this.order.current_player = current;
     let new_message = `Pot: $${this.pot.main_pot}\n
-*Community Cards:*\n${cards_functions.print_cards(this.community_cards)}\n
+*Community Cards:*\n${cardsFunctions.print_cards(this.community_cards)}\n
 Action on @${current.contact.id.user} ($${current.game_money})`;
 
     if (this.pot.current_bet - current.current_bet != 0) {
@@ -372,7 +367,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
     let hands = "";
     do {
       current = current.next_player;
-      hands += `${cards_functions.format_hand(
+      hands += `${cardsFunctions.format_hand(
         current.contact.id.user,
         current.hole_cards
       )}\n`;

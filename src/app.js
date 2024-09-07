@@ -1,6 +1,7 @@
 const qrcode = require("qrcode-terminal");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const router = require("./routes/router.js");
+const { isLocked } = require("./generalFunctions.js");
 
 // globals
 let games = {};
@@ -37,8 +38,10 @@ whatsapp.on(event, async (message_promise) => {
   const chat = await message.getChat();
   const body = message.body.toLowerCase().split(" ");
 
-  if (router.validateMessage(message, body, chat)) {
-    router.route(whatsapp, message, body, chat, games);
+  if (!isLocked()) {
+    if (router.validateMessage(message, body, chat)) {
+      router.route(whatsapp, message, body, chat, games);
+    }
   }
 });
 
