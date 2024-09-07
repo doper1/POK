@@ -15,7 +15,7 @@ function check() {}
 function raise(game, amount, whatsapp) {
   current = game.order.current_player;
   new_message = `@${current.contact.id.user} raised $${amount}`;
-  game_functions.qualifyToAllIns(game);
+  game_functions.qualifyToAllIns(game, amount);
   current.is_played = true;
   current.current_bet = amount + current.current_bet;
   game.pot.main_pot += amount;
@@ -29,7 +29,7 @@ function raise(game, amount, whatsapp) {
 function all_in(game, whatsapp) {
   current = game.order.current_player;
   new_message = `Wow! @${current.contact.id.user} is ALL IN for $${current.game_money} more (total $${current.current_bet + current.game_money})`;
-  game_functions.qualifyToAllIns(game);
+  game_functions.qualifyToAllIns(game, current.game_money);
   current.is_all_in = true;
   current.is_played = true;
   game.pot.main_pot += current.game_money;
@@ -60,7 +60,7 @@ function call(game, whatsapp) {
   current = game.order.current_player;
   let amount = game.pot.current_bet - current.current_bet;
   new_message = `@${current.contact.id.user} calls $${amount}`;
-  game_functions.qualifyToAllIns(game);
+  game_functions.qualifyToAllIns(game, amount);
   current.game_money -= amount;
   current.is_played = true;
   game.pot.main_pot += amount;

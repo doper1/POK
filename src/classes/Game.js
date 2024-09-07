@@ -82,19 +82,19 @@ class Game {
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
       order_string += "\n";
       if (v_current === this.order.current_player) {
-        order_string += `_*${i}.@${v_current.contact.id.user}*_ I`;
+        order_string += `_*${i}.@${v_current.contact.id.user}*_\u00A0I`;
       } else if (v_current.is_folded) {
-        order_string += `~${i}.@${v_current.contact.id.user}~ I`;
+        order_string += `~${i}.@${v_current.contact.id.user}~\u00A0I`;
       } else {
         order_string += `${i}.@${v_current.contact.id.user}I`;
       }
 
-      order_string += ` $${v_current.current_bet} I $${v_current.game_money}`;
+      order_string += `  $${v_current.current_bet}  I  $${v_current.game_money}  `;
       if (v_current.is_button) {
-        order_string += " I⚪";
+        order_string += "I⚪";
       }
       if (v_current.is_all_in) {
-        order_string += " I🔴";
+        order_string += "I🔴";
       }
 
       v_current = v_current.next_player;
@@ -226,7 +226,7 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
       current.game_money += this.pot.main_pot;
       this.initRound(
         whatsapp,
-        `@${current.contact.id.user} Won $${this.pot.main_pot}!
+        `Congrats! @${current.contact.id.user} Won $${this.pot.main_pot}!
 ---------------------------------`
       );
     }
@@ -272,7 +272,6 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
   }
 
   moveRound(whatsapp) {
-    this.pot.reorgAllIns();
     switch (this.community_cards.length) {
       // Flop
       case 0:
@@ -339,9 +338,10 @@ Action on @${current.contact.id.user} ($${current.game_money})`;
   resetRoundStatus() {
     this.pot.last_round_pot = this.pot.main_pot;
     this.pot.current_bet = 0;
-    this.pot.all_ins.map((all_in) => {
+    this.pot.all_ins.forEach((all_in) => {
       all_in.current_bet = -1;
     });
+    console.log(this.pot.all_ins);
     this.resetPlayersStatus(false);
     this.order.next();
     let current = this.order.current_player;
