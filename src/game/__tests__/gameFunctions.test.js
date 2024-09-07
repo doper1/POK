@@ -7,7 +7,6 @@ const {
 } = require("../gameFunctions");
 
 const cardsFunctions = require("../cardsFunctions");
-const { parseCardNumber } = require("../cardsFunctions");
 
 jest.mock("../cardsFunctions");
 jest.mock("../../classes/AllIn");
@@ -220,8 +219,21 @@ describe("compare_hands", () => {
   });
 
   it("should return 0 if both hands are equal", () => {
-    const hand1 = [10, 7, 5];
-    const hand2 = [10, 7, 5];
+    const hand1 = [
+      ["H", "A"],
+      ["C", "K"],
+      ["D", "Q"],
+      ["S", "J"],
+      ["H", "10"]
+    ];
+
+    const hand2 = [
+      ["H", "A"],
+      ["C", "K"],
+      ["D", "Q"],
+      ["S", "J"],
+      ["H", "10"]
+    ];
 
     const result = compare_hands(hand1, hand2);
 

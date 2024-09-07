@@ -49,11 +49,23 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+let action_lock = false;
+
+function setLock(state) {
+  action_lock = state;
+}
+
+function isLocked() {
+  return action_lock;
+}
+
 module.exports = {
   shuffleArray,
   hasTwoWords,
   emote,
   is_allowed,
   format_phone_number,
-  delay
+  delay,
+  setLock,
+  isLocked
 };

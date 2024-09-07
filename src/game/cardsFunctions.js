@@ -1,11 +1,11 @@
 function print_cards(cards) {
   let to_string = "";
   for (let i = 0; i < cards.length - 1; i++) {
-    to_string += `*|${cards[i][0]}${cards[i][1]}|* `;
+    to_string += `*I${cards[i][0]}${cards[i][1]}I* `;
   }
-  return `${to_string}*|${cards[cards.length - 1][0]}${
+  return `${to_string}*I${cards[cards.length - 1][0]}${
     cards[cards.length - 1][1]
-  }|*`;
+  }I*`;
 }
 
 function parseCardNumber(card) {

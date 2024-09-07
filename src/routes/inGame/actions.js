@@ -28,7 +28,7 @@ function raise(game, amount, whatsapp) {
 
 function all_in(game, whatsapp) {
   current = game.order.current_player;
-  new_message = `@${current.contact.id.user} is ALL IN for $${current.game_money} more (total $${current.current_bet + current.game_money})`;
+  new_message = `Wow! @${current.contact.id.user} is ALL IN for $${current.game_money} more (total $${current.current_bet + current.game_money})`;
   game_functions.qualifyToAllIns(game);
   current.is_all_in = true;
   current.is_played = true;

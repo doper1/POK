@@ -26,7 +26,7 @@ describe("Poker Hand Evaluation Tests", () => {
       ["S", "K"]
     ];
     const result = print_cards(cards);
-    expect(result).toBe("*|HA|* *|D10|* *|SK|*");
+    expect(result).toBe("*IHAI* *ID10I* *ISKI*");
   });
 
   test("parseCardNumber converts face cards correctly", () => {
@@ -681,6 +681,6 @@ describe("Additional Card Function Tests", () => {
       ["D", "K"]
     ];
     const result = format_hand(playerName, holeCards);
-    expect(result).toBe("@John: *|HA|* *|DK|*\n");
+    expect(result).toBe("@John: *IHAI* *IDKI*\n");
   });
 });
