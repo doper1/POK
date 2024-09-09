@@ -24,12 +24,13 @@ module.exports.HELP_IN_GAME = `Possible Commands (in game):\n
 ♠️ pok check
 ♥️ pok call
 ♣️ pok raise [raise amount]
-♦️ pok fold
-♠️ pok help 
-♥️ pok join
-♣️ pok show
-♦️ pok exit
-♠️ pok end`;
+♦️ pok all (in)
+♠️ pok fold
+♥️ pok help 
+♣️ pok join
+♦️ pok show
+♠️ pok exit
+♥️ pok end`;
 
 module.exports.DECK = [
   ["♦️", "2"],
