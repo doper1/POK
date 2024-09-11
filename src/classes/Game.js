@@ -7,7 +7,7 @@ const game_functions = require("../game/gameFunctions.js");
 
 // Classes
 const Player = require("./Player");
-const LinkedList = require("./LinkedList");
+const Order = require("./Order.js");
 const Pot = require("./Pot");
 
 class Game {
@@ -15,7 +15,7 @@ class Game {
     this.id = id;
     this.chat = chat;
     this.players = {};
-    this.order = new LinkedList();
+    this.order = new Order();
     this.pot = new Pot();
     this.deck = [];
     this.type = 1; // for Omaha // 1,2,3
@@ -160,7 +160,7 @@ $${this.pot.current_bet - current.current_bet} to call`;
       this.order.append(players[i]);
     }
 
-    // Closes the linkedlist as a loop
+    // Closes the Order as a loop
     let current = this.order.current_player;
     while (current.next_player) {
       current = current.next_player;

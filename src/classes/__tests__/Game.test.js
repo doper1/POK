@@ -1,6 +1,6 @@
 const Game = require("../Game");
 const Player = require("../Player");
-const LinkedList = require("../LinkedList");
+const Order = require("../Order");
 const Pot = require("../Pot");
 // const constants = require("../../constants.js");
 // const cards_functions = require("../../game/cardsFunctions.js");
@@ -40,7 +40,7 @@ describe("Game", () => {
       123: new Player("contact1", "123"),
       456: new Player("contact2", "456")
     };
-    game.order = new LinkedList();
+    game.order = new Order();
     game.pot = new Pot();
     game.deck = [
       /* mock deck of cards */
@@ -69,7 +69,7 @@ describe("Game", () => {
         456: expect.objectContaining({ is_button: false })
       })
     );
-    expect(game.order).toBeInstanceOf(LinkedList);
+    expect(game.order).toBeInstanceOf(Order);
     expect(game.pot).toBeInstanceOf(Pot);
     expect(game.deck).toEqual([]);
     expect(game.type).toBe(1);

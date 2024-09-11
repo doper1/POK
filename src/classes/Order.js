@@ -1,4 +1,4 @@
-class LinkedList {
+class Order {
   constructor() {
     this.current_player = null;
   }
@@ -54,4 +54,4 @@ class LinkedList {
   }
 }
 
-module.exports = LinkedList;
+module.exports = Order;

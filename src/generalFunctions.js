@@ -59,6 +59,18 @@ function isLocked() {
   return action_lock;
 }
 
+function cleanInstance(instance, keepProperties, keepMethods) {
+  const properties = Object.fromEntries(
+    keepProperties.map((prop) => [prop, instance[prop]])
+  );
+
+  const methods = Object.fromEntries(
+    keepMethods.map((method) => [method, instance[method].bind(instance)])
+  );
+
+  return { ...properties, ...methods };
+}
+
 module.exports = {
   shuffleArray,
   hasTwoWords,
@@ -67,5 +79,6 @@ module.exports = {
   format_phone_number,
   delay,
   setLock,
-  isLocked
+  isLocked,
+  cleanInstance
 };
