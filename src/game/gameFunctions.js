@@ -1,3 +1,4 @@
+const mustache = require("mustache");
 const AllIn = require("../classes/AllIn");
 const constants = require("../constants");
 const cardsFunctions = require("./cardsFunctions");
@@ -117,18 +118,32 @@ function showdown(game) {
     }
   });
   let message = "";
-  for (const phone_number in winners) {
-    if (message.length > 0) message += "\n";
-    let player = winners[phone_number];
-    message += `Congrats! @${player[0].contact.id.user} Won $${
-      player[1]
-    }\nwith ${cardsFunctions.print_cards(player[0].hole_cards)}\n
-${constants.STRENGTH_DICT[player[0].hand_score.str]}:
-${cardsFunctions.print_cards(player[0].hand_score.cards)}
----------------------------------`;
-  }
+  const winner_template = `
+Congrats! @{{winner}} Won \${{winnings}}
+with {{hole_cards}}
 
-  return message;
+{{hand_strength}}:
+{{hand_cards}}
+---------------------------------`;
+
+  for (const phone_number in winners) {
+    let player = winners[phone_number];
+
+    if (player[1] === 0) continue;
+    if (message.length > 0) message += "\n";
+
+    const winner_data = {
+      winner: player[0].contact.id.user,
+      winnings: player[1],
+      hole_cards: cardsFunctions.print_cards(player[0].hole_cards),
+      hand_strength: constants.STRENGTH_DICT[player[0].hand_score.str],
+      hand_cards: cardsFunctions.print_cards(player[0].hand_score.cards)
+    };
+
+    message += mustache.render(winner_template, winner_data);
+
+    return message;
+  }
 }
 
 function qualifyToAllIns(game, amount) {

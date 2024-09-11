@@ -14,10 +14,7 @@ function inGameRoute(body, games, chat_id, message, whatsapp) {
       message.reply("There is a game in progress");
       return true;
     case "check":
-      if (validators.check(game, message)) {
-        actions.check();
-        game.updateRound(whatsapp, `@${current.contact.id.user} checked`);
-      }
+      if (validators.check(game, message)) actions.check(game, whatsapp);
       return true;
     case "raise":
       raise_amount = Number(body[2]);
