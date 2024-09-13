@@ -1,6 +1,6 @@
-const mustache = require("mustache");
-const { emote } = require("../../generalFunctions");
-const gameFunctions = require("../../game/gameFunctions");
+const mustache = require('mustache');
+const { emote } = require('../../generalFunctions');
+const gameFunctions = require('../../game/gameFunctions');
 
 // globals
 let newMessage;
@@ -16,11 +16,11 @@ function end(games, chatId, message) {
 function check(game, whatsapp) {
   current = game.order.currentPlayer;
 
-  const checkTemplate = `@{{name}} checked`;
+  const template = `@{{name}} checked`;
   const player = {
     name: current.phoneNumber,
   };
-  newMessage = mustache.render(checkTemplate, player);
+  newMessage = mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -34,11 +34,11 @@ function raise(game, amount, whatsapp) {
   game.pot.currentBet = current.currentBet;
   gameFunctions.qualifyToAllIns(game, amount);
 
-  const raiseTemplate = `@{{name}} raised $${amount}`;
+  const template = `@{{name}} raised $${amount}`;
   const player = {
     name: current.phoneNumber,
   };
-  newMessage = mustache.render(raiseTemplate, player);
+  newMessage = mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -60,13 +60,13 @@ function allIn(game, whatsapp) {
   game.pot.addAllIn(game);
   gameFunctions.qualifyToAllIns(game, amount);
 
-  const allInTemplate = `Wow! @{{name}} is ALL IN for \${{amount}} more (total \${{totalBet}})`;
+  const template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
   const player = {
     name: current.phoneNumber,
     amount: amount,
     totalBet: current.currentBet,
   };
-  newMessage = mustache.render(allInTemplate, player);
+  newMessage = mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -76,12 +76,12 @@ function fold(game, message, whatsapp) {
   current.isFolded = true;
   game.folds++;
 
-  const foldTemplate = `@{{name}} folded`;
+  const template = `@{{name}} folded`;
   const player = {
     name: current.phoneNumber,
   };
-  newMessage = mustache.render(foldTemplate, player);
-  message.react(emote("fold"));
+  newMessage = mustache.render(template, player);
+  message.react(emote('fold'));
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -94,12 +94,12 @@ function call(game, whatsapp) {
   game.pot.mainPot += amount;
   current.currentBet = game.pot.currentBet;
 
-  const callTemplate = `@{{name}} calls \${{amount}}`;
+  const template = `@{{name}} calls \${{amount}}`;
   const player = {
     name: current.phoneNumber,
     amount: amount,
   };
-  newMessage = mustache.render(callTemplate, player);
+  newMessage = mustache.render(template, player);
   gameFunctions.qualifyToAllIns(game, amount);
   game.updateRound(whatsapp, newMessage);
   return true;

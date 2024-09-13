@@ -1,11 +1,11 @@
-const mustache = require("mustache");
-const constants = require("../constants");
-const { shuffleArray, delay, setLock } = require("../generalFunctions.js");
-const cardsFunctions = require("../game/cardsFunctions.js");
-const gameFunctions = require("../game/gameFunctions.js");
-const Player = require("./Player");
-const Order = require("./Order.js");
-const Pot = require("./Pot");
+const mustache = require('mustache');
+const constants = require('../constants');
+const { shuffleArray, delay, setLock } = require('../generalFunctions.js');
+const cardsFunctions = require('../game/cardsFunctions.js');
+const gameFunctions = require('../game/gameFunctions.js');
+const Player = require('./Player');
+const Order = require('./Order.js');
+const Pot = require('./Pot');
 
 class Game {
   constructor(id, chat) {
@@ -76,9 +76,9 @@ class Game {
     // Return the real current player to it's place
     this.order.currentPlayer = current;
 
-    let orderString = "";
+    let orderString = '';
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
-      orderString += "\n";
+      orderString += '\n';
       if (tempCurrent === this.order.currentPlayer) {
         orderString += `_*${i}.@${tempCurrent.phoneNumber}I  $${tempCurrent.currentBet}  I  $${tempCurrent.gameMoney}`;
       } else if (tempCurrent.isFolded) {
@@ -87,12 +87,11 @@ class Game {
         orderString += `${i}.@${tempCurrent.phoneNumber}I  $${tempCurrent.currentBet}  I  $${tempCurrent.gameMoney}`;
       }
 
-      orderString += ``;
       if (tempCurrent.isButton) {
-        orderString += "I⚪";
+        orderString += 'I⚪';
       }
       if (tempCurrent.isAllIn) {
-        orderString += "I🔴";
+        orderString += 'I🔴';
       }
 
       if (tempCurrent === this.order.currentPlayer) {
@@ -104,7 +103,12 @@ class Game {
       tempCurrent = tempCurrent.nextPlayer;
     }
 
-    let template = `*Pot:* \${{ mainPot }}\n\n{{#hasCommunityCards}}*Community Cards:*\n{{communityCards}}\n\n{{/hasCommunityCards}}*Playing Order  |  Bet  |  Stack* {{orderString}}`;
+    let template = `*Pot:* \${{mainPot}}\n
+{{#hasCommunityCards}}
+*Community Cards:*
+{{communityCards}}\n
+{{/hasCommunityCards}}*Playing Order  |  Bet  |  Stack* {{orderString}}`;
+
     return mustache.render(template, {
       mainPot: this.pot.mainPot,
       hasCommunityCards: this.communityCards.length != 0,
@@ -129,16 +133,20 @@ class Game {
     do {
       current.holeCards = [];
       current.setHoleCards(...this.deck.splice(-2));
-      whatsapp.sendMessage(
-        current.id,
-        `${cardsFunctions.printCards(current.getHoleCards())}\n
-${this.chat.name}`,
-      );
+      const template = `{{holeCards}}\n
+{{chatName}}`;
+
+      const newMessage = mustache.render(template, {
+        holeCards: cardsFunctions.printCards(current.getHoleCards()),
+        chatName: this.chat.name,
+      });
+
+      whatsapp.sendMessage(current.id, newMessage);
       current = current.nextPlayer;
     } while (!current.isButton);
   }
 
-  initRound(whatsapp, lastRoundMessage = "") {
+  initRound(whatsapp, lastRoundMessage = '') {
     this.resetGameStatus();
     this.dealCards(whatsapp);
     this.moveButton();
@@ -148,21 +156,24 @@ ${this.chat.name}`,
       this.order.next();
     }
     this.putBlinds();
-    let newMessage = "";
 
-    if (lastRoundMessage != "") {
-      newMessage += `${lastRoundMessage}\n`;
-    }
-    let current = this.order.currentPlayer;
-    newMessage += `${this.getOrderPretty()}\n
+    let template = `{{#lastRoundMessage}}{{lastRoundMessage}}\n{{/lastRoundMessage}}
+{{order}}\n
 Check your DM for your cards 🤫\n
-Action on @${current.phoneNumber} ($${current.gameMoney})\n
-$${this.pot.currentBet - current.currentBet} to call`;
+Action on @{{currentPlayer.phoneNumber}} (\${{currentPlayer.gameMoney}})\n
+\${{toCall}} to call`;
+
+    let newMessage = mustache.render(template, {
+      lastRoundMessage,
+      order: this.getOrderPretty(),
+      currentPlayer: this.order.currentPlayer,
+      toCall: this.pot.currentBet - this.order.currentPlayer.currentBet,
+    });
+
     this.chat.sendMessage(newMessage, {
       mentions: this.getMentions(),
     });
   }
-
   generateOrder() {
     this.order = new Order();
     let players = shuffleArray(Object.values(this.players));
@@ -196,13 +207,24 @@ $${this.pot.currentBet - current.currentBet} to call`;
   moveAction(actionMessage) {
     this.order.next();
     let current = this.order.currentPlayer;
-    let newMessage = `Pot: $${this.pot.mainPot}\n
-${actionMessage}\n
-Action on @${current.phoneNumber} ($${current.gameMoney})`;
 
-    if (this.pot.currentBet - current.currentBet != 0) {
-      newMessage += `\n$${this.pot.currentBet - current.currentBet} to call`;
-    }
+    const template = `*Pot*: \${{mainPot}}\n
+{{actionMessage}}\n
+Action on @{{phoneNumber}} (\${{gameMoney}})
+{{#toCall}}
+\n\${{toCall}} to call{{/toCall}}`;
+
+    const newMessage = mustache.render(template, {
+      mainPot: this.pot.mainPot,
+      actionMessage,
+      phoneNumber: current.phoneNumber,
+      gameMoney: current.gameMoney,
+      toCall:
+        this.pot.currentBet - current.currentBet !== 0
+          ? this.pot.currentBet - current.currentBet
+          : null,
+    });
+
     this.chat.sendMessage(newMessage, {
       mentions: this.getMentions(),
     });
@@ -258,7 +280,7 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
       if (this.communityCards.length != 0) {
         newMessage += `\n*Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}`;
       } else {
-        newMessage += "\n*Community Cards:*\n-";
+        newMessage += '\n*Community Cards:*\n-';
       }
       let message = await this.chat.sendMessage(newMessage, {
         mentions: this.getMentions(),
@@ -302,7 +324,7 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
 
   async rushRound(message, whatsapp, body) {
     const editMessage = async (message) => {
-      let newMessage = body.replace(/\n.*$/, "").trim();
+      let newMessage = body.replace(/\n.*$/, '').trim();
       newMessage += `\n${cardsFunctions.printCards(this.communityCards)}`;
       await message.edit(newMessage, { mentions: this.getMentions() });
 
@@ -357,7 +379,7 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
       current = current.nextPlayer;
     }
     this.order.currentPlayer = current;
-    let newMessage = `Pot: $${this.pot.mainPot}\n
+    let newMessage = `*Pot*: $${this.pot.mainPot}\n
 *Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}\n
 Action on @${current.phoneNumber} ($${current.gameMoney})`;
 
@@ -372,7 +394,7 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
   showHands() {
     this.jumpToButton();
     let current = this.order.currentPlayer;
-    let hands = "";
+    let hands = '';
     do {
       current = current.nextPlayer;
       hands += `${cardsFunctions.formatHand(

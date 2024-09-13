@@ -1,7 +1,7 @@
-const mustache = require("mustache");
-const AllIn = require("../classes/AllIn");
-const constants = require("../constants");
-const cardsFunctions = require("./cardsFunctions");
+const mustache = require('mustache');
+const AllIn = require('../classes/AllIn');
+const constants = require('../constants');
+const cardsFunctions = require('./cardsFunctions');
 
 function isValidWinner(player, allIn) {
   return allIn.players.some((allInPlayer) => allInPlayer.id == player.id);
@@ -115,12 +115,9 @@ function showdown(game) {
       }
     }
   });
-  let message = "";
-  const winnerTemplate = `
-Congrats! @{{winner}} Won \${{winnings}}
-with {{holeCards}}
-
-{{handStrength}}:
+  let message = '';
+  const template = `Congrats! @{{winner}} Won \${{winnings}}
+with {{holeCards}} and a *{{handStrength}}:*\n
 {{handCards}}
 ---------------------------------`;
 
@@ -128,7 +125,7 @@ with {{holeCards}}
     let player = winners[id];
 
     if (player[1] === 0) continue;
-    if (message.length > 0) message += "\n";
+    if (message.length > 0) message += '\n';
 
     const winnerData = {
       winner: player[0].phoneNumber,
@@ -138,7 +135,7 @@ with {{holeCards}}
       handCards: cardsFunctions.printCards(player[0].handScore.cards),
     };
 
-    message += mustache.render(winnerTemplate, winnerData);
+    message += mustache.render(template, winnerData);
 
     return message;
   }
