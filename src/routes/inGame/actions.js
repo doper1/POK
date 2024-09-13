@@ -57,8 +57,8 @@ function allIn(game, whatsapp) {
     game.pot.currentBet = current.currentBet;
   }
 
-  game.pot.addAllIn(game);
   gameFunctions.qualifyToAllIns(game, amount);
+  game.pot.addAllIn(game);
 
   const template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
   const player = {

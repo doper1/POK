@@ -63,10 +63,12 @@ function randomWinnerKey(winners) {
 }
 
 function showdown(game) {
-  game.pot.reorgAllIns();
-  let handsStrengthList = cardsFunctions.calcHandsStrength(game);
-  game.jumpToButton();
   let current = game.order.currentPlayer;
+  let handsStrengthList = cardsFunctions.calcHandsStrength(game);
+
+  game.pot.reorgAllIns();
+  game.jumpToButton();
+
   let lastPot = new AllIn([], game.pot.mainPot, -1);
   do {
     if (!current.isFolded) {
@@ -117,7 +119,7 @@ function showdown(game) {
   });
   let message = '';
   const template = `Congrats! @{{winner}} Won \${{winnings}}
-with {{holeCards}} and a *{{handStrength}}:*\n
+with {{holeCards}} - a *{{handStrength}}*\n
 {{handCards}}
 ---------------------------------`;
 
@@ -136,20 +138,23 @@ with {{holeCards}} and a *{{handStrength}}:*\n
     };
 
     message += mustache.render(template, winnerData);
-
-    return message;
   }
+
+  return message;
 }
 
 function qualifyToAllIns(game, amount) {
   let current = game.order.currentPlayer;
   game.pot.allIns.forEach((allIn) => {
     if (allIn.currentBet != -1) {
+      if (current.currentBet >= allIn.currentBet) {
+        allIn.players.push(current);
+      }
+
       if (amount < allIn.currentBet) {
         allIn.pot += amount;
       } else {
         allIn.pot += allIn.currentBet;
-        allIn.players.push(current);
       }
     }
   });
