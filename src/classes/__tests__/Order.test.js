@@ -58,4 +58,13 @@ describe('Order class - removePlayer', () => {
     expect(player1.nextPlayer).toBe(player2); // Player 1 should point to Player 2 now
     expect(player2.nextPlayer).toBe(player1); // Circular structure is maintained
   });
+
+  test('insertAfterCurrent should insert a new player after the current player', () => {
+    order.currentPlayer = player1;
+    player1.nextPlayer = player2;
+    order.insertAfterCurrent(player3);
+
+    expect(player1.nextPlayer).toBe(player3);
+    expect(player3.nextPlayer).toBe(player2);
+  });
 });

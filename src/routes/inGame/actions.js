@@ -112,7 +112,7 @@ function join(games, chatId, message, phoneNumber, chat) {
   game.addPlayer(id, phoneNumber);
   game.players[id].isFolded = true;
   game.folds++;
-  game.order.insertAfterCurrent(game.players[id]); // TODO: needs to be tested
+  game.order.insertAfterCurrent(game.players[id]);
 
   let template = `Hi @{{name}}, welcome to the game!
 Wait for the next round to start`;

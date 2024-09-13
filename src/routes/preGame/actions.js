@@ -1,14 +1,18 @@
 const Mustache = require('mustache');
 const Game = require('../../classes/Game');
 const { formatId, emote } = require('../../generalFunctions');
+const constants = require('../../constants');
 
 // pok start - start the game
 function start(game, message, whatsapp) {
   game.generateOrder();
   let current = game.order.currentPlayer;
   do {
-    current.gameMoney = 100; // TODO: Change to a constants, also handle less money situations
-    current.money -= 100;
+    current.gameMoney =
+      current.money >= constants.GAME_MONEY
+        ? constants.GAME_MONEY
+        : current.money;
+    current.money -= current.gameMoney;
     current = current.nextPlayer;
   } while (!current.isButton);
 
@@ -29,7 +33,7 @@ function join(games, chatId, message, phoneNumber, chat) {
   if (game.isMidRound) {
     game.players[id].isFolded = true;
     game.folds++;
-    game.order.insertAfterCurrent(game.players[id]); // TODO: needs to be tested
+    game.order.insertAfterCurrent(game.players[id]);
     newMessage += 'Wait for the next round to start';
   }
 
