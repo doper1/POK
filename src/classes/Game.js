@@ -1,4 +1,4 @@
-const mustache = require('mustache');
+const Mustache = require('mustache');
 const constants = require('../constants');
 const { shuffleArray, delay, setLock } = require('../generalFunctions.js');
 const cardsFunctions = require('../game/cardsFunctions.js');
@@ -44,7 +44,7 @@ class Game {
       name: player.phoneNumber,
     }));
     let template = `*Players:*{{#players}}\n{{index}}. @{{name}}{{/players}}`;
-    return mustache.render(template, { players });
+    return Mustache.render(template, { players });
   }
 
   getOrderPretty() {
@@ -109,7 +109,7 @@ class Game {
 {{communityCards}}\n
 {{/hasCommunityCards}}*Playing Order  |  Bet  |  Stack* {{orderString}}`;
 
-    return mustache.render(template, {
+    return Mustache.render(template, {
       mainPot: this.pot.mainPot,
       hasCommunityCards: this.communityCards.length != 0,
       communityCards:
@@ -136,7 +136,7 @@ class Game {
       const template = `{{holeCards}}\n
 {{chatName}}`;
 
-      const newMessage = mustache.render(template, {
+      const newMessage = Mustache.render(template, {
         holeCards: cardsFunctions.printCards(current.getHoleCards()),
         chatName: this.chat.name,
       });
@@ -163,7 +163,7 @@ Check your DM for your cards 🤫\n
 Action on @{{currentPlayer.phoneNumber}} (\${{currentPlayer.gameMoney}})\n
 \${{toCall}} to call`;
 
-    let newMessage = mustache.render(template, {
+    let newMessage = Mustache.render(template, {
       lastRoundMessage,
       order: this.getOrderPretty(),
       currentPlayer: this.order.currentPlayer,
@@ -214,7 +214,7 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
 {{#toCall}}
 \n\${{toCall}} to call{{/toCall}}`;
 
-    const newMessage = mustache.render(template, {
+    const newMessage = Mustache.render(template, {
       mainPot: this.pot.mainPot,
       actionMessage,
       phoneNumber: current.phoneNumber,

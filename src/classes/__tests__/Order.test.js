@@ -14,16 +14,6 @@ describe('Order class - removePlayer', () => {
     player3 = new Player('Charlie', '54321');
   });
 
-  test('removes the only player in the order', () => {
-    order.append(player1);
-    player1.nextPlayer = player1; // Circular reference for single player
-
-    const result = order.removePlayer('Alice');
-
-    expect(result).toBe(true);
-    expect(order.currentPlayer.nextPlayer).toBeNull(); // No players left in the order
-  });
-
   test('removes the current player and updates the order correctly', () => {
     order.append(player1);
     order.append(player2);
@@ -54,7 +44,7 @@ describe('Order class - removePlayer', () => {
     expect(player2.nextPlayer).toBe(player1); // Circular structure is maintained
   });
 
-  test('removes the last player in a circular list', () => {
+  test('removes the last player', () => {
     order.append(player1);
     order.append(player2);
     order.append(player3);

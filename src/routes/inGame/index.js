@@ -3,7 +3,15 @@ const actions = require('./actions.js');
 const validators = require('./validators.js');
 const { emote } = require('../../generalFunctions');
 
-function inGameRoute(body, games, chatId, message, whatsapp) {
+function inGameRoute(
+  body,
+  games,
+  chatId,
+  message,
+  whatsapp,
+  chat,
+  phoneNumber,
+) {
   let game = games[chatId];
   let current = game.order.currentPlayer;
   let raiseAmount;
@@ -41,6 +49,21 @@ function inGameRoute(body, games, chatId, message, whatsapp) {
       return true;
     case 'end':
       if (validators.end(game, message)) actions.end(games, chatId, message);
+      return true;
+    case 'help':
+      message.reply(constants.HELP_PRE_GAME);
+      return true;
+    case 'join':
+      if (validators.join(games[chatId], message))
+        actions.join(games, chatId, message, phoneNumber, chat);
+      return true;
+    case 'show':
+      if (validators.show(games[chatId], message))
+        actions.show(games[chatId], chat);
+      return true;
+    case 'exit':
+      if (validators.exit(games[chatId], message))
+        actions.exit(games, chatId, message);
       return true;
     default:
       message.reply(constants.HELP_IN_GAME);

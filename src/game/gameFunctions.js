@@ -1,4 +1,4 @@
-const mustache = require('mustache');
+const Mustache = require('mustache');
 const AllIn = require('../classes/AllIn');
 const constants = require('../constants');
 const cardsFunctions = require('./cardsFunctions');
@@ -137,7 +137,7 @@ with {{holeCards}} - a *{{handStrength}}*\n
       handCards: cardsFunctions.printCards(player[0].handScore.cards),
     };
 
-    message += mustache.render(template, winnerData);
+    message += Mustache.render(template, winnerData);
   }
 
   return message;

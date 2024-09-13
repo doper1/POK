@@ -37,6 +37,11 @@ class Order {
       previous.nextPlayer = null;
     }
 
+    // When the current player is the one who is being removed
+    if (this.currentPlayer.id === id) {
+      this.currentPlayer = current;
+    }
+
     return true;
   }
 
