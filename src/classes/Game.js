@@ -243,7 +243,7 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
     this.order.next();
   }
 
-  async updateRound(whatsapp, actionMessage) {
+  updateRound(whatsapp, actionMessage) {
     let current = this.order.currentPlayer;
     let next = current.nextPlayer;
     let playerCount = Object.keys(this.players).length;
@@ -251,15 +251,7 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
 
     // Everybody folded except one player
     if (this.folds + 1 == playerCount) {
-      while (current.isFolded) {
-        current = current.nextPlayer;
-      }
-      current.gameMoney += this.pot.mainPot;
-      this.initRound(
-        whatsapp,
-        `Congrats! @${current.phoneNumber} Won $${this.pot.mainPot}!
----------------------------------`,
-      );
+      this.foldsScenario(whatsapp);
     }
     // More then one player is all in and everybody else folded
     else if (
@@ -267,36 +259,19 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
       (allInCount == playerCount - this.folds - 1 &&
         next.currentBet == this.pot.currentBet)
     ) {
-      setLock(true);
-      let newMessage = `${actionMessage}\n\n*Pot:* $${this.pot.mainPot}\n\n`;
-      Object.values(this.players).forEach((player) => {
-        if (!player.isFolded) {
-          newMessage += `${cardsFunctions.formatHand(
-            player.phoneNumber,
-            player.holeCards,
-          )}`;
-        }
-      });
-      if (this.communityCards.length != 0) {
-        newMessage += `\n*Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}`;
-      } else {
-        newMessage += '\n*Community Cards:*\n-';
-      }
-      let message = await this.chat.sendMessage(newMessage, {
-        mentions: this.getMentions(),
-      });
-
-      await delay(1000);
-      await this.rushRound(message, whatsapp, newMessage);
-      let endMessage = gameFunctions.showdown(this);
-      this.initRound(whatsapp, endMessage);
-      setLock(false);
-    } else if (next.isAllIn || next.isFolded) {
+      this.AllInScenario(actionMessage, whatsapp);
+    }
+    // Next player is all in or folded (there for action should be passed to the next player)
+    else if (next.isAllIn || next.isFolded) {
       this.order.next();
       this.updateRound(whatsapp, actionMessage);
-    } else if (next.isPlayed && next.currentBet == this.pot.currentBet) {
+    }
+    // All the player in the pot called the highest bet (or either checked, folded, or all in)
+    else if (next.isPlayed && next.currentBet == this.pot.currentBet) {
       this.moveRound(whatsapp);
-    } else {
+    }
+    // Next player didn't played or called the highest bet yet
+    else {
       current.isPlayed = true;
       this.moveAction(actionMessage);
     }
@@ -408,6 +383,47 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
 
   getMentions() {
     return Object.values(this.players).map((player) => player.id);
+  }
+
+  async AllInScenario(actionMessage, whatsapp) {
+    setLock(true);
+    let newMessage = `${actionMessage}\n\n*Pot:* $${this.pot.mainPot}\n\n`;
+    Object.values(this.players).forEach((player) => {
+      if (!player.isFolded) {
+        newMessage += `${cardsFunctions.formatHand(
+          player.phoneNumber,
+          player.holeCards,
+        )}`;
+      }
+    });
+    if (this.communityCards.length != 0) {
+      newMessage += `\n*Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}`;
+    } else {
+      newMessage += '\n*Community Cards:*\n-';
+    }
+    let message = await this.chat.sendMessage(newMessage, {
+      mentions: this.getMentions(),
+    });
+
+    await delay(1000);
+    await this.rushRound(message, whatsapp, newMessage);
+    let endMessage = gameFunctions.showdown(this);
+    this.initRound(whatsapp, endMessage);
+    setLock(false);
+  }
+
+  foldsScenario(whatsapp) {
+    let current = this.order.currentPlayer;
+
+    while (current.isFolded) {
+      current = current.nextPlayer;
+    }
+    current.gameMoney += this.pot.mainPot;
+    this.initRound(
+      whatsapp,
+      `Congrats! @${current.phoneNumber} Won $${this.pot.mainPot}!
+---------------------------------`,
+    );
   }
 }
 
