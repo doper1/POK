@@ -8,21 +8,21 @@ jest.mock('../../constants', () => ({
     /* mock deck of cards */
   ],
   SMALL_BLIND: 1,
-  BIG_BLIND: 2
+  BIG_BLIND: 2,
 }));
 
 jest.mock('../../game/cardsFunctions.js', () => ({
   printCards: jest.fn(),
-  formatHand: jest.fn()
+  formatHand: jest.fn(),
 }));
 
 jest.mock('../../game/gameFunctions.js', () => ({
-  showdown: jest.fn()
+  showdown: jest.fn(),
 }));
 
 jest.mock('../../generalFunctions.js', () => ({
   shuffleArray: jest.fn(),
-  delay: jest.fn()
+  delay: jest.fn(),
 }));
 
 describe('Game', () => {
@@ -33,8 +33,8 @@ describe('Game', () => {
     whatsapp = { sendMessage: jest.fn() };
     game = new Game('game1', whatsapp);
     game.players = {
-      123: new Player('contact1', '123'),
-      456: new Player('contact2', '456')
+      123: new Player('phoneNumber1', '123'),
+      456: new Player('phoneNumber2', '456'),
     };
     game.order = new Order();
     game.pot = new Pot();
@@ -62,8 +62,8 @@ describe('Game', () => {
     expect(game.players).toEqual(
       expect.objectContaining({
         123: expect.objectContaining({ isButton: true }),
-        456: expect.objectContaining({ isButton: false })
-      })
+        456: expect.objectContaining({ isButton: false }),
+      }),
     );
     expect(game.order).toBeInstanceOf(Order);
     expect(game.pot).toBeInstanceOf(Pot);
@@ -75,9 +75,9 @@ describe('Game', () => {
   });
 
   test('should add player correctly', () => {
-    game.addPlayer('contact3', '789');
+    game.addPlayer('789', 'phoneNumber3');
     expect(game.players['789']).toBeInstanceOf(Player);
-    expect(game.players['789'].contact).toBe('contact3');
+    expect(game.players['789'].phoneNumber).toBe('phoneNumber3');
     expect(game.players['789'].isButton).toBe(false);
   });
 
@@ -87,9 +87,9 @@ describe('Game', () => {
 
   // test("should get order pretty", () => {
   //   const result = game.getOrderPretty();
-  //   expect(result).toContain("*1. @contact1*");
+  //   expect(result).toContain("*1. @phoneNumber1*");
   //   expect(result).toContain("⚪");
-  //   expect(result).toContain("2. @contact2");
+  //   expect(result).toContain("2. @phoneNumber2");
   //   expect(result).not.toContain("⚪");
   // });
 

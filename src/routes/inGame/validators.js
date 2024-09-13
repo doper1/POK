@@ -21,7 +21,7 @@ function check(game, message) {
     message.reply(
       `You can call ($${
         game.pot.currentBet - current.currentBet
-      } more), raise or fold`
+      } more), raise or fold`,
     );
     return false;
   }
@@ -42,13 +42,13 @@ function raise(game, message, amount) {
   } else if (Number.isNaN(amount)) {
     message.react(emote('mistake'));
     message.reply(
-      "Please specify a numerical amount (e.g., 'pok raise 3') or go 'all in' (e.g., 'pok raise all in')."
+      "Please specify a numerical amount (e.g., 'pok raise 3') or go 'all in' (e.g., 'pok raise all in').",
     );
     return false;
   } else if (!Number.isInteger(amount)) {
     message.react(emote('mistake'));
     message.reply(
-      'Please enter a whole number (e.g., 4) and not a decimal (e.g., 4.5).'
+      'Please enter a whole number (e.g., 4) and not a decimal (e.g., 4.5).',
     );
     return false;
   } else if (amount < 1) {
@@ -60,7 +60,7 @@ function raise(game, message, amount) {
     message.reply(
       `You need to call, raise at least $${
         game.pot.currentBet - current.currentBet
-      } more, or fold`
+      } more, or fold`,
     );
     return false;
   } else if (current.gameMoney < amount) {

@@ -116,7 +116,7 @@ function isFullHouse(cards) {
             count[key][1],
             count[key][2],
             count[k][0],
-            count[k][1]
+            count[k][1],
           ];
   return false;
 }
@@ -204,7 +204,7 @@ function updateHandStrength(game, player) {
   //reverses back to 11:J 13:K (14||1 :A) 12:Q
   for (let i = 0; i < player.handScore.cards.length; i++)
     player.handScore.cards[i] = ReverseParseCardNumber(
-      player.handScore.cards[i]
+      player.handScore.cards[i],
     );
 }
 
@@ -291,5 +291,5 @@ module.exports = {
   updateHandStrength,
   isCardInCards,
   calcHandsStrength,
-  formatHand
+  formatHand,
 };

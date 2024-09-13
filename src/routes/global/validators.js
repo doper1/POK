@@ -1,11 +1,11 @@
-const { formatPhoneNumber, emote } = require('../../generalFunctions');
+const { formatId, emote } = require("../../generalFunctions");
 
 function join(game, message) {
   if (
     game != undefined &&
-    game.players[formatPhoneNumber(message.author)] !== undefined
+    game.players[formatId(message.author)] !== undefined
   ) {
-    message.reply('You have already joined!');
+    message.reply("You have already joined!");
     return false;
   }
   return true;
@@ -13,8 +13,8 @@ function join(game, message) {
 
 function show(game, message) {
   if (game == undefined) {
-    message.react(emote('fold'));
-    message.reply('There are no players at the table');
+    message.react(emote("fold"));
+    message.reply("There are no players at the table");
     return false;
   }
   return true;
@@ -23,10 +23,10 @@ function show(game, message) {
 function exit(game, message) {
   if (
     game === undefined ||
-    game.players[formatPhoneNumber(message.author)] === undefined
+    game.players[formatId(message.author)] === undefined
   ) {
-    message.react(emote('mistake'));
-    message.reply('You have not joined the game yet');
+    message.react(emote("mistake"));
+    message.reply("You have not joined the game yet");
     return false;
   }
   return true;

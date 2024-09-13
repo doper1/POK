@@ -15,7 +15,7 @@ const {
   updateHandStrength,
   isCardInCards,
   calcHandsStrength,
-  formatHand
+  formatHand,
 } = require('../cardsFunctions.js');
 
 describe('Poker Hand Evaluation Tests', () => {
@@ -23,7 +23,7 @@ describe('Poker Hand Evaluation Tests', () => {
     const cards = [
       ['H', 'A'],
       ['D', '10'],
-      ['S', 'K']
+      ['S', 'K'],
     ];
     const result = printCards(cards);
     expect(result).toBe('*IHAI* *ID10I* *ISKI*');
@@ -52,14 +52,14 @@ describe('Poker Hand Evaluation Tests', () => {
       ['H', '9'],
       ['H', 'Q'],
       ['H', 'K'],
-      ['D', '3']
+      ['D', '3'],
     ];
     expect(isFlush(cards)).toEqual([
       ['H', '2'],
       ['H', '5'],
       ['H', '9'],
       ['H', 'Q'],
-      ['H', 'K']
+      ['H', 'K'],
     ]);
   });
 
@@ -70,14 +70,14 @@ describe('Poker Hand Evaluation Tests', () => {
       ['S', 8],
       ['D', 7],
       ['H', 6],
-      ['H', 2]
+      ['H', 2],
     ];
     expect(isStraight(cards)).toEqual([
       ['H', 10],
       ['C', 9],
       ['S', 8],
       ['D', 7],
-      ['H', 6]
+      ['H', 6],
     ]);
   });
 
@@ -88,14 +88,14 @@ describe('Poker Hand Evaluation Tests', () => {
       ['H', 8],
       ['H', 7],
       ['H', 6],
-      ['D', 3]
+      ['D', 3],
     ];
     expect(isStraightFlush(cards)).toEqual([
       ['H', 10],
       ['H', 9],
       ['H', 8],
       ['H', 7],
-      ['H', 6]
+      ['H', 6],
     ]);
   });
 
@@ -105,13 +105,13 @@ describe('Poker Hand Evaluation Tests', () => {
       ['D', 9],
       ['S', 9],
       ['C', 9],
-      ['H', 6]
+      ['H', 6],
     ];
     expect(isFourOfAKind(cards)).toEqual([
       ['H', 9],
       ['D', 9],
       ['S', 9],
-      ['C', 9]
+      ['C', 9],
     ]);
   });
 
@@ -121,14 +121,14 @@ describe('Poker Hand Evaluation Tests', () => {
       ['C', 10],
       ['S', 10],
       ['D', 6],
-      ['H', 6]
+      ['H', 6],
     ];
     expect(isFullHouse(cards)).toEqual([
       ['H', 10],
       ['C', 10],
       ['S', 10],
       ['D', 6],
-      ['H', 6]
+      ['H', 6],
     ]);
   });
 
@@ -138,12 +138,12 @@ describe('Poker Hand Evaluation Tests', () => {
       ['C', 10],
       ['S', 10],
       ['D', 6],
-      ['H', 2]
+      ['H', 2],
     ];
     expect(isThreeOfAKind(cards)).toEqual([
       ['H', 10],
       ['C', 10],
-      ['S', 10]
+      ['S', 10],
     ]);
   });
 
@@ -153,13 +153,13 @@ describe('Poker Hand Evaluation Tests', () => {
       ['C', 10],
       ['S', 6],
       ['D', 6],
-      ['H', 2]
+      ['H', 2],
     ];
     expect(isTwoPair(cards)).toEqual([
       ['H', 10],
       ['C', 10],
       ['S', 6],
-      ['D', 6]
+      ['D', 6],
     ]);
   });
 
@@ -169,11 +169,11 @@ describe('Poker Hand Evaluation Tests', () => {
       ['C', 10],
       ['S', 6],
       ['D', 7],
-      ['H', 2]
+      ['H', 2],
     ];
     expect(isPair(cards)).toEqual([
       ['H', 10],
-      ['C', 10]
+      ['C', 10],
     ]);
   });
 
@@ -183,14 +183,14 @@ describe('Poker Hand Evaluation Tests', () => {
       ['H', 14],
       ['D', 10],
       ['C', 7],
-      ['S', 9]
+      ['S', 9],
     ];
     expect(sortCards(cards)).toEqual([
       ['H', 14],
       ['D', 10],
       ['S', 9],
       ['C', 7],
-      ['H', 2]
+      ['H', 2],
     ]);
   });
 });
@@ -204,42 +204,42 @@ describe('calcHandsStrength', () => {
         ['C', 'K'],
         ['D', 'Q'],
         ['S', 'K'],
-        ['H', 'A']
+        ['H', 'A'],
       ],
       order: {
         currentPlayer: null,
-        players: []
+        players: [],
       },
       jumpToButton: function () {
         this.order.currentPlayer = this.order.players[0];
-      }
+      },
     };
 
     const player1 = {
       holeCards: [
         ['C', '7'],
-        ['D', '10']
+        ['D', '10'],
       ],
       handScore: {},
-      isButton: true
+      isButton: true,
     };
 
     const player2 = {
       holeCards: [
         ['C', '10'],
-        ['D', '7']
+        ['D', '7'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player3 = {
       holeCards: [
         ['H', 'Q'],
-        ['S', '3']
+        ['S', '3'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     // Link players in a circular list
@@ -254,7 +254,7 @@ describe('calcHandsStrength', () => {
 
     // New assertion based on console.log output
     expect(result).toEqual({
-      7: [player1, player2, player3]
+      7: [player1, player2, player3],
     });
   });
 
@@ -266,42 +266,42 @@ describe('calcHandsStrength', () => {
         ['C', 'K'],
         ['D', 'Q'],
         ['S', 'K'],
-        ['H', 'A']
+        ['H', 'A'],
       ],
       order: {
         currentPlayer: null,
-        players: []
+        players: [],
       },
       jumpToButton: function () {
         this.order.currentPlayer = this.order.players[0];
-      }
+      },
     };
 
     const player1 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: true
+      isButton: true,
     };
 
     const player2 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player3 = {
       holeCards: [
         ['H', '2'],
-        ['S', '3']
+        ['S', '3'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     // Link players in a circular list
@@ -317,7 +317,7 @@ describe('calcHandsStrength', () => {
     // New assertion based on console.log output
     expect(result).toEqual({
       7: [player1, player2],
-      8: [player3]
+      8: [player3],
     });
   });
 
@@ -329,51 +329,51 @@ describe('calcHandsStrength', () => {
         ['C', 'K'],
         ['D', 'Q'],
         ['S', 'K'],
-        ['H', 'A']
+        ['H', 'A'],
       ],
       order: {
         currentPlayer: null,
-        players: []
+        players: [],
       },
       jumpToButton: function () {
         this.order.currentPlayer = this.order.players[0];
-      }
+      },
     };
 
     const player1 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: true
+      isButton: true,
     };
 
     const player2 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player3 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player4 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     // Link players in a circular list
@@ -389,7 +389,7 @@ describe('calcHandsStrength', () => {
 
     // New assertion based on console.log output
     expect(result).toEqual({
-      7: [player1, player2, player3, player4]
+      7: [player1, player2, player3, player4],
     });
   });
 
@@ -401,51 +401,51 @@ describe('calcHandsStrength', () => {
         ['C', 'K'],
         ['D', 'Q'],
         ['S', 'K'],
-        ['H', 'A']
+        ['H', 'A'],
       ],
       order: {
         currentPlayer: null,
-        players: []
+        players: [],
       },
       jumpToButton: function () {
         this.order.currentPlayer = this.order.players[0];
-      }
+      },
     };
 
     const player1 = {
       holeCards: [
         ['C', 'A'],
-        ['D', 'A']
+        ['D', 'A'],
       ],
       handScore: {},
-      isButton: true
+      isButton: true,
     };
 
     const player2 = {
       holeCards: [
         ['C', '10'],
-        ['D', '7']
+        ['D', '7'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player3 = {
       holeCards: [
         ['H', '2'],
-        ['S', '3']
+        ['S', '3'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player4 = {
       holeCards: [
         ['D', '4'],
-        ['C', '9']
+        ['C', '9'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     // Link players in a circular list
@@ -463,7 +463,7 @@ describe('calcHandsStrength', () => {
     expect(result).toEqual({
       3: [player1],
       7: [player2],
-      8: [player3, player4]
+      8: [player3, player4],
     });
   });
 
@@ -475,51 +475,51 @@ describe('calcHandsStrength', () => {
         ['C', 'K'],
         ['D', 'Q'],
         ['S', 'K'],
-        ['H', 'A']
+        ['H', 'A'],
       ],
       order: {
         currentPlayer: null,
-        players: []
+        players: [],
       },
       jumpToButton: function () {
         this.order.currentPlayer = this.order.players[0];
-      }
+      },
     };
 
     const player1 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: true
+      isButton: true,
     };
 
     const player2 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player3 = {
       holeCards: [
         ['C', '10'],
-        ['D', 'J']
+        ['D', 'J'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     const player4 = {
       holeCards: [
         ['H', '2'],
-        ['S', '3']
+        ['S', '3'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     // Link players in a circular list
@@ -536,7 +536,7 @@ describe('calcHandsStrength', () => {
     // New assertion based on console.log output
     expect(result).toEqual({
       7: [player1, player2, player3],
-      8: [player4]
+      8: [player4],
     });
   });
 
@@ -548,33 +548,33 @@ describe('calcHandsStrength', () => {
         ['D', '8'],
         ['S', '4'],
         ['C', 'K'],
-        ['C', '2']
+        ['C', '2'],
       ],
       order: {
         currentPlayer: null,
-        players: []
+        players: [],
       },
       jumpToButton: function () {
         this.order.currentPlayer = this.order.players[0];
-      }
+      },
     };
 
     const player1 = {
       holeCards: [
         ['H', '7'],
-        ['C', 'A']
+        ['C', 'A'],
       ],
       handScore: {},
-      isButton: true
+      isButton: true,
     };
 
     const player2 = {
       holeCards: [
         ['D', '6'],
-        ['D', 'A']
+        ['D', 'A'],
       ],
       handScore: {},
-      isButton: false
+      isButton: false,
     };
 
     // Link players in a circular list
@@ -588,7 +588,7 @@ describe('calcHandsStrength', () => {
 
     // New assertion based on console.log output
     expect(result).toEqual({
-      9: [player1, player2]
+      9: [player1, player2],
     });
   });
 });
@@ -600,17 +600,17 @@ describe('Additional Card Function Tests', () => {
       ['H', 3],
       ['D', 2],
       ['S', 4],
-      ['H', 5]
+      ['H', 5],
     ];
     const result = countCards(cards, 0);
     expect(result).toEqual({
       ' H': [
         ['H', 2],
         ['H', 3],
-        ['H', 5]
+        ['H', 5],
       ],
       ' D': [['D', 2]],
-      ' S': [['S', 4]]
+      ' S': [['S', 4]],
     });
   });
 
@@ -618,7 +618,7 @@ describe('Additional Card Function Tests', () => {
     const cards = [
       ['H', 2],
       ['D', 3],
-      ['S', 4]
+      ['S', 4],
     ];
     expect(isCardInCards(['H', 2], cards)).toBe(true);
   });
@@ -627,7 +627,7 @@ describe('Additional Card Function Tests', () => {
     const cards = [
       ['H', 2],
       ['D', 3],
-      ['S', 4]
+      ['S', 4],
     ];
     expect(isCardInCards(['C', 5], cards)).toBe(false);
   });
@@ -639,15 +639,15 @@ describe('Additional Card Function Tests', () => {
         ['H', 'J'],
         ['H', 'Q'],
         ['H', 'K'],
-        ['S', '2']
-      ]
+        ['S', '2'],
+      ],
     };
     const player = {
       holeCards: [
         ['H', 'A'],
-        ['D', '2']
+        ['D', '2'],
       ],
-      handScore: {}
+      handScore: {},
     };
     updateHandStrength(game, player);
     expect(player.handScore.str).toBe(0);
@@ -660,15 +660,15 @@ describe('Additional Card Function Tests', () => {
         ['D', '4'],
         ['S', '6'],
         ['C', '8'],
-        ['H', '10']
-      ]
+        ['H', '10'],
+      ],
     };
     const player = {
       holeCards: [
         ['S', 'A'],
-        ['D', 'K']
+        ['D', 'K'],
       ],
-      handScore: {}
+      handScore: {},
     };
     updateHandStrength(game, player);
     expect(player.handScore.str).toBe(9);
@@ -678,7 +678,7 @@ describe('Additional Card Function Tests', () => {
     const playerName = 'John';
     const holeCards = [
       ['H', 'A'],
-      ['D', 'K']
+      ['D', 'K'],
     ];
     const result = formatHand(playerName, holeCards);
     expect(result).toBe('@John: *IHAI* *IDKI*\n');

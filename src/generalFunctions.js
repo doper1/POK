@@ -1,5 +1,5 @@
-const mustache = require('mustache');
-const constants = require('./constants');
+const mustache = require("mustache");
+const constants = require("./constants");
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
@@ -24,30 +24,30 @@ function emote(emojiType) {
   if (!(emojiType in constants.EMOJIES)) {
     throw new Error(
       mustache.render(`Emoji type '{{emojiType}}' doesn't exist`, {
-        emojiType
-      })
+        emojiType,
+      }),
     );
   } else {
     let randomIndex = Math.floor(
-      Math.random() * constants.EMOJIES[emojiType].length
+      Math.random() * constants.EMOJIES[emojiType].length,
     );
     return constants.EMOJIES[emojiType][randomIndex];
   }
 }
 
 function isAllowed(game, message) {
-  let id = formatPhoneNumber(message.author);
+  let id = formatId(message.author);
 
   if (game.order.currentPlayer.id != id) {
-    message.react(emote('mistake'));
+    message.react(emote("mistake"));
     message.reply("It's not your turn");
     return false;
   }
   return true;
 }
 
-function formatPhoneNumber(id) {
-  return id.replace(/:\d+@/, '@');
+function formatId(id) {
+  return id.replace(/:\d+@/, "@");
 }
 
 function delay(ms) {
@@ -66,11 +66,11 @@ function isLocked() {
 
 function cleanInstance(instance, keepProperties, keepMethods) {
   const properties = Object.fromEntries(
-    keepProperties.map((prop) => [prop, instance[prop]])
+    keepProperties.map((prop) => [prop, instance[prop]]),
   );
 
   const methods = Object.fromEntries(
-    keepMethods.map((method) => [method, instance[method].bind(instance)])
+    keepMethods.map((method) => [method, instance[method].bind(instance)]),
   );
 
   return { ...properties, ...methods };
@@ -81,9 +81,9 @@ module.exports = {
   hasTwoWords,
   emote,
   isAllowed,
-  formatPhoneNumber,
+  formatId,
   delay,
   setLock,
   isLocked,
-  cleanInstance
+  cleanInstance,
 };

@@ -19,7 +19,7 @@ if (mode === 'prod') {
 }
 
 let whatsapp = new Client({
-  authStrategy: new LocalAuth()
+  authStrategy: new LocalAuth(),
 });
 
 // Clean up the whatsapp instance before passing it to the router
@@ -34,7 +34,7 @@ whatsapp.on(event, async (messagePromise) => {
   message = cleanInstance(
     message,
     ['timestamp', 'author'],
-    ['getContact', 'getChat', 'react', 'reply']
+    ['getContact', 'getChat', 'react', 'reply'],
   );
   chat = cleanInstance(chat, ['id', 'name', 'isGroup'], ['sendMessage']);
 
@@ -51,7 +51,7 @@ whatsapp.on('call', async (call) => {
 
 whatsapp.on('qr', (qr) => {
   qrCode.generate(qr, {
-    small: true
+    small: true,
   });
 });
 

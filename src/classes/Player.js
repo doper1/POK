@@ -9,9 +9,9 @@
  */
 
 class Player {
-  constructor(contact, id) {
+  constructor(id, phoneNumber) {
     this.id = id;
-    this.contact = contact;
+    this.phoneNumber = phoneNumber;
     this.holeCards = [];
     this.money = 1000;
     this.gameMoney = 0;
@@ -72,7 +72,7 @@ class Player {
   betMoney(amount) {
     if (amount > this.money) {
       MessageChannel.reply(
-        `Insufficient funds, you got more ${this.money} chips`
+        `Insufficient funds, you got more ${this.money} chips`,
       );
       return;
     }

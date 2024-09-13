@@ -1,7 +1,7 @@
-const mustache = require('mustache');
-const AllIn = require('../classes/AllIn');
-const constants = require('../constants');
-const cardsFunctions = require('./cardsFunctions');
+const mustache = require("mustache");
+const AllIn = require("../classes/AllIn");
+const constants = require("../constants");
+const cardsFunctions = require("./cardsFunctions");
 
 function isValidWinner(player, allIn) {
   return allIn.players.some((allInPlayer) => allInPlayer.id == player.id);
@@ -30,7 +30,7 @@ function getWinners(players) {
     const currentPlayer = players[i];
     const comparisonResult = compareHands(
       winners[0].handScore.cards,
-      currentPlayer.handScore.cards
+      currentPlayer.handScore.cards,
     );
 
     if (comparisonResult > 0) {
@@ -115,7 +115,7 @@ function showdown(game) {
       }
     }
   });
-  let message = '';
+  let message = "";
   const winnerTemplate = `
 Congrats! @{{winner}} Won \${{winnings}}
 with {{holeCards}}
@@ -128,14 +128,14 @@ with {{holeCards}}
     let player = winners[id];
 
     if (player[1] === 0) continue;
-    if (message.length > 0) message += '\n';
+    if (message.length > 0) message += "\n";
 
     const winnerData = {
-      winner: player[0].contact,
+      winner: player[0].phoneNumber,
       winnings: player[1],
       holeCards: cardsFunctions.printCards(player[0].holeCards),
       handStrength: constants.STRENGTH_DICT[player[0].handScore.str],
-      handCards: cardsFunctions.printCards(player[0].handScore.cards)
+      handCards: cardsFunctions.printCards(player[0].handScore.cards),
     };
 
     message += mustache.render(winnerTemplate, winnerData);
@@ -165,5 +165,5 @@ module.exports = {
   rakeToWinners,
   getWinners,
   compareHands,
-  randomWinnerKey
+  randomWinnerKey,
 };

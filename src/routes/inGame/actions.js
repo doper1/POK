@@ -1,6 +1,6 @@
-const mustache = require('mustache');
-const { emote } = require('../../generalFunctions');
-const gameFunctions = require('../../game/gameFunctions');
+const mustache = require("mustache");
+const { emote } = require("../../generalFunctions");
+const gameFunctions = require("../../game/gameFunctions");
 
 // globals
 let newMessage;
@@ -18,7 +18,7 @@ function check(game, whatsapp) {
 
   const checkTemplate = `@{{name}} checked`;
   const player = {
-    name: current.contact
+    name: current.phoneNumber,
   };
   newMessage = mustache.render(checkTemplate, player);
   game.updateRound(whatsapp, newMessage);
@@ -36,7 +36,7 @@ function raise(game, amount, whatsapp) {
 
   const raiseTemplate = `@{{name}} raised $${amount}`;
   const player = {
-    name: current.contact
+    name: current.phoneNumber,
   };
   newMessage = mustache.render(raiseTemplate, player);
   game.updateRound(whatsapp, newMessage);
@@ -62,9 +62,9 @@ function allIn(game, whatsapp) {
 
   const allInTemplate = `Wow! @{{name}} is ALL IN for \${{amount}} more (total \${{totalBet}})`;
   const player = {
-    name: current.contact,
+    name: current.phoneNumber,
     amount: amount,
-    totalBet: current.currentBet
+    totalBet: current.currentBet,
   };
   newMessage = mustache.render(allInTemplate, player);
   game.updateRound(whatsapp, newMessage);
@@ -78,10 +78,10 @@ function fold(game, message, whatsapp) {
 
   const foldTemplate = `@{{name}} folded`;
   const player = {
-    name: current.contact
+    name: current.phoneNumber,
   };
   newMessage = mustache.render(foldTemplate, player);
-  message.react(emote('fold'));
+  message.react(emote("fold"));
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -96,8 +96,8 @@ function call(game, whatsapp) {
 
   const callTemplate = `@{{name}} calls \${{amount}}`;
   const player = {
-    name: current.contact,
-    amount: amount
+    name: current.phoneNumber,
+    amount: amount,
   };
   newMessage = mustache.render(callTemplate, player);
   gameFunctions.qualifyToAllIns(game, amount);
@@ -111,5 +111,5 @@ module.exports = {
   raise,
   allIn,
   fold,
-  call
+  call,
 };
