@@ -3,15 +3,15 @@ const actions = require('./actions.js');
 const validators = require('./validators.js');
 const { emote } = require('../../generalFunctions');
 
-function inGameRoute(
+function inGameRoute({
+  whatsapp,
+  message,
   body,
+  chat,
   games,
   chatId,
-  message,
-  whatsapp,
-  chat,
   phoneNumber,
-) {
+}) {
   let game = games[chatId];
   let current = game.order.currentPlayer;
   let raiseAmount;

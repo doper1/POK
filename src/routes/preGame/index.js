@@ -2,15 +2,15 @@ const constants = require('../../constants.js');
 const actions = require('./actions.js');
 const validators = require('./validators.js');
 
-function preGameRoute(
+function preGameRoute({
+  whatsapp,
+  message,
   body,
+  chat,
   games,
   chatId,
-  message,
-  whatsapp,
-  chat,
   phoneNumber,
-) {
+}) {
   switch (body[1]) {
     case 'start':
       if (validators.start(games[chatId], message))
