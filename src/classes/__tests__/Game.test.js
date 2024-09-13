@@ -1,13 +1,9 @@
-const Game = require("../Game");
-const Player = require("../Player");
-const Order = require("../Order");
-const Pot = require("../Pot");
-// const constants = require("../../constants.js");
-// const cards_functions = require("../../game/cardsFunctions.js");
-// const game_functions = require("../../game/gameFunctions.js");
-// const { shuffleArray, delay } = require("../../generalFunctions.js");
+const Game = require('../Game');
+const Player = require('../Player');
+const Order = require('../Order');
+const Pot = require('../Pot');
 
-jest.mock("../../constants", () => ({
+jest.mock('../../constants', () => ({
   DECK: [
     /* mock deck of cards */
   ],
@@ -15,30 +11,30 @@ jest.mock("../../constants", () => ({
   BIG_BLIND: 2
 }));
 
-jest.mock("../../game/cardsFunctions.js", () => ({
-  print_cards: jest.fn(),
-  format_hand: jest.fn()
+jest.mock('../../game/cardsFunctions.js', () => ({
+  printCards: jest.fn(),
+  formatHand: jest.fn()
 }));
 
-jest.mock("../../game/gameFunctions.js", () => ({
+jest.mock('../../game/gameFunctions.js', () => ({
   showdown: jest.fn()
 }));
 
-jest.mock("../../generalFunctions.js", () => ({
+jest.mock('../../generalFunctions.js', () => ({
   shuffleArray: jest.fn(),
   delay: jest.fn()
 }));
 
-describe("Game", () => {
+describe('Game', () => {
   let game;
   let whatsapp;
 
   beforeEach(() => {
     whatsapp = { sendMessage: jest.fn() };
-    game = new Game("game1", whatsapp);
+    game = new Game('game1', whatsapp);
     game.players = {
-      123: new Player("contact1", "123"),
-      456: new Player("contact2", "456")
+      123: new Player('contact1', '123'),
+      456: new Player('contact2', '456')
     };
     game.order = new Order();
     game.pot = new Pot();
@@ -51,41 +47,41 @@ describe("Game", () => {
       game.order.append(game.players[id]);
     });
     // Set the button for the first player in the list
-    game.order.current_player.is_button = true;
+    game.order.currentPlayer.isButton = true;
     // Close the linked list loop
-    let current = game.order.current_player;
-    while (current.next_player) {
-      current = current.next_player;
+    let current = game.order.currentPlayer;
+    while (current.nextPlayer) {
+      current = current.nextPlayer;
     }
-    current.next_player = game.order.current_player;
+    current.nextPlayer = game.order.currentPlayer;
   });
 
-  test("should initialize game correctly", () => {
-    expect(game.id).toBe("game1");
+  test('should initialize game correctly', () => {
+    expect(game.id).toBe('game1');
     expect(game.chat).toBe(whatsapp);
     expect(game.players).toEqual(
       expect.objectContaining({
-        123: expect.objectContaining({ is_button: true }),
-        456: expect.objectContaining({ is_button: false })
+        123: expect.objectContaining({ isButton: true }),
+        456: expect.objectContaining({ isButton: false })
       })
     );
     expect(game.order).toBeInstanceOf(Order);
     expect(game.pot).toBeInstanceOf(Pot);
     expect(game.deck).toEqual([]);
     expect(game.type).toBe(1);
-    expect(game.community_cards).toEqual([]);
-    expect(game.is_midround).toBe(false);
+    expect(game.communityCards).toEqual([]);
+    expect(game.isMidRound).toBe(false);
     expect(game.folds).toBe(0);
   });
 
-  test("should add player correctly", () => {
-    game.addPlayer("contact3", "789");
-    expect(game.players["789"]).toBeInstanceOf(Player);
-    expect(game.players["789"].contact).toBe("contact3");
-    expect(game.players["789"].is_button).toBe(false);
+  test('should add player correctly', () => {
+    game.addPlayer('contact3', '789');
+    expect(game.players['789']).toBeInstanceOf(Player);
+    expect(game.players['789'].contact).toBe('contact3');
+    expect(game.players['789'].isButton).toBe(false);
   });
 
-  test("should return players correctly", () => {
+  test('should return players correctly', () => {
     expect(game.getPlayers()).toEqual(game.players);
   });
 

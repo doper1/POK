@@ -1,38 +1,36 @@
-const mustache = require("mustache");
-const AllIn = require("../classes/AllIn");
-const constants = require("../constants");
-const cardsFunctions = require("./cardsFunctions");
+const mustache = require('mustache');
+const AllIn = require('../classes/AllIn');
+const constants = require('../constants');
+const cardsFunctions = require('./cardsFunctions');
 
-function is_valid_winner(player, all_in) {
-  return all_in.players.some(
-    (ai_player) => ai_player.phone_number == player.phone_number
-  );
+function isValidWinner(player, allIn) {
+  return allIn.players.some((allInPlayer) => allInPlayer.id == player.id);
 }
-function rake_to_winners(players, amount, winners) {
+function rakeToWinners(players, amount, winners) {
   if (players.length === 0) {
     return winners;
   }
-  if (!(players[0].phone_number in winners)) {
-    winners[players[0].phone_number] = [players[0], 0];
+  if (!(players[0].id in winners)) {
+    winners[players[0].id] = [players[0], 0];
   }
   let winnings = (amount - (amount % players.length)) / players.length;
-  winners[players[0].phone_number][0].game_money += winnings;
-  winners[players[0].phone_number][1] += winnings;
+  winners[players[0].id][0].gameMoney += winnings;
+  winners[players[0].id][1] += winnings;
 
   players.splice(0, 1);
 
-  return rake_to_winners(players, amount - winnings, winners);
+  return rakeToWinners(players, amount - winnings, winners);
 }
 
 // Checking for ties and returning the right winner(s) accordingly
-function get_winners(players) {
+function getWinners(players) {
   let winners = [players[0]];
 
   for (let i = 1; i < players.length; i++) {
     const currentPlayer = players[i];
-    const comparisonResult = compare_hands(
-      winners[0].hand_score.cards,
-      currentPlayer.hand_score.cards
+    const comparisonResult = compareHands(
+      winners[0].handScore.cards,
+      currentPlayer.handScore.cards
     );
 
     if (comparisonResult > 0) {
@@ -45,7 +43,7 @@ function get_winners(players) {
   return winners;
 }
 
-function compare_hands(hand1, hand2) {
+function compareHands(hand1, hand2) {
   for (let i = 0; i < hand1.length; i++) {
     let card1 = cardsFunctions.parseCardNumber(hand1[i])[1];
     let card2 = cardsFunctions.parseCardNumber(hand2[i])[1];
@@ -58,7 +56,7 @@ function compare_hands(hand1, hand2) {
   return 0;
 }
 
-function random_winner_key(winners) {
+function randomWinnerKey(winners) {
   return Object.keys(winners)[
     Math.floor(Math.random() * Object.keys(winners).length)
   ];
@@ -66,95 +64,95 @@ function random_winner_key(winners) {
 
 function showdown(game) {
   game.pot.reorgAllIns();
-  let hands_strength_list = cardsFunctions.calc_hands_strength(game);
+  let handsStrengthList = cardsFunctions.calcHandsStrength(game);
   game.jumpToButton();
-  let current = game.order.current_player;
-  let last_pot = new AllIn([], game.pot.main_pot, -1);
+  let current = game.order.currentPlayer;
+  let lastPot = new AllIn([], game.pot.mainPot, -1);
   do {
-    if (!current.is_folded) {
-      last_pot.addPlayer(current);
+    if (!current.isFolded) {
+      lastPot.addPlayer(current);
     }
-    current = current.next_player;
-  } while (!current.is_button);
+    current = current.nextPlayer;
+  } while (!current.isButton);
 
-  let all_ins = [...game.pot.all_ins, last_pot];
-  all_ins = all_ins.map((all_in, index) => {
+  let allIns = [...game.pot.allIns, lastPot];
+  allIns = allIns.map((allIn, index) => {
     if (index == 0) {
-      return new AllIn(all_in.players, all_in.pot, -1);
+      return new AllIn(allIn.players, allIn.pot, -1);
     } else {
-      return new AllIn(all_in.players, all_in.pot - all_ins[index - 1].pot, -1);
+      return new AllIn(allIn.players, allIn.pot - allIns[index - 1].pot, -1);
     }
   });
 
-  let winners = {}; // { phone_number: [player, player_winnings] ...}
-  all_ins.forEach((all_in) => {
-    for (let i = 0; i < Object.keys(hands_strength_list).length; i += 1) {
-      let possible_winners = get_winners(Object.values(hands_strength_list)[i]);
-      if (!Array.isArray(possible_winners)) {
-        if (is_valid_winner(possible_winners, all_in)) {
-          winners = rake_to_winners([possible_winners], all_in.pot, winners);
+  let winners = {}; // { id: [player, player winnings] ...}
+  allIns.forEach((allIn) => {
+    for (let i = 0; i < Object.keys(handsStrengthList).length; i += 1) {
+      let possibleWinners = getWinners(Object.values(handsStrengthList)[i]);
+      if (!Array.isArray(possibleWinners)) {
+        if (isValidWinner(possibleWinners, allIn)) {
+          winners = rakeToWinners([possibleWinners], allIn.pot, winners);
           break;
         }
       } else {
         for (
-          let player_index = 0;
-          player_index < possible_winners.length;
-          player_index += 1
+          let playerIndex = 0;
+          playerIndex < possibleWinners.length;
+          playerIndex += 1
         ) {
-          if (!is_valid_winner(possible_winners[player_index], all_in)) {
-            possible_winners.splice(player_index, 1);
+          if (!isValidWinner(possibleWinners[playerIndex], allIn)) {
+            possibleWinners.splice(playerIndex, 1);
           }
         }
-        if (possible_winners.length > 0) {
-          winners = rake_to_winners(possible_winners, all_in.pot, winners);
+        if (possibleWinners.length > 0) {
+          winners = rakeToWinners(possibleWinners, allIn.pot, winners);
 
           // If there is a reminder of the stack that cannot be split, gives it to random player from the winners
-          winners[random_winner_key(winners)][0].game_money +=
-            all_in.pot % all_in.players.length;
+          winners[randomWinnerKey(winners)][0].gameMoney +=
+            allIn.pot % allIn.players.length;
 
           break;
         }
       }
     }
   });
-  let message = "";
-  const winner_template = `
+  let message = '';
+  const winnerTemplate = `
 Congrats! @{{winner}} Won \${{winnings}}
-with {{hole_cards}}
+with {{holeCards}}
 
-{{hand_strength}}:
-{{hand_cards}}
+{{handStrength}}:
+{{handCards}}
 ---------------------------------`;
 
-  for (const phone_number in winners) {
-    let player = winners[phone_number];
+  for (const id in winners) {
+    let player = winners[id];
 
     if (player[1] === 0) continue;
-    if (message.length > 0) message += "\n";
+    if (message.length > 0) message += '\n';
 
-    const winner_data = {
-      winner: player[0].contact.id.user,
+    const winnerData = {
+      winner: player[0].contact,
       winnings: player[1],
-      hole_cards: cardsFunctions.print_cards(player[0].hole_cards),
-      hand_strength: constants.STRENGTH_DICT[player[0].hand_score.str],
-      hand_cards: cardsFunctions.print_cards(player[0].hand_score.cards)
+      holeCards: cardsFunctions.printCards(player[0].holeCards),
+      handStrength: constants.STRENGTH_DICT[player[0].handScore.str],
+      handCards: cardsFunctions.printCards(player[0].handScore.cards)
     };
 
-    message += mustache.render(winner_template, winner_data);
+    message += mustache.render(winnerTemplate, winnerData);
 
     return message;
   }
 }
 
 function qualifyToAllIns(game, amount) {
-  let current = game.order.current_player;
-  game.pot.all_ins.forEach((all_in) => {
-    if (all_in.current_bet != -1) {
-      if (amount < all_in.current_bet) {
-        all_in.pot += amount;
+  let current = game.order.currentPlayer;
+  game.pot.allIns.forEach((allIn) => {
+    if (allIn.currentBet != -1) {
+      if (amount < allIn.currentBet) {
+        allIn.pot += amount;
       } else {
-        all_in.pot += all_in.current_bet;
-        all_in.players.push(current);
+        allIn.pot += allIn.currentBet;
+        allIn.players.push(current);
       }
     }
   });
@@ -163,9 +161,9 @@ function qualifyToAllIns(game, amount) {
 module.exports = {
   showdown,
   qualifyToAllIns,
-  is_valid_winner,
-  rake_to_winners,
-  get_winners,
-  compare_hands,
-  random_winner_key
+  isValidWinner,
+  rakeToWinners,
+  getWinners,
+  compareHands,
+  randomWinnerKey
 };

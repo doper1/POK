@@ -1,18 +1,18 @@
-const { emote } = require("../../generalFunctions");
+const { emote } = require('../../generalFunctions');
 
 // pok start - start the game
 function start(game, message, whatsapp) {
   game.generateOrder();
-  let current = game.order.current_player;
+  let current = game.order.currentPlayer;
   do {
-    current.game_money = 100; // TODO: Change to a constants, also handle less money situations
+    current.gameMoney = 100; // TODO: Change to a constants, also handle less money situations
     current.money -= 100;
-    current = current.next_player;
-  } while (!current.is_button);
+    current = current.nextPlayer;
+  } while (!current.isButton);
 
+  game.isMidRound = true;
   game.initRound(whatsapp);
-  game.is_midround = true;
-  message.react(emote("happy"));
+  message.react(emote('happy'));
 }
 
 module.exports = { start };

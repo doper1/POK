@@ -1,36 +1,54 @@
 class Order {
   constructor() {
-    this.current_player = null;
+    this.currentPlayer = null;
   }
   append(player) {
-    const new_player = player;
-    if (!this.current_player) {
-      this.current_player = new_player;
+    const newPlayer = player;
+    if (!this.currentPlayer) {
+      this.currentPlayer = newPlayer;
       return;
     }
 
-    let current = this.current_player;
-    while (current.next_player) {
-      current = current.next_player;
+    let current = this.currentPlayer;
+    while (current.nextPlayer) {
+      current = current.nextPlayer;
     }
-    current.next_player = new_player;
+    current.nextPlayer = newPlayer;
   }
 
-  insertAfterCurrent(new_player) {
-    let nextPlayer = this.current_player.next_player;
-    this.current_player.next_player = new_player;
-    new_player.next_player = nextPlayer;
+  insertAfterCurrent(newPlayer) {
+    let nextPlayer = this.currentPlayer.nextPlayer;
+    this.currentPlayer.nextPlayer = newPlayer;
+    newPlayer.nextPlayer = nextPlayer;
+  }
+
+  removePlayer(id) {
+    let current = this.currentPlayer;
+    let previous = false;
+
+    while (current.id != id || !previous) {
+      previous = current;
+      current = current.nextPlayer;
+    }
+    previous.nextPlayer = current.nextPlayer;
+
+    // This will be the case when only one player remains
+    if (previous.id === previous.nextPlayer.id) {
+      previous.nextPlayer = null;
+    }
+
+    return true;
   }
 
   visualize() {
-    let current = this.current_player;
-    let output = "";
+    let current = this.currentPlayer;
+    let output = '';
 
     if (!current) {
       return output;
     }
 
-    if (!current.next_player) {
+    if (!current.nextPlayer) {
       return current.player;
     }
 
@@ -38,19 +56,19 @@ class Order {
 
     while (current) {
       output += current.player.name;
-      if (current.next_player && current.next_player !== initialNode) {
-        output += " ---> ";
+      if (current.nextPlayer && current.nextPlayer !== initialNode) {
+        output += ' ---> ';
       } else {
         break;
       }
-      current = current.next_player;
+      current = current.nextPlayer;
     }
 
     return output;
   }
 
   next() {
-    this.current_player = this.current_player.next_player;
+    this.currentPlayer = this.currentPlayer.nextPlayer;
   }
 }
 

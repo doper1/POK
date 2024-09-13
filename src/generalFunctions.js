@@ -1,4 +1,5 @@
-const constants = require("./constants");
+const mustache = require('mustache');
+const constants = require('./constants');
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
@@ -15,48 +16,52 @@ function hasTwoWords(string) {
 
 /** Choose a random emoji from the wanted emoji type
  *  - Can handle both lower case and UPPER case
- *  @param {String} emoji_type - type from the EMOJIES constant.
+ *  @param {String} emojiType - type from the EMOJIES constant.
  *  @returns {String}
  *  @example message.react(emote("mistake")); */
-function emote(emoji_type) {
-  emoji_type = emoji_type.toUpperCase();
-  if (!(emoji_type in constants.EMOJIES)) {
-    throw new Error(`Emoji type '${emoji_type}' doesn't exists`);
-  } else {
-    let random_index = Math.floor(
-      Math.random() * constants.EMOJIES[emoji_type].length
+function emote(emojiType) {
+  emojiType = emojiType.toUpperCase();
+  if (!(emojiType in constants.EMOJIES)) {
+    throw new Error(
+      mustache.render(`Emoji type '{{emojiType}}' doesn't exist`, {
+        emojiType
+      })
     );
-    return constants.EMOJIES[emoji_type][random_index];
+  } else {
+    let randomIndex = Math.floor(
+      Math.random() * constants.EMOJIES[emojiType].length
+    );
+    return constants.EMOJIES[emojiType][randomIndex];
   }
 }
 
-function is_allowed(game, message) {
-  let phone_number = format_phone_number(message.author);
+function isAllowed(game, message) {
+  let id = formatPhoneNumber(message.author);
 
-  if (game.order.current_player.phone_number != phone_number) {
-    message.react(emote("mistake"));
+  if (game.order.currentPlayer.id != id) {
+    message.react(emote('mistake'));
     message.reply("It's not your turn");
     return false;
   }
   return true;
 }
 
-function format_phone_number(phone_number) {
-  return phone_number.replace(/:\d+@/, "@");
+function formatPhoneNumber(id) {
+  return id.replace(/:\d+@/, '@');
 }
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-let action_lock = false;
+let actionLock = false;
 
 function setLock(state) {
-  action_lock = state;
+  actionLock = state;
 }
 
 function isLocked() {
-  return action_lock;
+  return actionLock;
 }
 
 function cleanInstance(instance, keepProperties, keepMethods) {
@@ -75,8 +80,8 @@ module.exports = {
   shuffleArray,
   hasTwoWords,
   emote,
-  is_allowed,
-  format_phone_number,
+  isAllowed,
+  formatPhoneNumber,
   delay,
   setLock,
   isLocked,

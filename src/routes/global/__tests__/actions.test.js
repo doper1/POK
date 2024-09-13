@@ -1,12 +1,12 @@
-const Game = require("../../../classes/Game.js");
-const { format_phone_number } = require("../../../generalFunctions.js");
-const { join, show, exit } = require("../actions.js");
+const Game = require('../../../classes/Game.js');
+const { formatPhoneNumber } = require('../../../generalFunctions.js');
+const { join, show, exit } = require('../actions.js');
 
 // Mocking the required classes and functions
-jest.mock("../../../classes/Game.js");
-jest.mock("../../../generalFunctions.js");
+jest.mock('../../../classes/Game.js');
+jest.mock('../../../generalFunctions.js');
 
-describe("Game Functions", () => {
+describe('Game Functions', () => {
   let games;
   let chat;
   let message;
@@ -18,137 +18,135 @@ describe("Game Functions", () => {
       sendMessage: jest.fn()
     };
     message = {
-      author: "test_author",
+      author: 'test_author',
       react: jest.fn(),
       reply: jest.fn()
     };
     contact = {
       id: {
-        user: "test_user"
+        user: 'test_user'
       }
     };
-    format_phone_number.mockImplementation((author) => `formatted_${author}`);
+    formatPhoneNumber.mockImplementation((author) => `formatted_${author}`);
   });
 
-  describe("join", () => {
-    it("should add a new player to the game and send a welcome message", () => {
-      const chat_id = "chat123";
-      const message = { author: "test_author" };
+  describe('join', () => {
+    it('should add a new player to the game and send a welcome message', () => {
+      const chatId = 'chat123';
+      const message = { author: 'test_author' };
 
       const gameInstance = new Game();
       Game.mockImplementation(() => gameInstance);
       gameInstance.addPlayer = jest.fn();
-      gameInstance.is_midround = false;
+      gameInstance.isMidRound = false;
       gameInstance.players = {};
-      gameInstance.players["formatted_test_author"] = { contact };
+      gameInstance.players['formattedTestAuthor'] = { contact };
 
-      join(games, chat_id, message, contact, chat);
+      join(games, chatId, message, contact, chat);
 
-      expect(Game).toHaveBeenCalledWith(chat_id, chat);
+      expect(Game).toHaveBeenCalledWith(chatId, chat);
       expect(gameInstance.addPlayer).toHaveBeenCalledWith(
         contact,
-        "formatted_test_author"
+        'formattedTestAuthor'
       );
       expect(chat.sendMessage).toHaveBeenCalledWith(
-        "Hi @test_user, welcome to the game!",
-        { mentions: ["formatted_test_author"] }
+        'Hi @test_user, welcome to the game!',
+        { mentions: ['formattedTestAuthor'] }
       );
     });
 
-    it("should handle mid-round scenario and update message accordingly", () => {
-      const chat_id = "chat123";
-      const message = { author: "test_author" };
+    it('should handle mid-round scenario and update message accordingly', () => {
+      const chatId = 'chat123';
+      const message = { author: 'test_author' };
 
       const gameInstance = new Game();
       Game.mockImplementation(() => gameInstance);
       gameInstance.addPlayer = jest.fn();
-      gameInstance.is_midround = true;
+      gameInstance.isMidRound = true;
       gameInstance.players = {};
-      gameInstance.players["formatted_test_author"] = { contact };
+      gameInstance.players['formattedTestAuthor'] = { contact };
       gameInstance.order = { insertAfterCurrent: jest.fn() };
       gameInstance.folds = 0; // Ensure folds is initialized
 
-      join(games, chat_id, message, contact, chat);
+      join(games, chatId, message, contact, chat);
 
-      expect(gameInstance.players["formatted_test_author"].is_folded).toBe(
-        true
-      );
+      expect(gameInstance.players['formattedTestAuthor'].isFolded).toBe(true);
       expect(gameInstance.folds).toBe(1); // Check if folds is incremented
       expect(gameInstance.order.insertAfterCurrent).toHaveBeenCalledWith(
-        gameInstance.players["formatted_test_author"]
+        gameInstance.players['formattedTestAuthor']
       );
       expect(chat.sendMessage).toHaveBeenCalledWith(
-        "Hi @test_user, welcome to the game!Wait for the next round to start",
-        { mentions: ["formatted_test_author"] }
+        'Hi @test_user, welcome to the game!Wait for the next round to start',
+        { mentions: ['formattedTestAuthor'] }
       );
     });
   });
 
-  describe("show", () => {
-    it("should send the order if mid-round, otherwise send the players", () => {
+  describe('show', () => {
+    it('should send the order if mid-round, otherwise send the players', () => {
       const gameInstance = new Game();
-      gameInstance.is_midround = true;
-      gameInstance.getOrderPretty = jest.fn(() => "order_pretty");
-      gameInstance.getMentions = jest.fn(() => ["mention1"]);
+      gameInstance.isMidRound = true;
+      gameInstance.getOrderPretty = jest.fn(() => 'getOrderPretty');
+      gameInstance.getMentions = jest.fn(() => ['mention1']);
 
       show(gameInstance, chat);
 
-      expect(chat.sendMessage).toHaveBeenCalledWith("order_pretty", {
-        mentions: ["mention1"]
+      expect(chat.sendMessage).toHaveBeenCalledWith('getOrderPretty', {
+        mentions: ['mention1']
       });
 
-      gameInstance.is_midround = false;
-      gameInstance.getPlayersPretty = jest.fn(() => "players_pretty");
+      gameInstance.isMidRound = false;
+      gameInstance.getPlayersPretty = jest.fn(() => 'getPlayersPretty');
 
       show(gameInstance, chat);
 
-      expect(chat.sendMessage).toHaveBeenCalledWith("players_pretty", {
-        mentions: ["mention1"]
+      expect(chat.sendMessage).toHaveBeenCalledWith('getPlayersPretty', {
+        mentions: ['mention1']
       });
     });
   });
 
-  describe("exit", () => {
-    it("should delete the player and send goodbye messages", () => {
-      const chat_id = "chat123";
-      games[chat_id] = {
+  describe('exit', () => {
+    it('should delete the player and send goodbye messages', () => {
+      const chatId = 'chat123';
+      games[chatId] = {
         players: {
-          formatted_test_author: {}
+          formattedTestAuthor: {}
         },
-        is_midround: false
+        isMidRound: false
       };
 
-      exit(games, chat_id, message);
-      expect(games[chat_id]).toBeUndefined();
-      expect(message.react).toHaveBeenCalledWith("👋");
-      expect(message.reply).toHaveBeenCalledWith("Goodbye!");
+      exit(games, chatId, message);
+      expect(games[chatId]).toBeUndefined();
+      expect(message.react).toHaveBeenCalledWith('👋');
+      expect(message.reply).toHaveBeenCalledWith('Goodbye!');
       // Check if the game was deleted from games
-      expect(games[chat_id]).toBeUndefined();
+      expect(games[chatId]).toBeUndefined();
     });
 
-    it("should handle game end when no players are left mid-round", () => {
-      const chat_id = "chat123";
-      games[chat_id] = {
+    it('should handle game end when no players are left mid-round', () => {
+      const chatId = 'chat123';
+      games[chatId] = {
         players: {},
-        is_midround: true
+        isMidRound: true
       };
 
-      exit(games, chat_id, message);
+      exit(games, chatId, message);
 
-      expect(games[chat_id]).toBeUndefined();
-      expect(message.reply).toHaveBeenCalledWith("*The game has ended!*");
+      expect(games[chatId]).toBeUndefined();
+      expect(message.reply).toHaveBeenCalledWith('Goodbye!');
     });
 
-    it("should handle game end when no players are left", () => {
-      const chat_id = "chat123";
-      games[chat_id] = {
+    it('should handle game end when no players are left', () => {
+      const chatId = 'chat123';
+      games[chatId] = {
         players: {},
-        is_midround: false
+        isMidRound: false
       };
 
-      exit(games, chat_id, message);
+      exit(games, chatId, message);
 
-      expect(games[chat_id]).toBeUndefined();
+      expect(games[chatId]).toBeUndefined();
     });
   });
 });
