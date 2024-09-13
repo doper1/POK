@@ -1,6 +1,6 @@
-const mustache = require('mustache');
-const { emote } = require('../../generalFunctions');
+const Mustache = require('mustache');
 const gameFunctions = require('../../game/gameFunctions');
+const { emote, formatId } = require('../../generalFunctions');
 
 // globals
 let newMessage;
@@ -20,7 +20,7 @@ function check(game, whatsapp) {
   const player = {
     name: current.phoneNumber,
   };
-  newMessage = mustache.render(template, player);
+  newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -38,7 +38,7 @@ function raise(game, amount, whatsapp) {
   const player = {
     name: current.phoneNumber,
   };
-  newMessage = mustache.render(template, player);
+  newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -66,7 +66,7 @@ function allIn(game, whatsapp) {
     amount: amount,
     totalBet: current.currentBet,
   };
-  newMessage = mustache.render(template, player);
+  newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
   return true;
 }
@@ -80,7 +80,7 @@ function fold(game, message, whatsapp) {
   const player = {
     name: current.phoneNumber,
   };
-  newMessage = mustache.render(template, player);
+  newMessage = Mustache.render(template, player);
   message.react(emote('fold'));
   game.updateRound(whatsapp, newMessage);
   return true;
@@ -99,10 +99,56 @@ function call(game, whatsapp) {
     name: current.phoneNumber,
     amount: amount,
   };
-  newMessage = mustache.render(template, player);
+  newMessage = Mustache.render(template, player);
   gameFunctions.qualifyToAllIns(game, amount);
   game.updateRound(whatsapp, newMessage);
   return true;
+}
+
+function join(games, chatId, message, phoneNumber, chat) {
+  let id = formatId(message.author);
+  let game = games[chatId];
+
+  game.addPlayer(id, phoneNumber);
+  game.players[id].isFolded = true;
+  game.folds++;
+  game.order.insertAfterCurrent(game.players[id]);
+
+  let template = `Hi @{{name}}, welcome to the game!
+Wait for the next round to start`;
+
+  chat.sendMessage(
+    Mustache.render(template, {
+      name: game.players[id].phoneNumber,
+    }),
+    {
+      mentions: [id],
+    },
+  );
+}
+
+function show(game, chat) {
+  chat.sendMessage(game.getOrderPretty(), { mentions: game.getMentions() });
+}
+
+function exit(games, chatId, message) {
+  games[chatId].players[formatId(message.author)].isFolded = true;
+  games[chatId].folds++;
+
+  if (Object.keys(games[chatId].players).length == 2) {
+    games[chatId].order.removePlayer(formatId(message.author));
+    delete games[chatId].players[formatId(message.author)];
+    games[chatId].isMidRound = false;
+
+    message.react('👋');
+    message.reply(`*The game has ended!*`);
+  } else {
+    games[chatId].order.removePlayer(formatId(message.author));
+    delete games[chatId].players[formatId(message.author)];
+
+    message.react('👋');
+    message.reply(`Goodbye!`);
+  }
 }
 
 module.exports = {
@@ -112,4 +158,7 @@ module.exports = {
   allIn,
   fold,
   call,
+  join,
+  show,
+  exit,
 };

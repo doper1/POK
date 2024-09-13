@@ -1,5 +1,5 @@
-const mustache = require("mustache");
-const constants = require("./constants");
+const Mustache = require('mustache');
+const constants = require('./constants');
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
@@ -23,7 +23,7 @@ function emote(emojiType) {
   emojiType = emojiType.toUpperCase();
   if (!(emojiType in constants.EMOJIES)) {
     throw new Error(
-      mustache.render(`Emoji type '{{emojiType}}' doesn't exist`, {
+      Mustache.render(`Emoji type '{{emojiType}}' doesn't exist`, {
         emojiType,
       }),
     );
@@ -39,7 +39,7 @@ function isAllowed(game, message) {
   let id = formatId(message.author);
 
   if (game.order.currentPlayer.id != id) {
-    message.react(emote("mistake"));
+    message.react(emote('mistake'));
     message.reply("It's not your turn");
     return false;
   }
@@ -47,7 +47,7 @@ function isAllowed(game, message) {
 }
 
 function formatId(id) {
-  return id.replace(/:\d+@/, "@");
+  return id.replace(/:\d+@/, '@');
 }
 
 function delay(ms) {

@@ -56,8 +56,3 @@ Flow chart
 
 6. At the same round of the all in, if a player after the all in calls or reraise the all in- the amount that calls the all in is added to the current all in pot.
    This operation happens for all the all ins that accured on the current round.
-
-TODO: add the logic in raise and call to all in (modifications might be needed)
-Add the updating of all_in.current_bet to -1 in reorgAllIns()
-Review the flow chart again
-Learn about Jest and write unit and integration tests for this
