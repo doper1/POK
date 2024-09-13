@@ -12,19 +12,19 @@ describe("Pot", () => {
     pot = new Pot();
 
     players = {
-      "+12345": { current_bet: 50 },
-      "+67890": { current_bet: 100 },
-      "+54321": { current_bet: 75 }
+      "+12345": { currentBet: 50 },
+      "+67890": { currentBet: 100 },
+      "+54321": { currentBet: 75 },
     };
 
     game = {
       order: {
-        current_player: {
-          phone_number: "+67890",
-          current_bet: 100
-        }
+        currentPlayer: {
+          id: "+67890",
+          currentBet: 100,
+        },
       },
-      players: players
+      players: players,
     };
   });
 
@@ -39,38 +39,41 @@ describe("Pot", () => {
       expect(AllIn).toHaveBeenCalledWith(
         [players["+67890"]],
         225, // Pot: 100 + 75 + 50 (capped at current player bet)
-        100 // Current player's bet
+        100, // Current player's bet
       );
-      expect(pot.all_ins.length).toBe(1);
+      expect(pot.allIns.length).toBe(1);
     });
   });
 
   describe("reorgAllIns", () => {
     test("should reorganize all-ins by pot size in ascending order", () => {
-      pot._all_ins = [{ pot: 200 }, { pot: 150 }, { pot: 300 }];
+      pot = new Pot();
+      [{ pot: 200 }, { pot: 150 }, { pot: 300 }].forEach((allIn) => {
+        pot.allIns.push(allIn);
+      });
 
       pot.reorgAllIns();
 
-      expect(pot.all_ins[0].pot).toBe(150);
-      expect(pot.all_ins[1].pot).toBe(200);
-      expect(pot.all_ins[2].pot).toBe(300);
+      expect(pot.allIns[0].pot).toBe(150);
+      expect(pot.allIns[1].pot).toBe(200);
+      expect(pot.allIns[2].pot).toBe(300);
     });
 
-    test("should handle an empty _all_ins array gracefully", () => {
+    test("should handle an empty allIn array gracefully", () => {
       pot.reorgAllIns();
-      expect(pot.all_ins.length).toBe(0);
+      expect(pot.allIns.length).toBe(0);
     });
   });
 
   describe("Getter and Setter Tests", () => {
-    test("should get and set the main_pot value", () => {
-      pot.main_pot = 500;
-      expect(pot.main_pot).toBe(500);
+    test("should get and set the mainPot value", () => {
+      pot.mainPot = 500;
+      expect(pot.mainPot).toBe(500);
     });
 
-    test("should get and set the last_round_pot value", () => {
-      pot.last_round_pot = 300;
-      expect(pot.last_round_pot).toBe(300);
+    test("should get and set the lastRoundPot value", () => {
+      pot.lastRoundPot = 300;
+      expect(pot.lastRoundPot).toBe(300);
     });
   });
 });

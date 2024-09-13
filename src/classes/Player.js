@@ -1,36 +1,36 @@
 /**
  * @param {String} name name of player
- * @param {String} phone_number phone number of player
- * @param {Array} hole_cards of the form [card_suit, card_number],[card_suit, card_number]
- * @param {Array} hand_score Array of the form [card_suit, card_number]*5
+ * @param {String} id phone number of player
+ * @param {Array} holeCards of the form [cardSuit, cardNumber],[cardSuit, cardNumber]
+ * @param {Array} handScore Array of the form [cardSuit, cardNumber]*5
  * @param {int} money of player
  * //// to be continued
  *
  */
 
 class Player {
-  constructor(contact, phone_number) {
-    this.phone_number = phone_number;
-    this.contact = contact;
-    this.hole_cards = [];
+  constructor(id, phoneNumber) {
+    this.id = id;
+    this.phoneNumber = phoneNumber;
+    this.holeCards = [];
     this.money = 1000;
-    this.game_money = 0;
-    this.current_bet = 0;
-    this.is_all_in = false;
-    this.is_folded = false;
-    this.is_button = false;
-    this.is_played = false;
+    this.gameMoney = 0;
+    this.currentBet = 0;
+    this.isAllIn = false;
+    this.isFolded = false;
+    this.isButton = false;
+    this.isPlayed = false;
 
     /** @param {int} str representing the strength of the hand 0-9 mentioned in  constants
      * @param {Array}  cards of cards consistings of 5 cards
-     * @example hand_score = {str: 1, cards: [["♦️", "1"], ["♦️", "J"], ["♣️", "K"], ["♥️", "A"], ["♠️", "7"]]}*/
-    this.hand_score = { str: undefined, cards: [] };
+     * @example handScore = {str: 1, cards: [["♦️", "1"], ["♦️", "J"], ["♣️", "K"], ["♥️", "A"], ["♠️", "7"]]}*/
+    this.handScore = { str: undefined, cards: [] };
   }
   getHandScore() {
-    return this.hand_score;
+    return this.handScore;
   }
   setHandScore(newScore) {
-    this.hand_score = newScore;
+    this.handScore = newScore;
   }
   getName() {
     return this.name;
@@ -41,28 +41,24 @@ class Player {
   }
 
   getPhoneNumber() {
-    return this.phone_number;
+    return this.id;
   }
 
   setPhoneNumber(newNumber) {
-    this.phone_number = newNumber;
+    this.id = newNumber;
   }
 
   getHoleCards() {
-    return this.hole_cards;
+    return this.holeCards;
   }
 
-  setHoleCards(card_1, card_2) {
-    this.hole_cards.push(card_1);
-    this.hole_cards.push(card_2);
+  setHoleCards(card1, card2) {
+    this.holeCards.push(card1);
+    this.holeCards.push(card2);
   }
 
   resetHoleCards() {
-    this.hole_cards = [];
-  }
-
-  getFinalHand() {
-    return this.final_hand;
+    this.holeCards = [];
   }
 
   getMoney() {
@@ -76,7 +72,7 @@ class Player {
   betMoney(amount) {
     if (amount > this.money) {
       MessageChannel.reply(
-        `Insufficient funds, you got more ${this.money} chips`
+        `Insufficient funds, you got more ${this.money} chips`,
       );
       return;
     }

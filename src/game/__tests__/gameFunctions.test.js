@@ -1,9 +1,9 @@
 const {
-  is_valid_winner,
-  rake_to_winners,
-  get_winners,
-  compare_hands,
-  random_winner_key
+  isValidWinner,
+  rakeToWinners,
+  getWinners,
+  compareHands,
+  randomWinnerKey,
 } = require("../gameFunctions");
 
 const cardsFunctions = require("../cardsFunctions");
@@ -13,8 +13,8 @@ jest.mock("../../classes/AllIn");
 jest.mock("../../constants", () => ({
   STRENGTH_DICT: {
     STRAIGHT: "Straight",
-    FLUSH: "Flush"
-  }
+    FLUSH: "Flush",
+  },
 }));
 jest.mock("../cardsFunctions");
 
@@ -38,76 +38,76 @@ describe("gameFunctions module", () => {
     });
   });
 
-  describe("is_valid_winner", () => {
+  describe("isValidWinner,", () => {
     it("should return true if the player is in the all-in players list", () => {
-      const mockPlayer = { phone_number: "12345" };
-      const mockAllIn = { players: [{ phone_number: "12345" }] };
+      const mockPlayer = { id: "12345" };
+      const mockAllIn = { players: [{ id: "12345" }] };
 
-      const result = is_valid_winner(mockPlayer, mockAllIn);
+      const result = isValidWinner(mockPlayer, mockAllIn);
 
       expect(result).toBe(true);
     });
 
     it("should return false if the player is not in the all-in players list", () => {
-      const mockPlayer = { phone_number: "12345" };
-      const mockAllIn = { players: [{ phone_number: "67890" }] };
+      const mockPlayer = { id: "12345" };
+      const mockAllIn = { players: [{ id: "67890" }] };
 
-      const result = is_valid_winner(mockPlayer, mockAllIn);
+      const result = isValidWinner(mockPlayer, mockAllIn);
 
       expect(result).toBe(false);
     });
   });
 
-  describe("rake_to_winners", () => {
+  describe("rakeToWinners,", () => {
     it("should distribute winnings equally among players", () => {
-      const mockPlayer1 = { phone_number: "12345", game_money: 0 };
-      const mockPlayer2 = { phone_number: "67890", game_money: 0 };
+      const mockPlayer1 = { id: "12345", gameMoney: 0 };
+      const mockPlayer2 = { id: "67890", gameMoney: 0 };
       const mockPlayers = [mockPlayer1, mockPlayer2];
       const amount = 100;
       let winners = {};
 
-      winners = rake_to_winners(mockPlayers, amount, winners);
+      winners = rakeToWinners(mockPlayers, amount, winners);
 
       expect(winners["12345"][1]).toBe(50);
       expect(winners["67890"][1]).toBe(50);
-      expect(mockPlayer1.game_money).toBe(50);
-      expect(mockPlayer2.game_money).toBe(50);
+      expect(mockPlayer1.gameMoney).toBe(50);
+      expect(mockPlayer2.gameMoney).toBe(50);
     });
 
     it("should handle remainder of the amount properly", () => {
-      const mockPlayer1 = { phone_number: "12345", game_money: 0 };
+      const mockPlayer1 = { id: "12345", gameMoney: 0 };
       const mockPlayers = [mockPlayer1];
       const amount = 75;
       let winners = {};
 
-      winners = rake_to_winners(mockPlayers, amount, winners);
+      winners = rakeToWinners(mockPlayers, amount, winners);
 
       expect(winners["12345"][1]).toBe(75);
-      expect(mockPlayer1.game_money).toBe(75);
+      expect(mockPlayer1.gameMoney).toBe(75);
     });
   });
 
-  describe("get_winners", () => {
+  describe("getWinners,", () => {
     it("should return the player with the strongest hand", () => {
       const mockPlayer1 = {
-        hand_score: {
+        handScore: {
           cards: [
             ["♥️", "A"],
-            ["♠️", "6"]
-          ]
-        }
+            ["♠️", "6"],
+          ],
+        },
       };
       const mockPlayer2 = {
-        hand_score: {
+        handScore: {
           cards: [
             ["♥️", "A"],
-            ["♠️", "7"]
-          ]
-        }
+            ["♠️", "7"],
+          ],
+        },
       };
       const mockPlayers = [mockPlayer1, mockPlayer2];
 
-      const winners = get_winners(mockPlayers);
+      const winners = getWinners(mockPlayers);
 
       expect(winners.length).toBe(1);
       expect(winners[0]).toBe(mockPlayer2);
@@ -115,24 +115,24 @@ describe("gameFunctions module", () => {
 
     it("should return multiple players if hands are equal", () => {
       const mockPlayer1 = {
-        hand_score: {
+        handScore: {
           cards: [
             ["♦️", "1"],
-            ["♦️", "J"]
-          ]
-        }
+            ["♦️", "J"],
+          ],
+        },
       };
       const mockPlayer2 = {
-        hand_score: {
+        handScore: {
           cards: [
             ["♦️", "1"],
-            ["♦️", "J"]
-          ]
-        }
+            ["♦️", "J"],
+          ],
+        },
       };
       const mockPlayers = [mockPlayer1, mockPlayer2];
 
-      const winners = get_winners(mockPlayers);
+      const winners = getWinners(mockPlayers);
 
       expect(winners.length).toBe(2);
       expect(winners).toContain(mockPlayer1);
@@ -142,30 +142,30 @@ describe("gameFunctions module", () => {
 
   it("should return two winners (a tie)", () => {
     const mockPlayer1 = {
-      hand_score: {
+      handScore: {
         cards: [
           ["H", "A"],
           ["C", "K"],
           ["D", "Q"],
           ["S", "J"],
-          ["H", "10"]
-        ]
-      }
+          ["H", "10"],
+        ],
+      },
     };
     const mockPlayer2 = {
-      hand_score: {
+      handScore: {
         cards: [
           ["H", "A"],
           ["D", "K"],
           ["C", "Q"],
           ["S", "J"],
-          ["H", "10"]
-        ]
-      }
+          ["H", "10"],
+        ],
+      },
     };
     const mockPlayers = [mockPlayer1, mockPlayer2];
 
-    const winners = get_winners(mockPlayers);
+    const winners = getWinners(mockPlayers);
 
     expect(winners.length).toBe(2);
     expect(winners).toContain(mockPlayer1);
@@ -173,14 +173,14 @@ describe("gameFunctions module", () => {
   });
 });
 
-describe("compare_hands", () => {
+describe("compareHands", () => {
   it("should return -1 if the first hand is stronger", () => {
     const hand1 = [
       ["H", "A"],
       ["C", "K"],
       ["D", "Q"],
       ["S", "J"],
-      ["H", "10"]
+      ["H", "10"],
     ];
 
     const hand2 = [
@@ -188,10 +188,10 @@ describe("compare_hands", () => {
       ["C", "K"],
       ["D", "Q"],
       ["S", "8"],
-      ["H", "10"]
+      ["H", "10"],
     ];
 
-    const result = compare_hands(hand1, hand2);
+    const result = compareHands(hand1, hand2);
 
     expect(result).toBe(-1);
   });
@@ -202,7 +202,7 @@ describe("compare_hands", () => {
       ["C", "K"],
       ["D", "Q"],
       ["S", "8"],
-      ["H", "10"]
+      ["H", "10"],
     ];
 
     const hand2 = [
@@ -210,10 +210,10 @@ describe("compare_hands", () => {
       ["C", "K"],
       ["D", "Q"],
       ["S", "J"],
-      ["H", "10"]
+      ["H", "10"],
     ];
 
-    const result = compare_hands(hand1, hand2);
+    const result = compareHands(hand1, hand2);
 
     expect(result).toBe(1);
   });
@@ -224,7 +224,7 @@ describe("compare_hands", () => {
       ["C", "K"],
       ["D", "Q"],
       ["S", "J"],
-      ["H", "10"]
+      ["H", "10"],
     ];
 
     const hand2 = [
@@ -232,22 +232,22 @@ describe("compare_hands", () => {
       ["C", "K"],
       ["D", "Q"],
       ["S", "J"],
-      ["H", "10"]
+      ["H", "10"],
     ];
 
-    const result = compare_hands(hand1, hand2);
+    const result = compareHands(hand1, hand2);
 
     expect(result).toBe(0);
   });
 });
 
-describe("random_winner_key", () => {
+describe("randomWinnerKey", () => {
   it("should return a random key from the winners object", () => {
     const mockWinners = {
       12345: ["player1", 100],
-      67890: ["player2", 200]
+      67890: ["player2", 200],
     };
-    const randomKey = random_winner_key(mockWinners);
+    const randomKey = randomWinnerKey(mockWinners);
 
     expect(Object.keys(mockWinners)).toContain(randomKey);
   });

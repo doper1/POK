@@ -1,80 +1,115 @@
-const { emote } = require("../../generalFunctions");
-const game_functions = require("../../game/gameFunctions");
+const mustache = require('mustache');
+const { emote } = require('../../generalFunctions');
+const gameFunctions = require('../../game/gameFunctions');
 
 // globals
-let new_message;
+let newMessage;
 let current;
+let amount;
 
-function end(games, chat_id, message) {
-  delete games[chat_id];
+function end(games, chatId, message) {
+  delete games[chatId];
   message.reply(`*The game has ended!*`);
-}
-
-function check() {}
-
-function raise(game, amount, whatsapp) {
-  current = game.order.current_player;
-  new_message = `@${current.contact.id.user} raised $${amount}`;
-  game_functions.qualifyToAllIns(game, amount);
-  current.is_played = true;
-  current.current_bet = amount + current.current_bet;
-  game.pot.main_pot += amount;
-  current.game_money -= amount;
-  game.pot.current_bet = current.current_bet;
-
-  game.updateRound(whatsapp, new_message);
   return true;
 }
 
-function all_in(game, whatsapp) {
-  current = game.order.current_player;
-  new_message = `Wow! @${current.contact.id.user} is ALL IN for $${current.game_money} more (total $${current.current_bet + current.game_money})`;
-  game_functions.qualifyToAllIns(game, current.game_money);
-  current.is_all_in = true;
-  current.is_played = true;
-  game.pot.main_pot += current.game_money;
-  current.current_bet += current.game_money;
-  current.game_money = 0;
+function check(game, whatsapp) {
+  current = game.order.currentPlayer;
 
-  if (current.current_bet > game.pot.current_bet) {
-    game.pot.current_bet = current.current_bet;
+  const template = `@{{name}} checked`;
+  const player = {
+    name: current.phoneNumber,
+  };
+  newMessage = mustache.render(template, player);
+  game.updateRound(whatsapp, newMessage);
+  return true;
+}
+
+function raise(game, amount, whatsapp) {
+  current = game.order.currentPlayer;
+  current.isPlayed = true;
+  current.currentBet = amount + current.currentBet;
+  game.pot.mainPot += amount;
+  current.gameMoney -= amount;
+  game.pot.currentBet = current.currentBet;
+  gameFunctions.qualifyToAllIns(game, amount);
+
+  const template = `@{{name}} raised $${amount}`;
+  const player = {
+    name: current.phoneNumber,
+  };
+  newMessage = mustache.render(template, player);
+  game.updateRound(whatsapp, newMessage);
+  return true;
+}
+
+function allIn(game, whatsapp) {
+  current = game.order.currentPlayer;
+  amount = current.gameMoney;
+  current.isAllIn = true;
+  current.isAllIn = true;
+  current.isPlayed = true;
+  game.pot.mainPot += amount;
+  current.currentBet += amount;
+  current.gameMoney = 0;
+
+  if (current.currentBet > game.pot.currentBet) {
+    game.pot.currentBet = current.currentBet;
   }
 
+  gameFunctions.qualifyToAllIns(game, amount);
   game.pot.addAllIn(game);
-  game.updateRound(whatsapp, new_message);
+
+  const template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
+  const player = {
+    name: current.phoneNumber,
+    amount: amount,
+    totalBet: current.currentBet,
+  };
+  newMessage = mustache.render(template, player);
+  game.updateRound(whatsapp, newMessage);
   return true;
 }
 
 function fold(game, message, whatsapp) {
-  current = game.order.current_player;
-  new_message = `@${current.contact.id.user} folded`;
-  current.is_folded = true;
+  current = game.order.currentPlayer;
+  current.isFolded = true;
   game.folds++;
 
-  message.react(emote("fold"));
-  game.updateRound(whatsapp, new_message);
+  const template = `@{{name}} folded`;
+  const player = {
+    name: current.phoneNumber,
+  };
+  newMessage = mustache.render(template, player);
+  message.react(emote('fold'));
+  game.updateRound(whatsapp, newMessage);
   return true;
 }
 
 function call(game, whatsapp) {
-  current = game.order.current_player;
-  let amount = game.pot.current_bet - current.current_bet;
-  new_message = `@${current.contact.id.user} calls $${amount}`;
-  game_functions.qualifyToAllIns(game, amount);
-  current.game_money -= amount;
-  current.is_played = true;
-  game.pot.main_pot += amount;
-  current.current_bet = game.pot.current_bet;
+  current = game.order.currentPlayer;
+  let amount = game.pot.currentBet - current.currentBet;
+  current.gameMoney -= amount;
+  current.isPlayed = true;
+  game.pot.mainPot += amount;
+  current.currentBet = game.pot.currentBet;
 
-  game.updateRound(whatsapp, new_message);
+  const template = `@{{name}} calls \${{amount}}`;
+  const player = {
+    name: current.phoneNumber,
+    amount: amount,
+  };
+  newMessage = mustache.render(template, player);
+  gameFunctions.qualifyToAllIns(game, amount);
+  game.updateRound(whatsapp, newMessage);
   return true;
 }
 
 module.exports = {
   end,
-  fold,
   check,
   raise,
+  allIn,
+  fold,
   call,
-  all_in
 };

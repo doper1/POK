@@ -1,7 +1,7 @@
-const qrcode = require("qrcode-terminal");
-const { Client, LocalAuth } = require("whatsapp-web.js");
-const router = require("./routes/router.js");
-const { isLocked } = require("./generalFunctions.js");
+const qrCode = require('qrcode-terminal');
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const router = require('./routes/router.js');
+const { isLocked, cleanInstance } = require('./generalFunctions.js');
 
 // globals
 let games = {};
@@ -10,33 +10,33 @@ let games = {};
 let event;
 
 const mode = process.env.ENV;
-if (mode === "prod") {
-  console.log("PRODUCTION MODE");
-  event = "message";
+if (mode === 'prod') {
+  console.log('PRODUCTION MODE');
+  event = 'message';
 } else {
-  console.log("DEVELOPEMNT MODE");
-  event = "message_create";
+  console.log('DEVELOPMENT MODE');
+  event = 'message_create';
 }
 
 let whatsapp = new Client({
-  authStrategy: new LocalAuth()
+  authStrategy: new LocalAuth(),
 });
 
-whatsapp.on("qr", (qr) => {
-  qrcode.generate(qr, {
-    small: true
-  });
-});
+// Clean up the whatsapp instance before passing it to the router
+whatsapp = cleanInstance(whatsapp, [], ['sendMessage', 'on', 'initialize']);
 
-whatsapp.on("call", async (call) => {
-  await call.reject();
-});
+// Event listeners
+whatsapp.on(event, async (messagePromise) => {
+  let message = await messagePromise;
+  let chat = await message.getChat();
+  const body = message.body.toLowerCase().split(' ');
 
-// The main entry point
-whatsapp.on(event, async (message_promise) => {
-  let message = await message_promise;
-  const chat = await message.getChat();
-  const body = message.body.toLowerCase().split(" ");
+  message = cleanInstance(
+    message,
+    ['timestamp', 'author'],
+    ['getContact', 'getChat', 'react', 'reply'],
+  );
+  chat = cleanInstance(chat, ['id', 'name', 'isGroup'], ['sendMessage']);
 
   if (!isLocked()) {
     if (router.validateMessage(message, body, chat)) {
@@ -45,8 +45,18 @@ whatsapp.on(event, async (message_promise) => {
   }
 });
 
-whatsapp.on("ready", () => {
-  console.log("Client is ready!");
+whatsapp.on('call', async (call) => {
+  await call.reject();
+});
+
+whatsapp.on('qr', (qr) => {
+  qrCode.generate(qr, {
+    small: true,
+  });
+});
+
+whatsapp.on('ready', () => {
+  console.log('Client is ready!');
 });
 
 whatsapp.initialize();

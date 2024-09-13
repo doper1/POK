@@ -1,20 +1,40 @@
-const globals = require("globals");
-const pluginJs = require("@eslint/js");
+const globals = require('globals');
 
 module.exports = [
   {
-    files: ["**/*.js"],
+    ignores: ['node_modules/*', 'coverage/*', 'docs/*', '**/.*'],
     languageOptions: {
-      sourceType: "commonjs",
+      sourceType: 'commonjs',
       globals: {
-        ...globals.browser,
-        ...globals.node, // Add Node.js globals
-        ...globals.jest // Add Jest globals
-      }
+        ...globals.node,
+        ...globals.jest,
+      },
     },
     rules: {
-      "comma-dangle": ["error", "never"]
-    }
+      indent: ['error', 2, { SwitchCase: 1 }],
+      camelcase: 'error',
+      'max-len': [
+        'error',
+        {
+          code: 80,
+          ignoreComments: true,
+          ignoreStrings: true,
+          ignoreTrailingComments: true,
+          ignoreTemplateLiterals: true,
+        },
+      ],
+      'for-direction': 'error',
+      'getter-return': 'error',
+      'no-cond-assign': ['error', 'always'],
+      'no-const-assign': 'error',
+      'comma-dangle': ['error', 'always-multiline'],
+      'no-dupe-args': 'error',
+      'no-dupe-keys': 'error',
+      'no-dupe-class-members': 'error',
+      'no-dupe-else-if': 'warn',
+      'no-unused-vars': 'error',
+      'no-undef': 'error',
+      'no-duplicate-imports': ['warn', { includeExports: true }],
+    },
   },
-  pluginJs.configs.recommended
 ];

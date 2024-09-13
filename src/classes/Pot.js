@@ -2,52 +2,52 @@ const AllIn = require("./AllIn");
 
 class Pot {
   constructor() {
-    this._main_pot = 0;
-    this._last_round_pot = 0;
-    this._all_ins = [];
-    this._current_bet = 0;
+    this._mainPot = 0;
+    this._lastRoundPot = 0;
+    this._allIns = [];
+    this._currentBet = 0;
   }
 
-  get main_pot() {
-    return this._main_pot;
+  get mainPot() {
+    return this._mainPot;
   }
 
-  set main_pot(value) {
-    this._main_pot = value;
+  set mainPot(value) {
+    this._mainPot = value;
   }
 
-  get last_round_pot() {
-    return this._last_round_pot;
+  get lastRoundPot() {
+    return this._lastRoundPot;
   }
 
-  set last_round_pot(pot) {
-    this._last_round_pot = pot;
+  set lastRoundPot(pot) {
+    this._lastRoundPot = pot;
   }
 
-  get all_ins() {
-    return this._all_ins;
+  get allIns() {
+    return this._allIns;
   }
 
   addAllIn(game) {
-    let current = game.order.current_player;
+    let current = game.order.currentPlayer;
     let pot = 0;
     let players = [];
 
-    for (const phone_number in game.players) {
-      let player = game.players[phone_number];
-      if (player.current_bet < current.current_bet) {
-        pot += player.current_bet;
+    for (const id in game.players) {
+      let player = game.players[id];
+      if (player.currentBet < current.currentBet) {
+        pot += player.currentBet;
       } else {
-        pot += current.current_bet;
+        pot += current.currentBet;
         players.push(player);
       }
     }
 
-    this._all_ins.push(new AllIn(players, pot, current.current_bet));
+    this._allIns.push(new AllIn(players, pot, current.currentBet));
   }
 
   reorgAllIns() {
-    this._all_ins.sort((a, b) => a.pot - b.pot); // sort the pots from smallest to largest
+    this._allIns.sort((a, b) => a.pot - b.pot); // sort the pots from smallest to largest
   }
 }
 

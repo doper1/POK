@@ -1,58 +1,77 @@
 const Mustache = require("mustache");
 const Game = require("../../classes/Game");
-const { format_phone_number } = require("../../generalFunctions");
+const { formatId } = require("../../generalFunctions");
 
-function join(games, chat_id, message, contact, chat) {
-  let phone_number = format_phone_number(message.author);
-  let new_message = "Hi @{{name}}, welcome to the game!";
+function join(games, chatId, message, phoneNumber, chat) {
+  let id = formatId(message.author);
+  let newMessage = "Hi @{{name}}, welcome to the game!";
 
-  if (games[chat_id] == undefined) games[chat_id] = new Game(chat_id, chat);
+  if (games[chatId] == undefined) games[chatId] = new Game(chatId, chat);
 
-  let game = games[chat_id];
-  game.addPlayer(contact, phone_number);
+  let game = games[chatId];
+  game.addPlayer(id, phoneNumber);
 
-  if (game.is_midround) {
-    game.players[phone_number].is_folded = true;
+  if (game.isMidRound) {
+    game.players[id].isFolded = true;
     game.folds++;
-    game.order.insertAfterCurrent(game.players[phone_number]); // TODO: needs to be tested
-    new_message += "Wait for the next round to start";
+    game.order.insertAfterCurrent(game.players[id]); // TODO: needs to be tested
+    newMessage += "Wait for the next round to start";
   }
 
   chat.sendMessage(
-    Mustache.render(new_message, {
-      name: game.players[phone_number].contact.id.user
+    Mustache.render(newMessage, {
+      name: game.players[id].phoneNumber,
     }),
     {
-      mentions: [phone_number]
-    }
+      mentions: [id],
+    },
   );
 }
 
 function show(game, chat) {
-  if (game.is_midround == true) {
+  if (game.isMidRound == true) {
     chat.sendMessage(game.getOrderPretty(), { mentions: game.getMentions() });
   } else {
     chat.sendMessage(game.getPlayersPretty(), { mentions: game.getMentions() });
   }
 }
 
-function exit(games, chat_id, message) {
-  delete games[chat_id].players[format_phone_number(message.author)];
-  message.react("👋");
-  message.reply("Goodbye!");
-  if (
-    Object.keys(games[chat_id].players).length == 0 &&
-    games[chat_id].is_midround
-  ) {
-    delete games[chat_id];
-    message.reply(`*The game has ended!*`); // TODO: Show END message with stacks and stacks changes summary
-  } else if (Object.keys(games[chat_id].players).length == 0) {
-    delete games[chat_id];
+function exit(games, chatId, message) {
+  games[chatId].players[formatId(message.author)].isFolded = true;
+  games[chatId].folds++;
+
+  if (games[chatId].isMidRound) {
+    if (Object.keys(games[chatId].players).length == 2) {
+      games[chatId].order.removePlayer(formatId(message.author));
+      delete games[chatId].players[formatId(message.author)];
+      games[chatId].isMidRound = false;
+
+      message.react("👋");
+      message.reply(`*The game has ended!*`);
+    } else {
+      games[chatId].order.removePlayer(formatId(message.author));
+      delete games[chatId].players[formatId(message.author)];
+
+      message.react("👋");
+      message.reply(`Goodbye!`);
+    }
+  } else {
+    if (Object.keys(games[chatId].players).length == 1) {
+      delete games[chatId];
+
+      message.react("👋");
+      message.reply(`Goodbye!`);
+    } else {
+      delete games[chatId].players[formatId(message.author)];
+
+      message.react("👋");
+      message.reply(`Goodbye!`);
+    }
   }
 }
 
 module.exports = {
   join,
   show,
-  exit
+  exit,
 };

@@ -1,22 +1,31 @@
-function print_cards(cards) {
-  let to_string = "";
+function printCards(cards) {
+  let cardsString = '';
   for (let i = 0; i < cards.length - 1; i++) {
-    to_string += `*I${cards[i][0]}${cards[i][1]}I* `;
+    cardsString += `*I${cards[i][0]}${cards[i][1]}I* `;
   }
-  return `${to_string}*I${cards[cards.length - 1][0]}${
+  return `${cardsString}*I${cards[cards.length - 1][0]}${
     cards[cards.length - 1][1]
   }I*`;
 }
 
+function countCards(cards, type) {
+  let count = {};
+  cards.forEach((card) => {
+    if (' ' + card[type] in count) count[' ' + card[type]].push(card);
+    else count[' ' + card[type]] = [card];
+  });
+  return count;
+}
+
 function parseCardNumber(card) {
   switch (card[1]) {
-    case "A":
+    case 'A':
       return [card[0], 14];
-    case "K":
+    case 'K':
       return [card[0], 13];
-    case "Q":
+    case 'Q':
       return [card[0], 12];
-    case "J":
+    case 'J':
       return [card[0], 11];
     default:
       return [card[0], parseInt(card[1])];
@@ -25,21 +34,21 @@ function parseCardNumber(card) {
 function ReverseParseCardNumber(card) {
   switch (card[1]) {
     case 14:
-      return [card[0], "A"];
+      return [card[0], 'A'];
     case 13:
-      return [card[0], "K"];
+      return [card[0], 'K'];
     case 12:
-      return [card[0], "Q"];
+      return [card[0], 'Q'];
     case 11:
-      return [card[0], "J"];
+      return [card[0], 'J'];
     case 1:
-      return [card[0], "A"];
+      return [card[0], 'A'];
     default:
       return [card[0], `${card[1]}`];
   }
 }
 
-function sort_cards(cards) {
+function sortCards(cards) {
   return (cards = cards.slice().sort((a, b) => b[1] - a[1]));
 }
 
@@ -48,23 +57,14 @@ function isCardInCards(card, Cards) {
     if (Cards[i][0] == card[0] && Cards[i][1] == card[1]) return true; // Card is already in the hand
   return false;
 }
-// switch to param
-function c_count(cards, type) {
-  let count_cards = {};
-  cards.forEach((card) => {
-    // " " + card[type] is used to make sure that the automatic sort doesnt work and fuck our sort e.g in case of two pairs
-    // like 2s,8s,13s the 2s and 8s will be sorted before from lowest to highest and destroy our sorting from high to low 13s, 8s , 2s
-    if (" " + card[type] in count_cards)
-      count_cards[" " + card[type]].push(card);
-    else count_cards[" " + card[type]] = [card];
-  });
-  return count_cards;
-}
 
-function is_flush(cards) {
-  let count_cards = c_count(cards, 0);
-  for (let key in count_cards)
-    if (count_cards[key].length >= 5) return count_cards[key];
+function isFlush(cards) {
+  let count = countCards(cards, 0);
+  for (let key in count) {
+    if (count[key].length >= 5) {
+      return count[key];
+    }
+  }
 
   return false;
 }
@@ -73,7 +73,7 @@ function is_flush(cards) {
  * @param {cards} - array of cards
  * @param {type} -type of card clubs, diamonds, hearts, spades specify only if given flush in cards
  */
-function is_straight(cards) {
+function isStraight(cards) {
   if (cards == false) return false;
   let Count = 1;
   let straight = [cards[0]];
@@ -91,67 +91,55 @@ function is_straight(cards) {
   // here and will return more than 5 cards
   return false;
 }
-function is_straight_flush(cards) {
-  let flush_Cards = is_flush(cards);
-  if (flush_Cards == false) return false;
-  return is_straight(flush_Cards);
+function isStraightFlush(cards) {
+  let flushCards = isFlush(cards);
+  if (flushCards == false) return false;
+  return isStraight(flushCards);
 }
 
-function is_four_of_a_kind(cards) {
-  let count_cards = c_count(cards, 1);
-  for (let key in count_cards)
-    if (count_cards[key].length >= 4)
-      return [
-        count_cards[key][0],
-        count_cards[key][1],
-        count_cards[key][2],
-        count_cards[key][3]
-      ];
+function isFourOfAKind(cards) {
+  let count = countCards(cards, 1);
+  for (let key in count)
+    if (count[key].length >= 4)
+      return [count[key][0], count[key][1], count[key][2], count[key][3]];
   return false;
 }
 
-function is_full_house(cards) {
-  let count_cards = c_count(cards, 1);
-  for (let key in count_cards)
-    if (count_cards[key].length == 3)
-      for (let k in count_cards)
-        if (count_cards[k].length == 2)
+function isFullHouse(cards) {
+  let count = countCards(cards, 1);
+  for (let key in count)
+    if (count[key].length == 3)
+      for (let k in count)
+        if (count[k].length == 2)
           return [
-            count_cards[key][0],
-            count_cards[key][1],
-            count_cards[key][2],
-            count_cards[k][0],
-            count_cards[k][1]
+            count[key][0],
+            count[key][1],
+            count[key][2],
+            count[k][0],
+            count[k][1],
           ];
   return false;
 }
-function is_three_of_a_kind(cards) {
-  let count_cards = c_count(cards, 1);
-  for (let key in count_cards)
-    if (count_cards[key].length == 3)
-      return [count_cards[key][0], count_cards[key][1], count_cards[key][2]];
+function isThreeOfAKind(cards) {
+  let count = countCards(cards, 1);
+  for (let key in count)
+    if (count[key].length == 3)
+      return [count[key][0], count[key][1], count[key][2]];
   return false;
 }
-function is_two_pair(cards) {
-  let count_cards = c_count(cards, 1);
-  for (let key in count_cards)
-    if (count_cards[key].length == 2)
-      for (let k in count_cards)
-        if (k != key && count_cards[k].length == 2)
-          return [
-            count_cards[key][0],
-            count_cards[key][1],
-            count_cards[k][0],
-            count_cards[k][1]
-          ];
-  // can reuse for making ispair just fix return and if downstairs[count_cards[key][0], count_cards[key][1]];
+function isTwoPair(cards) {
+  let count = countCards(cards, 1);
+  for (let key in count)
+    if (count[key].length == 2)
+      for (let k in count)
+        if (k != key && count[k].length == 2)
+          return [count[key][0], count[key][1], count[k][0], count[k][1]];
   return false;
 }
-function is_one_pair(cards) {
-  let count_cards = c_count(cards, 1);
-  for (let key in count_cards) {
-    if (count_cards[key].length == 2)
-      return [count_cards[key][0], count_cards[key][1]];
+function isPair(cards) {
+  let count = countCards(cards, 1);
+  for (let key in count) {
+    if (count[key].length == 2) return [count[key][0], count[key][1]];
   }
   return false;
 }
@@ -160,64 +148,63 @@ function is_one_pair(cards) {
  * @param {Game} game - The game
  * @param {Player} player - The player in which you update the hand str
  */
-function update_hand_str(game, player) {
-  player.hand_score = {};
-  let tmp_cards = [];
+function updateHandStrength(game, player) {
+  player.handScore = {};
+  let temp = [];
 
   // adds comm cards and player cards
-  tmp_cards = [...game.community_cards];
-  tmp_cards.push(player.hole_cards[0]);
-  tmp_cards.push(player.hole_cards[1]);
+  temp = [...game.communityCards];
+  temp.push(player.holeCards[0]);
+  temp.push(player.holeCards[1]);
 
   // parses cards to numbers J:11 Q:12 K:13 A:14...
-  for (let i = 0; i < tmp_cards.length; i++)
-    tmp_cards[i] = parseCardNumber(tmp_cards[i]);
+  for (let i = 0; i < temp.length; i++) temp[i] = parseCardNumber(temp[i]);
 
   //sorts from highest to lowest to determine calculation of hand highest = better
-  tmp_cards = sort_cards(tmp_cards);
+  temp = sortCards(temp);
 
-  if (is_straight_flush(tmp_cards) != false) {
-    let str_flush = is_straight(is_flush(tmp_cards));
-    let type = str_flush[0][0];
+  if (isStraightFlush(temp) != false) {
+    let straightFlush = isStraight(isFlush(temp));
+    let type = straightFlush[0][0];
     if (
-      isCardInCards([type, 13], str_flush) &&
-      isCardInCards([type, 14], str_flush)
+      isCardInCards([type, 13], straightFlush) &&
+      isCardInCards([type, 14], straightFlush)
     )
-      player.hand_score = { str: 0, cards: str_flush }; //royal flush
-    else player.hand_score = { str: 1, cards: str_flush };
-  } else if (is_four_of_a_kind(tmp_cards) != false)
-    player.hand_score = { str: 2, cards: is_four_of_a_kind(tmp_cards) };
-  else if (is_full_house(tmp_cards) != false)
-    player.hand_score = { str: 3, cards: is_full_house(tmp_cards) };
-  else if (is_flush(tmp_cards) != false)
-    player.hand_score = { str: 4, cards: is_flush(tmp_cards) };
-  else if (is_straight(tmp_cards) != false)
-    player.hand_score = { str: 5, cards: is_straight(tmp_cards) };
-  else if (is_three_of_a_kind(tmp_cards) != false)
-    player.hand_score = { str: 6, cards: is_three_of_a_kind(tmp_cards) };
-  else if (is_two_pair(tmp_cards) != false)
-    player.hand_score = { str: 7, cards: is_two_pair(tmp_cards) };
-  else if (is_one_pair(tmp_cards) != false)
-    player.hand_score = { str: 8, cards: is_one_pair(tmp_cards) };
-  else player.hand_score = { str: 9, cards: tmp_cards };
+      player.handScore = { str: 0, cards: straightFlush }; //royal flush
+    else player.handScore = { str: 1, cards: straightFlush };
+  } else if (isFourOfAKind(temp) != false)
+    player.handScore = { str: 2, cards: isFourOfAKind(temp) };
+  else if (isFullHouse(temp) != false)
+    player.handScore = { str: 3, cards: isFullHouse(temp) };
+  else if (isFlush(temp) != false)
+    player.handScore = { str: 4, cards: isFlush(temp) };
+  else if (isStraight(temp) != false)
+    player.handScore = { str: 5, cards: isStraight(temp) };
+  else if (isThreeOfAKind(temp) != false)
+    player.handScore = { str: 6, cards: isThreeOfAKind(temp) };
+  else if (isTwoPair(temp) != false)
+    player.handScore = { str: 7, cards: isTwoPair(temp) };
+  else if (isPair(temp) != false)
+    player.handScore = { str: 8, cards: isPair(temp) };
+  else player.handScore = { str: 9, cards: temp };
 
   // if cards <5 adds highest
-  for (let i = 0; i < tmp_cards.length; i++)
-    if (player.hand_score.cards.length < 5) {
-      let cardToAdd = tmp_cards[i];
-      if (!isCardInCards(cardToAdd, player.hand_score.cards)) {
-        player.hand_score.cards.push(cardToAdd);
+  for (let i = 0; i < temp.length; i++)
+    if (player.handScore.cards.length < 5) {
+      let cardToAdd = temp[i];
+      if (!isCardInCards(cardToAdd, player.handScore.cards)) {
+        player.handScore.cards.push(cardToAdd);
       }
     }
 
   //if cards > 5 removes weakest
-  while (player.hand_score.cards.length > 5) {
-    player.hand_score.cards.pop(player.hand_score.cards[0]);
+  while (player.handScore.cards.length > 5) {
+    player.handScore.cards.pop(player.handScore.cards[0]);
   }
   //reverses back to 11:J 13:K (14||1 :A) 12:Q
-  for (let i = 0; i < player.hand_score.cards.length; i++)
-    player.hand_score.cards[i] = ReverseParseCardNumber(
-      player.hand_score.cards[i]
+  for (let i = 0; i < player.handScore.cards.length; i++)
+    player.handScore.cards[i] = ReverseParseCardNumber(
+      player.handScore.cards[i],
     );
 }
 
@@ -232,26 +219,26 @@ function update_hand_str(game, player) {
  * @example dict = {[0:player1], [4:player3], [8,[player4,player5]] }
  */
 
-function calc_hands_strength(game) {
-  let strength_list = [];
+function calcHandsStrength(game) {
+  let strengthList = [];
   game.jumpToButton();
-  let current = game.order.current_player;
+  let current = game.order.currentPlayer;
 
   // Collect hand strengths for each player
   do {
-    update_hand_str(game, current);
-    strength_list.push([current.hand_score.str, current]);
-    current = current.next_player;
-  } while (!current.is_button);
+    updateHandStrength(game, current);
+    strengthList.push([current.handScore.str, current]);
+    current = current.nextPlayer;
+  } while (!current.isButton);
 
   // Sort by hand strength and then by kicker cards
-  strength_list = strength_list.slice().sort(([strA, handA], [strB, handB]) => {
+  strengthList = strengthList.slice().sort(([strA, handA], [strB, handB]) => {
     if (strA !== strB) {
       return strB - strA; // Sort in descending order
     }
 
-    const cardsA = handA.hand_score.cards;
-    const cardsB = handB.hand_score.cards;
+    const cardsA = handA.handScore.cards;
+    const cardsB = handB.handScore.cards;
 
     // Tie-breaking for flushes
     if (strA === 4) {
@@ -273,7 +260,7 @@ function calc_hands_strength(game) {
 
   // Handle multiple winners with the same hand
   let res = new Map();
-  strength_list.forEach(([str, player]) => {
+  strengthList.forEach(([str, player]) => {
     if (!res.has(str)) {
       res.set(str, []);
     }
@@ -283,26 +270,26 @@ function calc_hands_strength(game) {
   return Object.fromEntries(res);
 }
 
-function format_hand(player_name, hole_cards) {
-  return `@${player_name}: ${print_cards(hole_cards)}\n`;
+function formatHand(player, holeCards) {
+  return `@${player}: ${printCards(holeCards)}\n`;
 }
 
 module.exports = {
-  print_cards,
-  sort_cards,
-  c_count,
-  is_flush,
-  is_straight,
-  is_straight_flush,
-  is_four_of_a_kind,
-  is_full_house,
-  is_three_of_a_kind,
-  is_two_pair,
-  is_one_pair,
-  update_hand_str,
+  isStraightFlush,
+  isFourOfAKind,
+  isFullHouse,
+  isFlush,
+  isStraight,
+  isThreeOfAKind,
+  isTwoPair,
+  isPair,
   parseCardNumber,
   ReverseParseCardNumber,
+  printCards,
+  sortCards,
+  countCards,
+  updateHandStrength,
   isCardInCards,
-  calc_hands_strength,
-  format_hand
+  calcHandsStrength,
+  formatHand,
 };

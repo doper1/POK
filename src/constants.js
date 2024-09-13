@@ -9,7 +9,7 @@ module.exports.STRENGTH_DICT = {
   6: "Three of a Kind",
   7: "Two Pair",
   8: "Pair",
-  9: "High Card"
+  9: "High Card",
 };
 module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
@@ -24,12 +24,13 @@ module.exports.HELP_IN_GAME = `Possible Commands (in game):\n
 ♠️ pok check
 ♥️ pok call
 ♣️ pok raise [raise amount]
-♦️ pok fold
-♠️ pok help 
-♥️ pok join
-♣️ pok show
-♦️ pok exit
-♠️ pok end`;
+♦️ pok all (in)
+♠️ pok fold
+♥️ pok help 
+♣️ pok join
+♦️ pok show
+♠️ pok exit
+♥️ pok end`;
 
 module.exports.DECK = [
   ["♦️", "2"],
@@ -83,12 +84,12 @@ module.exports.DECK = [
   ["♠️", "J"],
   ["♠️", "Q"],
   ["♠️", "K"],
-  ["♠️", "A"]
+  ["♠️", "A"],
 ];
 
 module.exports.EMOJIES = {
   FOLD: ["☹️", "😒", "🤒", "🤕", "😵", "😪", "😬", "😩"],
   HAPPY: ["🥹", "😎", "😋", "🥳", "🤩", "🤠", "🤗", "😛"],
   MISTAKE: ["🫠", "😬", "🧐", "😳", "😑", "🤤", "🥴"],
-  SAD: ["😔", "😕", "🙁", "😫", "😖", "🙄", "😪"]
+  SAD: ["😔", "😕", "🙁", "😫", "😖", "🙄", "😪"],
 };
