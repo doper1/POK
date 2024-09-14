@@ -1,12 +1,17 @@
-name: Release
+name: Test
 
 on:
   push:
     branches:
       - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
-  release:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,7 +25,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run semantic-release
+      - name: Lint code
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release
+          CI: true
