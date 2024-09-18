@@ -1,6 +1,7 @@
 {
   "name": "POK",
   "version": "0.5.0",
+  "private": true,
   "description": "Poker bot for whatsapp",
   "type": "commonjs",
   "main": "main.js",
@@ -45,6 +46,8 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^10.3.3",
+    "@semantic-release/npm": "^12.0.1",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
