@@ -5,7 +5,9 @@
       "@semantic-release/commit-analyzer",
       {
         "preset": "conventionalcommits",
+        "presetConfig": {},
         "releaseRules": [
+          { "breaking": true, "release": "major" },
           { "type": "docs", "release": "patch" },
           { "type": "refactor", "scope": "src", "release": "patch" },
           { "type": "fix", "scope": "src", "release": "minor" },
@@ -14,13 +16,12 @@
           { "type": "refactor", "scope": "cfg", "release": "patch" },
           { "type": "fix", "scope": "cfg", "release": "patch" },
           { "type": "feat", "scope": "cfg", "release": "patch" },
-          { "type": "*!", "scope": "cfg", "release": "minor" }
+          { "scope": "*!", "release": "major" }
         ]
       }
     ],
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
-    "@semantic-release/github",
     "@semantic-release/git",
     "@semantic-release/npm"
   ]
