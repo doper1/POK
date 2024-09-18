@@ -1,3 +1,10 @@
+# [2.0.0](https://github.com/doper1/POK/compare/v1.0.0...v2.0.0) (2024-09-18)
+
+
+### Bug Fixes
+
+* **cfg:** remove uneccesary configuration ([eb7b35c](https://github.com/doper1/POK/commit/eb7b35c8e20dbc3611982db1d9f9108cf6473f20))
+
 ## [0.5.0](https://github.com/doper1/POK/compare/v1.0.0...v0.5.0) (2024-09-18)
 
 ### ⚠ BREAKING CHANGES
