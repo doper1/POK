@@ -1,21 +1,23 @@
 {
   "branches": ["main"],
   "plugins": [
-    "@semantic-release/commit-analyzer",
-    {
-      "preset": "conventionalcommits",
-      "releaseRules": [
-        { "type": "docs", "release": "patch"},
-        { "type": "refactor", "scope": "src", "release": "patch"},
-        { "type": "fix", "scope": "src", "release": "minor"},
-        { "type": "feat", "scope": "src" , "release": "minor"},
-        { "type": "*!", "scope": "src", "release": "major"},
-        { "type": "refactor", "scope": "cfg", "release": "patch"},
-        { "type": "fix", "scope": "cfg", "release": "patch"},
-        { "type": "feat", "scope": "cfg" , "release": "patch"},
-        { "type": "*!", "scope": "cfg", "release": "minor"}
-      ]
-    },
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "docs", "release": "patch" },
+          { "type": "refactor", "scope": "src", "release": "patch" },
+          { "type": "fix", "scope": "src", "release": "minor" },
+          { "type": "feat", "scope": "src", "release": "minor" },
+          { "type": "*!", "scope": "src", "release": "major" },
+          { "type": "refactor", "scope": "cfg", "release": "patch" },
+          { "type": "fix", "scope": "cfg", "release": "patch" },
+          { "type": "feat", "scope": "cfg", "release": "patch" },
+          { "type": "*!", "scope": "cfg", "release": "minor" }
+        ]
+      }
+    ],
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
     "@semantic-release/github",
