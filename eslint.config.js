@@ -2,7 +2,7 @@ const globals = require('globals');
 
 module.exports = [
   {
-    ignores: ['node_modules/*', 'coverage/*', 'docs/*', '**/.*'],
+    ignores: ['node_modules/*', 'coverage/*', 'docs/*'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: {
