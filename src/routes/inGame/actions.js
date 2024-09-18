@@ -6,18 +6,20 @@ const { emote, formatId } = require('../../generalFunctions');
 let newMessage;
 let current;
 let amount;
+let template;
+let player;
 
-function end(games, chatId, message) {
-  delete games[chatId];
-  message.reply(`*The game has ended!*`);
+function end(game, message) {
+  message.react(emote('sad'));
+  game.endGame();
   return true;
 }
 
 function check(game, whatsapp) {
   current = game.order.currentPlayer;
 
-  const template = `@{{name}} checked`;
-  const player = {
+  template = `@{{name}} checked`;
+  player = {
     name: current.phoneNumber,
   };
   newMessage = Mustache.render(template, player);
@@ -34,8 +36,8 @@ function raise(game, amount, whatsapp) {
   game.pot.currentBet = current.currentBet;
   gameFunctions.qualifyToAllIns(game, amount);
 
-  const template = `@{{name}} raised $${amount}`;
-  const player = {
+  template = `@{{name}} raised $${amount}`;
+  player = {
     name: current.phoneNumber,
   };
   newMessage = Mustache.render(template, player);
@@ -60,8 +62,8 @@ function allIn(game, whatsapp) {
   gameFunctions.qualifyToAllIns(game, amount);
   game.pot.addAllIn(game);
 
-  const template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
-  const player = {
+  template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
+  player = {
     name: current.phoneNumber,
     amount: amount,
     totalBet: current.currentBet,
@@ -76,8 +78,8 @@ function fold(game, message, whatsapp) {
   current.isFolded = true;
   game.folds++;
 
-  const template = `@{{name}} folded`;
-  const player = {
+  template = `@{{name}} folded`;
+  player = {
     name: current.phoneNumber,
   };
   newMessage = Mustache.render(template, player);
@@ -94,14 +96,35 @@ function call(game, whatsapp) {
   game.pot.mainPot += amount;
   current.currentBet = game.pot.currentBet;
 
-  const template = `@{{name}} calls \${{amount}}`;
-  const player = {
+  template = `Nice! @{{name}} calls \${{amount}}`;
+  player = {
     name: current.phoneNumber,
     amount: amount,
   };
   newMessage = Mustache.render(template, player);
   gameFunctions.qualifyToAllIns(game, amount);
   game.updateRound(whatsapp, newMessage);
+  return true;
+}
+
+function buy(game, message, amount) {
+  let id = formatId(message.author);
+  player = game.players[id];
+
+  player.queueReBuy(amount);
+  player.sessionBalance -= amount;
+  player.money -= amount;
+
+  template = `Nice! @{{name}} bought \${{amount}}
+it will be added in the next hand`;
+
+  player = {
+    name: player.phoneNumber,
+    amount: amount,
+  };
+  newMessage = Mustache.render(template, player);
+  message.react(emote('happy'));
+  game.chat.sendMessage(newMessage, { mentions: [id] });
   return true;
 }
 
@@ -115,7 +138,8 @@ function join(games, chatId, message, phoneNumber, chat) {
   game.order.insertAfterCurrent(game.players[id]);
 
   let template = `Hi @{{name}}, welcome to the game!
-Wait for the next round to start`;
+Buy some Chips with 'pok buy [amount]'
+before the next hand starts`;
 
   chat.sendMessage(
     Mustache.render(template, {
@@ -132,19 +156,21 @@ function show(game, chat) {
 }
 
 function exit(games, chatId, message) {
-  games[chatId].players[formatId(message.author)].isFolded = true;
-  games[chatId].folds++;
+  let id = formatId(message.author);
+  player = games[chatId].players[id];
+
+  player.money += player.gameMoney; // TODO: This row is currently insignificant the player is deleted upon exit. it will be useful when DB will come in play
 
   if (Object.keys(games[chatId].players).length == 2) {
-    games[chatId].order.removePlayer(formatId(message.author));
-    delete games[chatId].players[formatId(message.author)];
+    games[chatId].order.removePlayer(id);
+    delete games[chatId].players[id];
     games[chatId].isMidRound = false;
 
     message.react('👋');
     message.reply(`*The game has ended!*`);
   } else {
-    games[chatId].order.removePlayer(formatId(message.author));
-    delete games[chatId].players[formatId(message.author)];
+    games[chatId].order.removePlayer(id);
+    delete games[chatId].players[id];
 
     message.react('👋');
     message.reply(`Goodbye!`);
@@ -158,6 +184,7 @@ module.exports = {
   allIn,
   fold,
   call,
+  buy,
   join,
   show,
   exit,
