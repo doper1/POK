@@ -35,7 +35,7 @@ function emote(emojiType) {
   }
 }
 
-function isAllowed(game, message) {
+function isCurrent(game, message) {
   let id = formatId(message.author);
 
   if (game.order.currentPlayer.id != id) {
@@ -80,7 +80,7 @@ module.exports = {
   shuffleArray,
   hasTwoWords,
   emote,
-  isAllowed,
+  isCurrent,
   formatId,
   delay,
   setLock,

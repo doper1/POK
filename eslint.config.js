@@ -23,6 +23,11 @@ module.exports = [
           ignoreTemplateLiterals: true,
         },
       ],
+      quotes: [
+        'error',
+        'single',
+        { avoidEscape: true, allowTemplateLiterals: true },
+      ],
       'for-direction': 'error',
       'getter-return': 'error',
       'no-cond-assign': ['error', 'always'],

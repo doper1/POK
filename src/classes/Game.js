@@ -42,8 +42,10 @@ class Game {
     let players = Object.values(this.players).map((player) => ({
       index: index++,
       name: player.phoneNumber,
+      stack: player.gameMoney,
+      money: player.money,
     }));
-    let template = `*Players:*{{#players}}\n{{index}}. @{{name}}{{/players}}`;
+    let template = `*Players  |  Stack  |   Money*{{#players}}\n{{index}}. @{{name}}I \${{stack}} I \${{money}}{{/players}}`;
     return Mustache.render(template, { players });
   }
 
@@ -70,37 +72,31 @@ class Game {
       }
     }
 
-    // Define virtual current for looping over the players
-    let tempCurrent = this.order.currentPlayer;
-
-    // Return the real current player to it's place
-    this.order.currentPlayer = current;
-
     let orderString = '';
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
       orderString += '\n';
-      if (tempCurrent === this.order.currentPlayer) {
-        orderString += `_*${i}.@${tempCurrent.phoneNumber}I  $${tempCurrent.currentBet}  I  $${tempCurrent.gameMoney}`;
-      } else if (tempCurrent.isFolded) {
-        orderString += `~${i}.@${tempCurrent.phoneNumber}I  $${tempCurrent.currentBet}  I  $${tempCurrent.gameMoney}`;
-      } else {
-        orderString += `${i}.@${tempCurrent.phoneNumber}I  $${tempCurrent.currentBet}  I  $${tempCurrent.gameMoney}`;
-      }
-
-      if (tempCurrent.isButton) {
-        orderString += 'I⚪';
-      }
-      if (tempCurrent.isAllIn) {
-        orderString += 'I🔴';
-      }
-
-      if (tempCurrent === this.order.currentPlayer) {
-        orderString += `*_`;
-      } else if (tempCurrent.isFolded) {
+      if (current === this.order.currentPlayer) {
+        orderString += `_*`;
+      } else if (current.isFolded) {
         orderString += `~`;
       }
 
-      tempCurrent = tempCurrent.nextPlayer;
+      orderString += `${i}.@${current.phoneNumber}I $${current.currentBet} I $${current.gameMoney} `;
+
+      if (current.isButton) {
+        orderString += 'I⚪';
+      }
+      if (current.isAllIn) {
+        orderString += 'I🔴';
+      }
+
+      if (current === this.order.currentPlayer) {
+        orderString += `*_`;
+      } else if (current.isFolded) {
+        orderString += `~`;
+      }
+
+      current = current.nextPlayer;
     }
 
     let template = `*Pot:* \${{mainPot}}\n
@@ -137,7 +133,7 @@ class Game {
 {{chatName}}`;
 
       const newMessage = Mustache.render(template, {
-        holeCards: cardsFunctions.printCards(current.getHoleCards()),
+        holeCards: cardsFunctions.printCards(current.holeCards),
         chatName: this.chat.name,
       });
 
@@ -146,8 +142,17 @@ class Game {
     } while (!current.isButton);
   }
 
-  initRound(whatsapp, lastRoundMessage = '') {
+  initRound(whatsapp, lastRoundMessage) {
     this.resetGameStatus();
+
+    if (
+      Object.values(this.players).filter((player) => player.gameMoney > 0)
+        .length <= 1
+    ) {
+      this.endGame(lastRoundMessage);
+      return;
+    }
+
     this.dealCards(whatsapp);
     this.moveButton();
 
@@ -157,7 +162,7 @@ class Game {
     }
     this.putBlinds();
 
-    let template = `{{#lastRoundMessage}}{{lastRoundMessage}}\n{{/lastRoundMessage}}
+    let template = `{{lastRoundMessage}}\n
 {{order}}\n
 Check your DM for your cards 🤫\n
 Action on @{{currentPlayer.phoneNumber}} (\${{currentPlayer.gameMoney}})\n
@@ -178,6 +183,7 @@ Action on @{{currentPlayer.phoneNumber}} (\${{currentPlayer.gameMoney}})\n
     this.order = new Order();
     let players = shuffleArray(Object.values(this.players));
     for (let i = 0; i < players.length; i++) {
+      players[i].nextPlayer = null;
       this.order.append(players[i]);
     }
     // Closes the Order as a loop
@@ -235,12 +241,32 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
     this.pot.currentBet = constants.BIG_BLIND;
 
     this.order.next();
-    this.order.currentPlayer.gameMoney -= constants.SMALL_BLIND;
-    this.order.currentPlayer.currentBet = constants.SMALL_BLIND;
-    this.order.next();
-    this.order.currentPlayer.gameMoney -= constants.BIG_BLIND;
-    this.order.currentPlayer.currentBet = constants.BIG_BLIND;
-    this.order.next();
+    let current = this.order.currentPlayer;
+
+    while (current.gameMoney == 0) {
+      current = current.nextPlayer;
+
+      if (current.gameMoney <= constants.SMALL_BLIND) {
+        current.isAllIn = true;
+      }
+    }
+
+    current.gameMoney -= constants.SMALL_BLIND;
+    current.currentBet = constants.SMALL_BLIND;
+    current = current.nextPlayer;
+
+    while (current.gameMoney == 0) {
+      current = current.nextPlayer;
+
+      if (current.gameMoney <= constants.BIG_BLIND) {
+        current.isAllIn = true;
+      }
+    }
+
+    current.gameMoney -= constants.BIG_BLIND;
+    current.currentBet = constants.BIG_BLIND;
+
+    this.order.currentPlayer = current.nextPlayer;
   }
 
   updateRound(whatsapp, actionMessage) {
@@ -268,7 +294,7 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
     }
     // All the player in the pot called the highest bet (or either checked, folded, or all in)
     else if (next.isPlayed && next.currentBet == this.pot.currentBet) {
-      this.moveRound(whatsapp);
+      this.moveRound(whatsapp, actionMessage);
     }
     // Next player didn't played or called the highest bet yet
     else {
@@ -277,18 +303,18 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
     }
   }
 
-  moveRound(whatsapp) {
+  moveRound(whatsapp, actionMessage) {
     switch (this.communityCards.length) {
       // Flop
       case 0:
         this.communityCards.push(...this.deck.splice(-3));
-        this.resetRoundStatus();
+        this.resetRoundStatus(actionMessage);
         break;
       // Turn / River
       case 3:
       case 4:
         this.communityCards.push(this.deck.pop());
-        this.resetRoundStatus();
+        this.resetRoundStatus(actionMessage);
         break;
       // Showdown
       case 5:
@@ -332,16 +358,24 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
     do {
       if (isNewHand) {
         current.isAllIn = false;
-        current.isFolded = false;
         current.handScore = { str: undefined, cards: [] };
+        current.gameMoney += current.rebuy;
+        current.rebuy = 0;
+
+        if (current.gameMoney == 0) {
+          current.isFolded = true;
+        } else {
+          current.isFolded = false;
+        }
       }
+
       current.currentBet = 0;
       current.isPlayed = false;
       current = current.nextPlayer;
     } while (!current.isButton);
   }
 
-  resetRoundStatus() {
+  resetRoundStatus(actionMessage = ' ') {
     this.pot.lastRoundPot = this.pot.mainPot;
     this.pot.currentBet = 0;
     this.pot.allIns.forEach((allIn) => {
@@ -354,8 +388,12 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
       current = current.nextPlayer;
     }
     this.order.currentPlayer = current;
-    let newMessage = `*Pot*: $${this.pot.mainPot}\n
-*Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}\n
+    let newMessage = `*Pot*: $${this.pot.mainPot}\n\n`;
+
+    if (actionMessage != ' ') {
+      newMessage += actionMessage;
+    }
+    newMessage += `\n\n*Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}\n
 Action on @${current.phoneNumber} ($${current.gameMoney})`;
 
     if (this.pot.currentBet - current.currentBet != 0) {
@@ -387,7 +425,7 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
 
   async AllInScenario(actionMessage, whatsapp) {
     setLock(true);
-    let newMessage = `${actionMessage}\n\n*Pot:* $${this.pot.mainPot}\n\n`;
+    let newMessage = `*Pot:* $${this.pot.mainPot}\n\n${actionMessage}\n\n`;
     Object.values(this.players).forEach((player) => {
       if (!player.isFolded) {
         newMessage += `${cardsFunctions.formatHand(
@@ -424,6 +462,48 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
       `Congrats! @${current.phoneNumber} Won $${this.pot.mainPot}!
 ---------------------------------`,
     );
+  }
+
+  endGame(lastRoundMessage) {
+    this.isMidRound = false;
+
+    this.jumpToButton();
+    let current = this.order.currentPlayer;
+
+    do {
+      current.sessionBalance += current.gameMoney;
+      current.money += current.gameMoney;
+      current.gameMoney = 0;
+
+      current = current.nextPlayer;
+    } while (!current.isButton);
+
+    let index = 1;
+    let template = `${lastRoundMessage}
+🎰 *The game has ended!* 🎰\n
+*Player  |  Balance  |  Money*{{#players}}\n{{index}}. @{{name}}I  *{{balance}}*  I  \${{money}}{{/players}}`;
+    let players = Object.values(this.players).map((player) => ({
+      index: index++,
+      name: player.phoneNumber,
+      money: player.money,
+      balance:
+        player.sessionBalance >= 0
+          ? `+$${player.sessionBalance}🟢`
+          : `-$${player.sessionBalance * -1}🔴`,
+      realBalance: player.sessionBalance,
+    }));
+    players.sort((a, b) => b.realBalance - a.realBalance);
+    let newMessage = Mustache.render(template, { players });
+    this.chat.sendMessage(newMessage, { mentions: this.getMentions() });
+
+    // Reset the session balance incase new game is starting (consider removing)
+    this.jumpToButton();
+    current = this.order.currentPlayer;
+
+    do {
+      current.sessionBalance = 0;
+      current = current.nextPlayer;
+    } while (!current.isButton);
   }
 }
 

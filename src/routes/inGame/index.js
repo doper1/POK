@@ -14,60 +14,66 @@ function inGameRoute({
 }) {
   let game = games[chatId];
   let current = game.order.currentPlayer;
-  let raiseAmount;
+  let amount;
 
   switch (body[1]) {
     case 'start':
       message.react(emote('mistake'));
       message.reply('There is a game in progress');
-      return true;
+      break;
     case 'check':
       if (validators.check(game, message)) actions.check(game, whatsapp);
-      return true;
+      break;
     case 'raise':
-      raiseAmount = Number(body[2]);
+      amount = Number(body[2]);
 
-      if (body[2] == 'all' || current.gameMoney == raiseAmount) {
+      if (body[2] == 'all' || current.gameMoney == amount) {
         if (validators.allIn(game, message)) {
           actions.allIn(game, whatsapp);
         }
-      } else if (validators.raise(game, message, raiseAmount)) {
-        actions.raise(game, raiseAmount, whatsapp);
+      } else if (validators.raise(game, message, amount)) {
+        actions.raise(game, amount, whatsapp);
       }
-      return true;
+      break;
     case 'all':
       if (validators.allIn(game, message)) actions.allIn(game, whatsapp);
-      return true;
+      break;
     case 'fold':
       if (validators.fold(game, message)) actions.fold(game, message, whatsapp);
-      return true;
+      break;
     case 'call':
       if (game.pot.currentBet - current.currentBet >= current.gameMoney) {
         if (validators.allIn(game, message)) actions.allIn(game, whatsapp);
-        return true;
+        break;
       } else if (validators.call(game, message)) actions.call(game, whatsapp);
-      return true;
+      break;
+    case 'buy':
+      amount = Number(body[2]);
+
+      if (validators.buy(game, message, amount))
+        actions.buy(game, message, amount);
+      break;
     case 'end':
-      if (validators.end(game, message)) actions.end(games, chatId, message);
-      return true;
+      if (validators.end(game, message)) actions.end(games[chatId], message);
+      break;
     case 'help':
       message.reply(constants.HELP_PRE_GAME);
-      return true;
+      break;
     case 'join':
       if (validators.join(games[chatId], message))
         actions.join(games, chatId, message, phoneNumber, chat);
-      return true;
+      break;
     case 'show':
       if (validators.show(games[chatId], message))
         actions.show(games[chatId], chat);
-      return true;
+      break;
     case 'exit':
       if (validators.exit(games[chatId], message))
         actions.exit(games, chatId, message);
-      return true;
+      break;
     default:
       message.reply(constants.HELP_IN_GAME);
-      return true;
+      break;
   }
 }
 
