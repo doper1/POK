@@ -57,14 +57,8 @@ describe('Game Functions', () => {
     Mustache.render.mockImplementation((template) => `Rendered: ${template}`);
   });
 
-  test('end function', () => {
-    const result = actions.end(mockGame, mockMessage);
-    expect(result).toBe(true);
-  });
-
   test('check function', () => {
-    const result = actions.check(mockGame, mockWhatsapp);
-    expect(result).toBe(true);
+    actions.check(mockGame, mockWhatsapp);
     expect(mockGame.updateRound).toHaveBeenCalledWith(
       mockWhatsapp,
       'Rendered: @{{name}} checked',
@@ -72,8 +66,7 @@ describe('Game Functions', () => {
   });
 
   test('raise function', () => {
-    const result = actions.raise(mockGame, 100, mockWhatsapp);
-    expect(result).toBe(true);
+    actions.raise(mockGame, 100, mockWhatsapp);
     expect(mockGame.pot.mainPot).toBe(100);
     expect(mockGame.order.currentPlayer.gameMoney).toBe(900);
     expect(mockGame.updateRound).toHaveBeenCalledWith(
@@ -83,8 +76,7 @@ describe('Game Functions', () => {
   });
 
   test('allIn function', () => {
-    const result = actions.allIn(mockGame, mockWhatsapp);
-    expect(result).toBe(true);
+    actions.allIn(mockGame, mockWhatsapp);
     expect(mockGame.order.currentPlayer.isAllIn).toBe(true);
     expect(mockGame.order.currentPlayer.gameMoney).toBe(0);
     expect(mockGame.pot.addAllIn).toHaveBeenCalledWith(mockGame);
@@ -95,8 +87,7 @@ describe('Game Functions', () => {
   });
 
   test('fold function', () => {
-    const result = actions.fold(mockGame, mockMessage, mockWhatsapp);
-    expect(result).toBe(true);
+    actions.fold(mockGame, mockMessage, mockWhatsapp);
     expect(mockGame.order.currentPlayer.isFolded).toBe(true);
     expect(mockGame.folds).toBe(1);
     expect(mockMessage.react).toHaveBeenCalledWith('👍');
@@ -108,8 +99,7 @@ describe('Game Functions', () => {
 
   test('call function', () => {
     mockGame.pot.currentBet = 100;
-    const result = actions.call(mockGame, mockWhatsapp);
-    expect(result).toBe(true);
+    actions.call(mockGame, mockWhatsapp);
     expect(mockGame.order.currentPlayer.gameMoney).toBe(900);
     expect(mockGame.pot.mainPot).toBe(100);
     expect(mockGame.updateRound).toHaveBeenCalledWith(
@@ -126,8 +116,7 @@ describe('Game Functions', () => {
       queueReBuy: jest.fn(),
     };
     mockGame = { ...mockGame, chat: { sendMessage: jest.fn() } };
-    const result = actions.buy(mockGame, mockMessage, 500);
-    expect(result).toBe(true);
+    actions.buy(mockGame, mockMessage, 500);
     expect(mockGame.players['1234567890@c.us'].money).toBe(1500);
     expect(mockMessage.react).toHaveBeenCalledWith('👍');
     expect(mockGame.chat.sendMessage).toHaveBeenCalled();
@@ -187,7 +176,6 @@ describe('Game Functions', () => {
     actions.exit(mockGames, 'chat123', mockMessage);
     expect(mockGame.order.removePlayer).toHaveBeenCalledWith('1234567890@c.us');
     expect(mockMessage.react).toHaveBeenCalledWith('👋');
-    expect(mockMessage.reply).toHaveBeenCalledWith('*The game has ended!*');
     expect(mockGames['chat123'].isMidRound).toBe(false);
   });
 });

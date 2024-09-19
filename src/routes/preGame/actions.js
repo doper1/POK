@@ -2,6 +2,13 @@ const Mustache = require('mustache');
 const Game = require('../../classes/Game');
 const { formatId, emote } = require('../../generalFunctions');
 
+// globals
+let id;
+let player;
+let template;
+let game;
+let newMessage;
+
 function start(game, message, whatsapp) {
   game.isMidRound = true;
 
@@ -11,21 +18,30 @@ function start(game, message, whatsapp) {
   message.react(emote('happy'));
 }
 
-function join(games, chatId, message, phoneNumber, chat) {
-  let id = formatId(message.author);
+function join(games, chatId, message, phoneNumber, chat, amount) {
+  id = formatId(message.author);
 
   if (games[chatId] == undefined) games[chatId] = new Game(chatId, chat);
 
-  let game = games[chatId];
+  game = games[chatId];
   game.addPlayer(id, phoneNumber);
+  player = game.players[id];
 
-  message.react(emote('happy'));
-  let newMessage = `Hi @{{name}}, welcome to the game!
+  if (Number.isNaN(amount)) {
+    template = `Hi @{{name}}, welcome to the game!
 Buy some Chips with 'pok buy [amount]'
 before the game starts`;
+  } else {
+    player.gameMoney = amount;
+    player.money -= amount;
+    player.sessionBalance -= amount;
+    template = `Hi @{{name}}, welcome to the game!`;
+  }
+
+  message.react(emote('happy'));
   chat.sendMessage(
-    Mustache.render(newMessage, {
-      name: game.players[id].phoneNumber,
+    Mustache.render(template, {
+      name: player.phoneNumber,
     }),
     {
       mentions: [id],
@@ -55,20 +71,20 @@ function exit(games, chatId, message) {
 }
 
 function buy(game, message, amount) {
-  let id = formatId(message.author);
-  let player = game.players[id];
+  id = formatId(message.author);
+  player = game.players[id];
 
   player.gameMoney += amount;
   player.sessionBalance -= amount;
   player.money -= amount;
 
-  let template = `Nice! @{{name}} bought \${{amount}}`;
+  template = `Nice! @{{name}} bought \${{amount}}`;
 
   player = {
     name: player.phoneNumber,
     amount: amount,
   };
-  let newMessage = Mustache.render(template, player);
+  newMessage = Mustache.render(template, player);
   message.react(emote('happy'));
   game.chat.sendMessage(newMessage, { mentions: [id] });
   return true;

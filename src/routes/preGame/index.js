@@ -12,34 +12,37 @@ function preGameRoute({
   phoneNumber,
 }) {
   let game = games[chatId];
+  let amount;
 
   switch (body[1]) {
     case 'start':
       if (validators.start(game, message))
         actions.start(game, message, whatsapp);
-      return true;
+      break;
     case 'help':
       message.reply(constants.HELP_PRE_GAME);
-      return true;
+      break;
     case 'join':
+      amount = Number(body[2]);
+
       if (validators.join(game, message))
-        actions.join(games, chatId, message, phoneNumber, chat);
-      return true;
+        actions.join(games, chatId, message, phoneNumber, chat, amount);
+      break;
     case 'show':
       if (validators.show(game, message)) actions.show(game, chat);
-      return true;
+      break;
     case 'exit':
       if (validators.exit(game, message)) actions.exit(games, chatId, message);
-      return true;
+      break;
     case 'buy':
-      let amount = Number(body[2]);
+      amount = Number(body[2]);
 
       if (validators.buy(game, message, amount))
         actions.buy(game, message, amount);
       break;
     default:
       message.reply(constants.HELP_PRE_GAME);
-      return true;
+      break;
   }
 }
 
