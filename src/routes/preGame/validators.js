@@ -35,6 +35,10 @@ function join(game, message) {
   ) {
     message.reply('You have already joined!');
     return false;
+  } else if (game != undefined && Object.keys(game.players).length === 23) {
+    message.react(emote('mistake'));
+    message.reply('I am sorry, This game is full');
+    return false;
   }
   return true;
 }

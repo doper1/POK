@@ -126,8 +126,13 @@ function buy(game, message, amount) {
 function join(game, message) {
   let id = formatId(message.author);
 
-  if (game != undefined && game.players[id] !== undefined) {
+  if (game.players[id] !== undefined) {
+    message.react(emote('mistake'));
     message.reply('You have already joined!');
+    return false;
+  } else if (Object.keys(game.players).length === 23) {
+    message.react(emote('mistake'));
+    message.reply('I am sorry, This game is full');
     return false;
   } // TODO: When there is a DB in play, add validation for if the player has enought money to join the game (most of the time of he has more then zero, or if there is minimum by-in (1000/200 game with blinds of 10/20))
   return true;
