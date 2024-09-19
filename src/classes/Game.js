@@ -50,27 +50,7 @@ class Game {
   }
 
   getOrderPretty() {
-    let current = this.order.currentPlayer;
-    this.jumpToButton();
-
-    let playerCount = Object.keys(this.players).length;
-    if (playerCount == 2) {
-      // After preflop
-      if (this.communityCards.length != 0) {
-        this.order.next(); // SB
-      }
-    } else {
-      // Preflop
-      if (this.communityCards.length == 0) {
-        this.order.next(); // SB
-        this.order.next(); // BB
-        this.order.next(); // UTG
-      }
-      // After preflop
-      else {
-        this.order.next(); // SB
-      }
-    }
+    let current = this.getPlayerUTG();
 
     let orderString = '';
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
@@ -504,6 +484,33 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
       current.sessionBalance = 0;
       current = current.nextPlayer;
     } while (!current.isButton);
+  }
+
+  getPlayerUTG() {
+    let current = this.order.currentPlayer;
+    while (!current.isButton) {
+      current = current.nextPlayer;
+    }
+
+    let playerCount = Object.keys(this.players).length;
+    if (playerCount == 2) {
+      // After preflop
+      if (this.communityCards.length != 0) {
+        current = current.nextPlayer; // SB
+      }
+    } else {
+      // Preflop
+      if (this.communityCards.length == 0) {
+        current = current.nextPlayer; // SB
+        current = current.nextPlayer; // BB
+        current = current.nextPlayer; // UTG
+      }
+      // After preflop
+      else {
+        current = current.nextPlayer; // SB
+      }
+    }
+    return current;
   }
 }
 

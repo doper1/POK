@@ -24,17 +24,17 @@ function check(game, whatsapp) {
   };
   newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
-  return true;
 }
 
 function raise(game, amount, whatsapp) {
   current = game.order.currentPlayer;
+
+  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
   current.isPlayed = true;
   current.currentBet = amount + current.currentBet;
   game.pot.mainPot += amount;
   current.gameMoney -= amount;
   game.pot.currentBet = current.currentBet;
-  gameFunctions.qualifyToAllIns(game, amount);
 
   template = `@{{name}} raised $${amount}`;
   player = {
@@ -42,13 +42,13 @@ function raise(game, amount, whatsapp) {
   };
   newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
-  return true;
 }
 
 function allIn(game, whatsapp) {
   current = game.order.currentPlayer;
   amount = current.gameMoney;
-  current.isAllIn = true;
+
+  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
   current.isAllIn = true;
   current.isPlayed = true;
   game.pot.mainPot += amount;
@@ -59,7 +59,6 @@ function allIn(game, whatsapp) {
     game.pot.currentBet = current.currentBet;
   }
 
-  gameFunctions.qualifyToAllIns(game, amount);
   game.pot.addAllIn(game);
 
   template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
@@ -90,7 +89,9 @@ function fold(game, message, whatsapp) {
 
 function call(game, whatsapp) {
   current = game.order.currentPlayer;
-  let amount = game.pot.currentBet - current.currentBet;
+  amount = game.pot.currentBet - current.currentBet;
+
+  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
   current.gameMoney -= amount;
   current.isPlayed = true;
   game.pot.mainPot += amount;
@@ -102,7 +103,6 @@ function call(game, whatsapp) {
     amount: amount,
   };
   newMessage = Mustache.render(template, player);
-  gameFunctions.qualifyToAllIns(game, amount);
   game.updateRound(whatsapp, newMessage);
   return true;
 }

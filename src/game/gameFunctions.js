@@ -63,21 +63,14 @@ function randomWinnerKey(winners) {
 }
 
 function showdown(game) {
-  let current = game.order.currentPlayer;
   let handsStrengthList = cardsFunctions.calcHandsStrength(game);
-
   game.pot.reorgAllIns();
-  game.jumpToButton();
 
-  let lastPot = new AllIn([], game.pot.mainPot, -1);
-  do {
-    if (!current.isFolded) {
-      lastPot.addPlayer(current);
-    }
-    current = current.nextPlayer;
-  } while (!current.isButton);
-
+  let lastPotPlayers = getLastPlayers(game);
+  let lastPot = new AllIn(lastPotPlayers, game.pot.mainPot, -1);
   let allIns = [...game.pot.allIns, lastPot];
+
+  // Reduce from each pot the amount of the pot before it to prevent handling players more then the pot is worth
   allIns = allIns.map((allIn, index) => {
     if (index == 0) {
       return new AllIn(allIn.players, allIn.pot, -1);
@@ -143,21 +136,33 @@ with {{holeCards}} - a *{{handStrength}}*\n
   return message;
 }
 
-function qualifyToAllIns(game, amount) {
-  let current = game.order.currentPlayer;
-  game.pot.allIns.forEach((allIn) => {
-    if (allIn.currentBet != -1) {
-      if (current.currentBet >= allIn.currentBet) {
-        allIn.players.push(current);
-      }
+function qualifyToAllIns(allIns, amount, current) {
+  for (let i = allIns.length - 1; i >= 0; i--) {
+    let allIn = allIns[i];
 
-      if (amount < allIn.currentBet) {
-        allIn.pot += amount;
-      } else {
-        allIn.pot += allIn.currentBet;
-      }
+    if (allIn.currentBet == -1) return;
+
+    // The condition is fullfied if the player didn't already qualify (by checking if his bet before this one already was a qualifing amount)
+    if (current.currentBet >= allIn.currentBet) continue;
+
+    if (current.currentBet + amount >= allIn.currentBet) {
+      allIn.players.push(current);
+      allIn.pot += allIn.currentBet - current.currentBet;
+    } else {
+      allIn.pot += amount;
     }
-  });
+  }
+}
+
+function getLastPlayers(game) {
+  return Object.values(game.players).filter(
+    (player) =>
+      !(
+        player.isFolded ||
+        (player.isAllIn &&
+          (player.currentBet == 0 || player.currentBet < game.pot.currentBet))
+      ),
+  );
 }
 
 module.exports = {
