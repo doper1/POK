@@ -415,21 +415,6 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
     });
   }
 
-  showHands() {
-    this.jumpToButton();
-    let current = this.order.currentPlayer;
-    let hands = '';
-    do {
-      current = current.nextPlayer;
-      hands += `${cardsFunctions.formatHand(
-        current.phoneNumber,
-        current.holeCards,
-      )}\n`;
-    } while (current.isButton == false);
-
-    return hands;
-  }
-
   getMentions() {
     return Object.values(this.players).map((player) => player.id);
   }
