@@ -60,8 +60,10 @@ function inGameRoute({
       message.reply(constants.HELP_PRE_GAME);
       break;
     case 'join':
+      amount = Number(body[2]);
+
       if (validators.join(games[chatId], message))
-        actions.join(games, chatId, message, phoneNumber, chat);
+        actions.join(games, chatId, message, phoneNumber, chat, amount);
       break;
     case 'show':
       if (validators.show(games[chatId], message))
