@@ -28,13 +28,22 @@ class Pot {
     return this._allIns;
   }
 
+  get currentBet() {
+    return this._currentBet;
+  }
+
+  set currentBet(currentBet) {
+    this._currentBet = currentBet;
+  }
+
   addAllIn(game) {
     let current = game.order.currentPlayer;
-    let pot = 0;
+    let pot = this.lastRoundPot;
     let players = [];
 
     for (const id in game.players) {
       let player = game.players[id];
+
       if (player.currentBet < current.currentBet) {
         pot += player.currentBet;
       } else {

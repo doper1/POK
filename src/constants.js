@@ -16,7 +16,7 @@ module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
 module.exports.HELP_PRE_GAME = `Possible Commands:\n
 ♠️ pok help 
-♥️ pok join
+♥️ pok join [amount]
 ♣️ pok show
 ♦️ pok exit
 ♠️ pok start
@@ -30,7 +30,7 @@ module.exports.HELP_IN_GAME = `Possible Commands (in game):\n
 ♠️ pok fold
 ♥️ pok buy [amount] 
 ♣️ pok help 
-♦️ pok join
+♦️ pok join [amount]
 ♠️ pok show
 ♥️ pok exit
 ♣️ pok end`;

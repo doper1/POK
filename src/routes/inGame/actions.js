@@ -8,11 +8,11 @@ let current;
 let amount;
 let template;
 let player;
+let id;
 
 function end(game, message) {
   message.react(emote('sad'));
   game.endGame();
-  return true;
 }
 
 function check(game, whatsapp) {
@@ -24,17 +24,17 @@ function check(game, whatsapp) {
   };
   newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
-  return true;
 }
 
 function raise(game, amount, whatsapp) {
   current = game.order.currentPlayer;
+
+  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
   current.isPlayed = true;
   current.currentBet = amount + current.currentBet;
   game.pot.mainPot += amount;
   current.gameMoney -= amount;
   game.pot.currentBet = current.currentBet;
-  gameFunctions.qualifyToAllIns(game, amount);
 
   template = `@{{name}} raised $${amount}`;
   player = {
@@ -42,13 +42,13 @@ function raise(game, amount, whatsapp) {
   };
   newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
-  return true;
 }
 
 function allIn(game, whatsapp) {
   current = game.order.currentPlayer;
   amount = current.gameMoney;
-  current.isAllIn = true;
+
+  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
   current.isAllIn = true;
   current.isPlayed = true;
   game.pot.mainPot += amount;
@@ -59,7 +59,6 @@ function allIn(game, whatsapp) {
     game.pot.currentBet = current.currentBet;
   }
 
-  gameFunctions.qualifyToAllIns(game, amount);
   game.pot.addAllIn(game);
 
   template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
@@ -70,7 +69,6 @@ function allIn(game, whatsapp) {
   };
   newMessage = Mustache.render(template, player);
   game.updateRound(whatsapp, newMessage);
-  return true;
 }
 
 function fold(game, message, whatsapp) {
@@ -85,12 +83,13 @@ function fold(game, message, whatsapp) {
   newMessage = Mustache.render(template, player);
   message.react(emote('fold'));
   game.updateRound(whatsapp, newMessage);
-  return true;
 }
 
 function call(game, whatsapp) {
   current = game.order.currentPlayer;
-  let amount = game.pot.currentBet - current.currentBet;
+  amount = game.pot.currentBet - current.currentBet;
+
+  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
   current.gameMoney -= amount;
   current.isPlayed = true;
   game.pot.mainPot += amount;
@@ -102,13 +101,11 @@ function call(game, whatsapp) {
     amount: amount,
   };
   newMessage = Mustache.render(template, player);
-  gameFunctions.qualifyToAllIns(game, amount);
   game.updateRound(whatsapp, newMessage);
-  return true;
 }
 
 function buy(game, message, amount) {
-  let id = formatId(message.author);
+  id = formatId(message.author);
   player = game.players[id];
 
   player.queueReBuy(amount);
@@ -125,25 +122,32 @@ it will be added in the next hand`;
   newMessage = Mustache.render(template, player);
   message.react(emote('happy'));
   game.chat.sendMessage(newMessage, { mentions: [id] });
-  return true;
 }
 
-function join(games, chatId, message, phoneNumber, chat) {
-  let id = formatId(message.author);
+function join(games, chatId, message, phoneNumber, chat, amount) {
+  id = formatId(message.author);
   let game = games[chatId];
 
   game.addPlayer(id, phoneNumber);
-  game.players[id].isFolded = true;
+  player = game.players[id];
+  player.isFolded = true;
   game.folds++;
-  game.order.insertAfterCurrent(game.players[id]);
+  game.order.insertAfterCurrent(player);
 
-  let template = `Hi @{{name}}, welcome to the game!
+  if (Number.isNaN(amount)) {
+    template = `Hi @{{name}}, welcome to the game!
 Buy some Chips with 'pok buy [amount]'
 before the next hand starts`;
+  } else {
+    player.gameMoney = amount;
+    player.money -= amount;
+    player.sessionBalance -= amount;
+    template = `Hi @{{name}}, welcome to the game!`;
+  }
 
   chat.sendMessage(
     Mustache.render(template, {
-      name: game.players[id].phoneNumber,
+      name: player.phoneNumber,
     }),
     {
       mentions: [id],
@@ -156,18 +160,25 @@ function show(game, chat) {
 }
 
 function exit(games, chatId, message) {
-  let id = formatId(message.author);
+  id = formatId(message.author);
   player = games[chatId].players[id];
 
-  player.money += player.gameMoney; // TODO: This row is currently insignificant the player is deleted upon exit. it will be useful when DB will come in play
-
   if (Object.keys(games[chatId].players).length == 2) {
+    let current = games[chatId].order.currentPlayer;
+
+    if (current.id == id) {
+      current = current.nextPlayer;
+    }
+
+    // When only one player left it should get all the money that remained in the pot
+    current.gameMoney += games[chatId].pot.mainPot;
+    games[chatId].pot.mainPot = 0;
+    games[chatId].endGame();
     games[chatId].order.removePlayer(id);
     delete games[chatId].players[id];
     games[chatId].isMidRound = false;
 
     message.react('👋');
-    message.reply(`*The game has ended!*`);
   } else {
     games[chatId].order.removePlayer(id);
     delete games[chatId].players[id];

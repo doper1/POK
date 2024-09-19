@@ -50,27 +50,7 @@ class Game {
   }
 
   getOrderPretty() {
-    let current = this.order.currentPlayer;
-    this.jumpToButton();
-
-    let playerCount = Object.keys(this.players).length;
-    if (playerCount == 2) {
-      // After preflop
-      if (this.communityCards.length != 0) {
-        this.order.next(); // SB
-      }
-    } else {
-      // Preflop
-      if (this.communityCards.length == 0) {
-        this.order.next(); // SB
-        this.order.next(); // BB
-        this.order.next(); // UTG
-      }
-      // After preflop
-      else {
-        this.order.next(); // SB
-      }
-    }
+    let current = this.getPlayerUTG();
 
     let orderString = '';
     for (let i = 1; i < Object.keys(this.players).length + 1; i++) {
@@ -81,7 +61,7 @@ class Game {
         orderString += `~`;
       }
 
-      orderString += `${i}.@${current.phoneNumber}I $${current.currentBet} I $${current.gameMoney} `;
+      orderString += `${i}.@${current.phoneNumber}I $${current.currentBet} I $${current.gameMoney}`;
 
       if (current.isButton) {
         orderString += 'I⚪';
@@ -165,14 +145,24 @@ class Game {
     let template = `{{lastRoundMessage}}\n
 {{order}}\n
 Check your DM for your cards 🤫\n
-Action on @{{currentPlayer.phoneNumber}} (\${{currentPlayer.gameMoney}})\n
-\${{toCall}} to call`;
+Action on @{{name}} (\${{gameMoney}})`;
 
+    let current = this.order.currentPlayer;
+    let callAmount = this.pot.currentBet - current.currentBet;
+
+    if (callAmount != 0) {
+      if (callAmount < current.gameMoney) {
+        template += `\n\n\${{toCall}} to call`;
+      } else {
+        template += `\n\nAll in to call`;
+      }
+    }
     let newMessage = Mustache.render(template, {
       lastRoundMessage,
       order: this.getOrderPretty(),
-      currentPlayer: this.order.currentPlayer,
-      toCall: this.pot.currentBet - this.order.currentPlayer.currentBet,
+      name: current.phoneNumber,
+      gameMoney: current.gameMoney,
+      toCall: callAmount,
     });
 
     this.chat.sendMessage(newMessage, {
@@ -214,21 +204,26 @@ Action on @{{currentPlayer.phoneNumber}} (\${{currentPlayer.gameMoney}})\n
     this.order.next();
     let current = this.order.currentPlayer;
 
-    const template = `*Pot*: \${{mainPot}}\n
+    let template = `*Pot*: \${{mainPot}}\n
 {{actionMessage}}\n
-Action on @{{phoneNumber}} (\${{gameMoney}})
-{{#toCall}}
-\n\${{toCall}} to call{{/toCall}}`;
+Action on @{{phoneNumber}} (\${{gameMoney}})`;
+
+    let callAmount = this.pot.currentBet - current.currentBet;
+
+    if (callAmount != 0) {
+      if (callAmount < current.gameMoney) {
+        template += `\n\n\${{toCall}} to call`;
+      } else {
+        template += `\n\nAll in to call`;
+      }
+    }
 
     const newMessage = Mustache.render(template, {
       mainPot: this.pot.mainPot,
       actionMessage,
       phoneNumber: current.phoneNumber,
       gameMoney: current.gameMoney,
-      toCall:
-        this.pot.currentBet - current.currentBet !== 0
-          ? this.pot.currentBet - current.currentBet
-          : null,
+      toCall: callAmount,
     });
 
     this.chat.sendMessage(newMessage, {
@@ -388,35 +383,36 @@ Action on @{{phoneNumber}} (\${{gameMoney}})
       current = current.nextPlayer;
     }
     this.order.currentPlayer = current;
-    let newMessage = `*Pot*: $${this.pot.mainPot}\n\n`;
+    let template = `*Pot*: \${{pot}}\n\n`;
 
     if (actionMessage != ' ') {
-      newMessage += actionMessage;
+      template += actionMessage;
     }
-    newMessage += `\n\n*Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}\n
-Action on @${current.phoneNumber} ($${current.gameMoney})`;
+    template += `\n\n*Community Cards:*
+{{communityCards}}\n
+Action on @{{phoneNumber}} (\${{gameMoney}})`;
 
-    if (this.pot.currentBet - current.currentBet != 0) {
-      newMessage += `\n$${this.pot.currentBet - current.currentBet} to call`;
+    let callAmount = this.pot.currentBet - current.currentBet;
+
+    if (callAmount != 0) {
+      if (callAmount < current.gameMoney) {
+        template += `\n\n\${{toCall}} to call`;
+      } else {
+        template += `\n\nAll in to call`;
+      }
     }
+
+    let newMessage = Mustache.render(template, {
+      communityCards: cardsFunctions.printCards(this.communityCards),
+      phoneNumber: current.phoneNumber,
+      gameMoney: current.gameMoney,
+      pot: this.pot.mainPot,
+      toCall: callAmount,
+    });
+
     this.chat.sendMessage(newMessage, {
       mentions: this.getMentions(),
     });
-  }
-
-  showHands() {
-    this.jumpToButton();
-    let current = this.order.currentPlayer;
-    let hands = '';
-    do {
-      current = current.nextPlayer;
-      hands += `${cardsFunctions.formatHand(
-        current.phoneNumber,
-        current.holeCards,
-      )}\n`;
-    } while (current.isButton == false);
-
-    return hands;
   }
 
   getMentions() {
@@ -435,7 +431,9 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
       }
     });
     if (this.communityCards.length != 0) {
-      newMessage += `\n*Community Cards:*\n${cardsFunctions.printCards(this.communityCards)}`;
+      newMessage += `\n*Community Cards:*\n${cardsFunctions.printCards(
+        this.communityCards,
+      )}`;
     } else {
       newMessage += '\n*Community Cards:*\n-';
     }
@@ -464,7 +462,7 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
     );
   }
 
-  endGame(lastRoundMessage) {
+  endGame(lastRoundMessage = '') {
     this.isMidRound = false;
 
     this.jumpToButton();
@@ -479,10 +477,17 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
     } while (!current.isButton);
 
     let index = 1;
-    let template = `${lastRoundMessage}
-🎰 *The game has ended!* 🎰\n
+    if (lastRoundMessage) {
+      lastRoundMessage += '\n';
+    }
+
+    let template = `${lastRoundMessage}🎰 *The game has ended!* 🎰\n
 *Player  |  Balance  |  Money*{{#players}}\n{{index}}. @{{name}}I  *{{balance}}*  I  \${{money}}{{/players}}`;
-    let players = Object.values(this.players).map((player) => ({
+
+    let players = Object.values(this.players);
+    players.sort((a, b) => b.sessionBalance - a.sessionBalance);
+
+    players = players.map((player) => ({
       index: index++,
       name: player.phoneNumber,
       money: player.money,
@@ -490,9 +495,7 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
         player.sessionBalance >= 0
           ? `+$${player.sessionBalance}🟢`
           : `-$${player.sessionBalance * -1}🔴`,
-      realBalance: player.sessionBalance,
     }));
-    players.sort((a, b) => b.realBalance - a.realBalance);
     let newMessage = Mustache.render(template, { players });
     this.chat.sendMessage(newMessage, { mentions: this.getMentions() });
 
@@ -504,6 +507,33 @@ Action on @${current.phoneNumber} ($${current.gameMoney})`;
       current.sessionBalance = 0;
       current = current.nextPlayer;
     } while (!current.isButton);
+  }
+
+  getPlayerUTG() {
+    let current = this.order.currentPlayer;
+    while (!current.isButton) {
+      current = current.nextPlayer;
+    }
+
+    let playerCount = Object.keys(this.players).length;
+    if (playerCount == 2) {
+      // After preflop
+      if (this.communityCards.length != 0) {
+        current = current.nextPlayer; // SB
+      }
+    } else {
+      // Preflop
+      if (this.communityCards.length == 0) {
+        current = current.nextPlayer; // SB
+        current = current.nextPlayer; // BB
+        current = current.nextPlayer; // UTG
+      }
+      // After preflop
+      else {
+        current = current.nextPlayer; // SB
+      }
+    }
+    return current;
   }
 }
 
