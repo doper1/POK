@@ -76,6 +76,12 @@ function cleanInstance(instance, keepProperties, keepMethods) {
   return { ...properties, ...methods };
 }
 
+function replyError(message, errorMessage) {
+  message.react(emote('mistake'));
+  message.reply(errorMessage);
+  return false;
+}
+
 module.exports = {
   shuffleArray,
   hasTwoWords,
@@ -86,4 +92,5 @@ module.exports = {
   setLock,
   isLocked,
   cleanInstance,
+  replyError,
 };

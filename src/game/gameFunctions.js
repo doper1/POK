@@ -83,6 +83,8 @@ function showdown(game) {
   allIns.forEach((allIn) => {
     for (let i = 0; i < Object.keys(handsStrengthList).length; i += 1) {
       let possibleWinners = getWinners(Object.values(handsStrengthList)[i]);
+
+      // Handle the case differently if there is one player on the level against few players on the same hand strength level
       if (!Array.isArray(possibleWinners)) {
         if (isValidWinner(possibleWinners, allIn)) {
           winners = rakeToWinners([possibleWinners], allIn.pot, winners);
@@ -114,7 +116,7 @@ function showdown(game) {
   const template = `Congrats! @{{winner}} Won \${{winnings}}
 with {{holeCards}} - a *{{handStrength}}*\n
 {{handCards}}
----------------------------------`;
+${constants.SEPARATOR}`;
 
   for (const id in winners) {
     let player = winners[id];
