@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.1](https://github.com/doper1/POK/compare/v3.0.0...v3.0.1) (2024-09-20)
+
+
+### Bug Fixes
+
+* **src:** 'pok end' now waits for the hand to end ([81f582b](https://github.com/doper1/POK/commit/81f582b7f38f464c5cae7569e6221322ead12c97))
+* **src:** player removal upon exit ([cf247fc](https://github.com/doper1/POK/commit/cf247fcc0d6362baa8cb0e7a23a1eb2214b68f1c))
+
 ## [3.0.0](https://github.com/doper1/POK/compare/v2.0.0...v3.0.0) (2024-09-19)
 
 
