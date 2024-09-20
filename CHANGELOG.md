@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/doper1/POK/compare/v3.0.1...v3.1.0) (2024-09-20)
+
+
+### Features
+
+* **src:** add simple logging of messages to console ([d8103ed](https://github.com/doper1/POK/commit/d8103edd69889ea3ef5cc1ff776fa5c33a2341c9))
+
 ## [3.0.1](https://github.com/doper1/POK/compare/v3.0.0...v3.0.1) (2024-09-20)
 
 
