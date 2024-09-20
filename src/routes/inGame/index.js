@@ -62,7 +62,7 @@ function inGameRoute({
     case 'join':
       amount = Number(body[2]);
 
-      if (validators.join(games[chatId], message))
+      if (validators.join(games[chatId], message, amount))
         actions.join(games, chatId, message, phoneNumber, chat, amount);
       break;
     case 'show':

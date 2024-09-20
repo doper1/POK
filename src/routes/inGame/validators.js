@@ -123,12 +123,18 @@ function buy(game, message, amount) {
   return true;
 }
 
-function join(game, message) {
+function join(game, message, amount) {
   let id = formatId(message.author);
 
   if (game.players[id] !== undefined) {
+    let newMessage = 'You have already joined!';
+
+    if (!Number.isNaN(amount)) {
+      newMessage += `\nUse 'pok buy ${amount}' instead`;
+    }
+
     message.react(emote('mistake'));
-    message.reply('You have already joined!');
+    message.reply(newMessage);
     return false;
   } else if (Object.keys(game.players).length === 23) {
     message.react(emote('mistake'));
