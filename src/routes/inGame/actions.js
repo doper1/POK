@@ -11,8 +11,10 @@ let player;
 let id;
 
 function end(game, message) {
+  game.toEnd = true;
+
   message.react(emote('sad'));
-  game.endGame();
+  game.chat.sendMessage('⚠️  Game ending after this hand ⚠️ ');
 }
 
 function check(game, whatsapp) {
@@ -166,12 +168,12 @@ function exit(games, chatId, message) {
   if (Object.keys(games[chatId].players).length == 2) {
     let current = games[chatId].order.currentPlayer;
 
+    // When only one player left it should get all the money that remained in the pot
     if (current.id == id) {
       current = current.nextPlayer;
     }
-
-    // When only one player left it should get all the money that remained in the pot
     current.gameMoney += games[chatId].pot.mainPot;
+
     games[chatId].pot.mainPot = 0;
     games[chatId].endGame();
     games[chatId].order.removePlayer(id);

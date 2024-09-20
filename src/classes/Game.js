@@ -19,6 +19,7 @@ class Game {
     this.communityCards = [];
     this.isMidRound = false;
     this.folds = 0;
+    this.toEnd = false;
   }
 
   addPlayer(id, phoneNumber) {
@@ -126,6 +127,7 @@ class Game {
     this.resetGameStatus();
 
     if (
+      this.toEnd ||
       Object.values(this.players).filter((player) => player.gameMoney > 0)
         .length <= 1
     ) {
@@ -464,6 +466,7 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
 
   endGame(lastRoundMessage = '') {
     this.isMidRound = false;
+    this.toEnd = false;
 
     this.jumpToButton();
     let current = this.order.currentPlayer;
