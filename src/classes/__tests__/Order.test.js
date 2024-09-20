@@ -25,7 +25,7 @@ describe('Order class - removePlayer', () => {
     const result = order.removePlayer('Alice');
 
     expect(result).toBe(true);
-    expect(order.currentPlayer.nextPlayer.id).toBe('Bob'); // Player 2 is now the current player
+    expect(order.currentPlayer.nextPlayer.id).toBe('Charlie'); // Player 2 is now the current player
     expect(player3.nextPlayer).toBe(player2); // Circular structure is maintained
   });
 

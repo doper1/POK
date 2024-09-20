@@ -70,8 +70,8 @@ function inGameRoute({
         actions.show(games[chatId], chat);
       break;
     case 'exit':
-      if (validators.exit(games[chatId], message))
-        actions.exit(games, chatId, message);
+      if (validators.exit(game, message))
+        actions.exit(game, message, phoneNumber);
       break;
     default:
       message.reply(constants.HELP_IN_GAME);

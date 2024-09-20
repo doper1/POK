@@ -108,8 +108,7 @@ class Game {
     this.jumpToButton();
     let current = this.order.currentPlayer;
     do {
-      current.holeCards = [];
-      current.setHoleCards(...this.deck.splice(-2));
+      current.setHoleCards([...this.deck.splice(-2)]);
       const template = `{{holeCards}}\n
 {{chatName}}`;
 
@@ -467,6 +466,7 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
   endGame(lastRoundMessage = '') {
     this.isMidRound = false;
     this.toEnd = false;
+    this.pot.mainPot = 0;
 
     this.jumpToButton();
     let current = this.order.currentPlayer;
@@ -537,6 +537,11 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
       }
     }
     return current;
+  }
+
+  removePlayer(id) {
+    this.order.removePlayer(id);
+    delete this.players[id];
   }
 }
 

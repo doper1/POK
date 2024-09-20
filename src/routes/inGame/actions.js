@@ -161,33 +161,28 @@ function show(game, chat) {
   chat.sendMessage(game.getOrderPretty(), { mentions: game.getMentions() });
 }
 
-function exit(games, chatId, message) {
+function exit(game, message, phoneNumber) {
   id = formatId(message.author);
-  player = games[chatId].players[id];
+  player = game.players[id];
+  newMessage = `Goodbye @${phoneNumber}!\n---------------------------------`;
 
-  if (Object.keys(games[chatId].players).length == 2) {
-    let current = games[chatId].order.currentPlayer;
+  // If there are 2 players before the exit, also end the game
+  if (Object.keys(game.players).length == 2) {
+    let current = game.order.currentPlayer;
 
     // When only one player left it should get all the money that remained in the pot
     if (current.id == id) {
       current = current.nextPlayer;
     }
-    current.gameMoney += games[chatId].pot.mainPot;
+    current.gameMoney += game.pot.mainPot;
 
-    games[chatId].pot.mainPot = 0;
-    games[chatId].endGame();
-    games[chatId].order.removePlayer(id);
-    delete games[chatId].players[id];
-    games[chatId].isMidRound = false;
-
-    message.react('👋');
+    game.endGame(newMessage);
   } else {
-    games[chatId].order.removePlayer(id);
-    delete games[chatId].players[id];
-
-    message.react('👋');
-    message.reply(`Goodbye!`);
+    game.chat.sendMessage(newMessage);
   }
+
+  game.removePlayer(id);
+  message.react('👋');
 }
 
 module.exports = {

@@ -29,9 +29,12 @@ class Player {
     this.handScore = { str: undefined, cards: [] };
   }
 
-  setHoleCards(card1, card2) {
-    this.holeCards.push(card1);
-    this.holeCards.push(card2);
+  setHoleCards(cards) {
+    this.holeCards = [];
+
+    for (const card of cards) {
+      this.holeCards.push(card);
+    }
   }
 
   queueReBuy(amount) {

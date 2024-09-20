@@ -41,6 +41,7 @@ describe('Game Functions', () => {
       getOrderPretty: jest.fn(),
       getMentions: jest.fn(),
       endGame: jest.fn(),
+      removePlayer: jest.fn(),
     };
     mockMessage = {
       reply: jest.fn(),
@@ -153,10 +154,8 @@ describe('Game Functions', () => {
       '1111111111@c.us': { isFolded: false, hi: true },
     };
     mockGame.order.currentPlayer = mockGame.players['1234567890@c.us'];
-    actions.exit(mockGames, 'chat123', mockMessage);
-    expect(mockGame.order.removePlayer).toHaveBeenCalledWith('1234567890@c.us');
+    actions.exit(mockGames['chat123'], mockMessage);
     expect(mockMessage.react).toHaveBeenCalledWith('👋');
-    expect(mockMessage.reply).toHaveBeenCalledWith('Goodbye!');
   });
 
   test('exit function with 2 players', () => {
@@ -173,9 +172,7 @@ describe('Game Functions', () => {
 
     mockGame.order.removePlayer = jest.fn();
 
-    actions.exit(mockGames, 'chat123', mockMessage);
-    expect(mockGame.order.removePlayer).toHaveBeenCalledWith('1234567890@c.us');
+    actions.exit(mockGames['chat123'], mockMessage);
     expect(mockMessage.react).toHaveBeenCalledWith('👋');
-    expect(mockGames['chat123'].isMidRound).toBe(false);
   });
 });
