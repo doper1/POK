@@ -1,6 +1,7 @@
 const Mustache = require('mustache');
 const gameFunctions = require('../../game/gameFunctions');
 const { emote, formatId } = require('../../generalFunctions');
+const constants = require('../../constants');
 
 // globals
 let newMessage;
@@ -164,7 +165,7 @@ function show(game, chat) {
 function exit(game, message, phoneNumber) {
   id = formatId(message.author);
   player = game.players[id];
-  newMessage = `Goodbye @${phoneNumber}!\n---------------------------------`;
+  newMessage = `Goodbye @${phoneNumber}!\n${constants.SEPARATOR}`;
 
   // If there are 2 players before the exit, also end the game
   if (Object.keys(game.players).length == 2) {

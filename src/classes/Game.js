@@ -460,7 +460,7 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
     this.initRound(
       whatsapp,
       `Congrats! @${current.phoneNumber} Won $${this.pot.mainPot}!
----------------------------------`,
+${constants.SEPARATOR}`,
     );
   }
 
@@ -498,12 +498,12 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
       balance:
         player.sessionBalance >= 0
           ? `+$${player.sessionBalance}🟢`
-          : `-$${player.sessionBalance * -1}🔴`,
+          : `-$${player.sessionBalance * -1}🔻`,
     }));
     let newMessage = Mustache.render(template, { players });
     this.chat.sendMessage(newMessage, { mentions: this.getMentions() });
 
-    // Reset the session balance incase new game is starting (consider removing)
+    // Resets the session balance in case new game starts
     this.jumpToButton();
     current = this.order.currentPlayer;
 

@@ -3,7 +3,7 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const router = require('./routes/router.js');
 const { isLocked, cleanInstance } = require('./generalFunctions.js');
 
-// globals
+// Globals
 let games = {};
 
 // Variables that differs between prod and dev
@@ -40,6 +40,10 @@ whatsapp.on(event, async (messagePromise) => {
 
   if (!isLocked()) {
     if (router.validateMessage(message, body, chat)) {
+      // Log the chat name, sender, and message body (if the message is valid)
+      console.log('chat: ', chat.name, 'from: ', message.author, ' - ', body);
+
+      // Move the message for farther processing
       router.route(whatsapp, message, body, chat, games);
     }
   }

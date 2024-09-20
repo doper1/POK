@@ -1,73 +1,78 @@
-const { emote, isCurrent, formatId } = require('../../generalFunctions.js');
+const {
+  isCurrent,
+  formatId,
+  replyError,
+} = require('../../generalFunctions.js');
+const constants = require('../../constants.js');
 
 // globals
 let current;
 
 function end(game, message) {
-  if (game === undefined || !game.isMidRound) {
-    message.react(emote('mistake'));
-    message.reply('There is no game in progress');
-    return false;
+  if (!game || !game.isMidRound) {
+    return replyError(message, 'No game in progress');
   }
+
   return true;
 }
 
 function check(game, message) {
   current = game.order.currentPlayer;
-  if (!isCurrent(game, message)) {
-    return false;
-  } else if (game.pot.currentBet != current.currentBet) {
-    message.react(emote('mistake'));
-    message.reply(
-      `You can call ($${
-        game.pot.currentBet - current.currentBet
-      } more), raise or fold`,
+
+  if (!isCurrent(game, message)) return false;
+
+  if (game.pot.currentBet != current.currentBet) {
+    let callAmount = game.pot.currentBet - current.currentBet;
+
+    return replyError(
+      message,
+      `You can call ($${callAmount} more), raise or fold`,
     );
-    return false;
   }
+
   return true;
 }
 
 function allIn(game, message) {
-  if (!isCurrent(game, message)) {
-    return false;
-  }
-  return true;
+  return isCurrent(game, message);
 }
 
 function raise(game, message, amount) {
   current = game.order.currentPlayer;
-  if (!isCurrent(game, message)) {
-    return false;
-  } else if (Number.isNaN(amount)) {
-    message.react(emote('mistake'));
-    message.reply(
-      "Please specify a numerical amount (e.g. 'pok raise 3') or go 'all in' (e.g. 'pok raise all in').",
+
+  if (!isCurrent(game, message)) return false;
+
+  if (Number.isNaN(amount)) {
+    return replyError(
+      message,
+      `Please specify a numerical amount (e.g. 'pok raise 3') or go 'all in' (e.g. 'pok raise all in')`,
     );
-    return false;
-  } else if (!Number.isInteger(amount)) {
-    message.react(emote('mistake'));
-    message.reply(
-      'Please enter a whole number (e.g. 4) and not a decimal (e.g. 4.5).',
+  }
+
+  if (!Number.isInteger(amount)) {
+    return replyError(
+      message,
+      'Please specify a whole number (e.g. 4) and not a decimal (e.g. 4.5)',
     );
-    return false;
-  } else if (amount < 1) {
-    message.react(emote('mistake'));
-    message.reply('Please Raise a positive amount');
-    return false;
-  } else if (game.pot.currentBet > amount + current.currentBet) {
-    message.react(emote('mistake'));
-    message.reply(
+  }
+
+  if (amount < 1) {
+    return replyError(message, 'Please raise a positive amount');
+  }
+
+  if (game.pot.currentBet > amount + current.currentBet) {
+    return replyError(
+      message,
       `You need to call, raise at least $${
         game.pot.currentBet - current.currentBet
       } more, or fold`,
     );
-    return false;
-  } else if (current.gameMoney < amount) {
-    message.react(emote('mistake'));
-    message.reply(`You only have $${current.gameMoney}...`);
-    return false;
   }
+
+  if (current.gameMoney < amount) {
+    return replyError(message, `You only have $${current.gameMoney}...`);
+  }
+
   return true;
 }
 
@@ -75,21 +80,26 @@ function fold(game, message) {
   if (!isCurrent(game, message)) {
     return false;
   }
+
   return true;
 }
 
 function call(game, message) {
   current = game.order.currentPlayer;
-  if (!isCurrent(game, message)) {
-    return false;
-  } else if (current.gameMoney == 0) {
-    message.reply("You are out of chips, please re-buy using 'pok rebuy'");
-    return false;
-  } else if (game.pot.currentBet == current.currentBet) {
-    message.react(emote('mistake'));
-    message.reply(`Since no one has bet, you don’t need to call`);
-    return false;
+
+  if (!isCurrent(game, message)) return false;
+
+  if (current.gameMoney == 0) {
+    return replyError(
+      message,
+      "You are out of chips, please re-buy using 'pok rebuy'",
+    );
   }
+
+  if (game.pot.currentBet == current.currentBet) {
+    return replyError(message, 'Since no one has bet, you don’t need to call');
+  }
+
   return true;
 }
 
@@ -97,29 +107,31 @@ function buy(game, message, amount) {
   let player = game.players[formatId(message.author)];
 
   if (player === undefined) {
-    message.react(emote('mistake'));
-    message.reply('You need to join the game first (pok join)');
-    return false;
-  } else if (Number.isNaN(amount)) {
-    message.react(emote('mistake'));
-    message.reply("Please specify a numerical amount (e.g. 'pok buy 30')");
-    return false;
-  } else if (!Number.isInteger(amount)) {
-    message.react(emote('mistake'));
-    message.reply(
+    return replyError(message, 'You need to join the game first (pok join)');
+  }
+
+  if (Number.isNaN(amount)) {
+    return replyError(
+      message,
+      "Please specify a numerical amount (e.g. 'pok buy 30')",
+    );
+  }
+
+  if (!Number.isInteger(amount)) {
+    return replyError(
+      message,
       'Please enter a whole number (e.g. 4) and not a decimal (e.g. 4.5).',
     );
-    return false;
-  } else if (amount < 1) {
-    message.react(emote('mistake'));
-    message.reply('Please re-buy a positive amount');
-    return false;
   }
+
+  if (amount < 1) {
+    return replyError(message, 'Please re-buy a positive amount');
+  }
+
   if (player.money < amount) {
-    message.react(emote('mistake'));
-    message.reply(`You only have $${player.money} behind...`);
-    return false;
+    return replyError(message, `You only have $${player.money} behind...`);
   }
+
   return true;
 }
 
@@ -133,23 +145,20 @@ function join(game, message, amount) {
       newMessage += `\nUse 'pok buy ${amount}' instead`;
     }
 
-    message.react(emote('mistake'));
-    message.reply(newMessage);
-    return false;
-  } else if (Object.keys(game.players).length === 23) {
-    message.react(emote('mistake'));
-    message.reply('I am sorry, This game is full');
-    return false;
+    return replyError(message, newMessage);
+  }
+  if (Object.keys(game.players).length === constants.MAX_PLAYERS) {
+    return replyError(message, 'I am sorry, This game is full');
   } // TODO: When there is a DB in play, add validation for if the player has enought money to join the game (most of the time of he has more then zero, or if there is minimum by-in (1000/200 game with blinds of 10/20))
+
   return true;
 }
 
 function show(game, message) {
   if (game == undefined) {
-    message.react(emote('fold'));
-    message.reply('There are no players at the table');
-    return false;
+    return replyError(message, 'There are no players at the table');
   }
+
   return true;
 }
 
@@ -158,10 +167,9 @@ function exit(game, message) {
     game === undefined ||
     game.players[formatId(message.author)] === undefined
   ) {
-    message.react(emote('mistake'));
-    message.reply('You have not joined the game yet');
-    return false;
+    return replyError(message, 'You have not joined the game yet');
   }
+
   return true;
 }
 

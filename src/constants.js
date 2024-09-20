@@ -1,5 +1,7 @@
 module.exports.MESSAGE_MAX_AGE = 10;
+module.exports.MAX_PLAYERS = 23;
 module.exports.GAME_MONEY = 100;
+module.exports.SEPARATOR = '___________________';
 module.exports.STRENGTH_DICT = {
   0: '*ROYAL FLUSH*',
   1: '*STRAIGHT FLUSH*',

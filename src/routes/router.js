@@ -4,14 +4,9 @@ const inGameRoute = require('./inGame/index.js');
 
 function validateMessage(message, body, chat) {
   const messageAge = Math.floor(Date.now() / 1000) - message.timestamp;
-  if (
-    messageAge < constants.MESSAGE_MAX_AGE &&
-    chat.isGroup &&
-    body[0] == 'pok'
-  ) {
-    return true;
-  }
-  return false;
+  return (
+    messageAge < constants.MESSAGE_MAX_AGE && chat.isGroup && body[0] == 'pok'
+  );
 }
 
 async function route(whatsapp, message, body, chat, games) {
