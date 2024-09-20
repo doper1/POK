@@ -14,7 +14,7 @@ module.exports.STRENGTH_DICT = {
 };
 module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
-module.exports.HELP_PRE_GAME = `Possible Commands:\n
+module.exports.HELP_PRE_GAME = `Possible Commands:
 ♠️ pok help 
 ♥️ pok join [amount]
 ♣️ pok show
@@ -22,7 +22,7 @@ module.exports.HELP_PRE_GAME = `Possible Commands:\n
 ♠️ pok start
 ♥️ pok buy [amount]`;
 
-module.exports.HELP_IN_GAME = `Possible Commands (in game):\n
+module.exports.HELP_IN_GAME = `Possible Commands:
 ♠️ pok check
 ♥️ pok call
 ♣️ pok raise [amount]

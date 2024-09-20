@@ -28,12 +28,19 @@ Use 'pok buy [amount]' to buy some chips`,
   return true;
 }
 
-function join(game, message) {
+function join(game, message, amount) {
   if (
     game != undefined &&
     game.players[formatId(message.author)] !== undefined
   ) {
-    message.reply('You have already joined!');
+    let newMessage = 'You have already joined!';
+
+    if (!Number.isNaN(amount)) {
+      newMessage += `\nUse 'pok buy ${amount}' instead`;
+    }
+
+    message.react(emote('mistake'));
+    message.reply(newMessage);
     return false;
   } else if (game != undefined && Object.keys(game.players).length === 23) {
     message.react(emote('mistake'));
@@ -65,6 +72,12 @@ function exit(game, message) {
 }
 
 function buy(game, message, amount) {
+  if (game == undefined) {
+    message.react(emote('mistake'));
+    message.reply('You need to join the game first (pok join)');
+    return false;
+  }
+
   let player = game.players[formatId(message.author)];
 
   if (player === undefined) {

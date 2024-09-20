@@ -25,7 +25,7 @@ function preGameRoute({
     case 'join':
       amount = Number(body[2]);
 
-      if (validators.join(game, message))
+      if (validators.join(game, message, amount))
         actions.join(games, chatId, message, phoneNumber, chat, amount);
       break;
     case 'show':

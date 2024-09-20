@@ -62,7 +62,7 @@ function inGameRoute({
     case 'join':
       amount = Number(body[2]);
 
-      if (validators.join(games[chatId], message))
+      if (validators.join(games[chatId], message, amount))
         actions.join(games, chatId, message, phoneNumber, chat, amount);
       break;
     case 'show':
@@ -70,8 +70,8 @@ function inGameRoute({
         actions.show(games[chatId], chat);
       break;
     case 'exit':
-      if (validators.exit(games[chatId], message))
-        actions.exit(games, chatId, message);
+      if (validators.exit(game, message))
+        actions.exit(game, message, phoneNumber);
       break;
     default:
       message.reply(constants.HELP_IN_GAME);

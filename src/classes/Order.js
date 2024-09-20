@@ -31,6 +31,7 @@ class Order {
       current = current.nextPlayer;
     }
     previous.nextPlayer = current.nextPlayer;
+    current.nextPlayer = null;
 
     // This will be the case when only one player remains
     if (previous.id === previous.nextPlayer.id) {
@@ -39,7 +40,7 @@ class Order {
 
     // When the current player is the one who is being removed
     if (this.currentPlayer.id === id) {
-      this.currentPlayer = current;
+      this.currentPlayer = previous.nextPlayer;
     }
 
     return true;
