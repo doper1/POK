@@ -331,12 +331,14 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
     switch (this.communityCards.length) {
       // Flop
       case 0:
+        await delay(3000);
         this.communityCards.push(...this.deck.splice(-3));
         message = await editMessage(message);
         break;
       // Turn / River
       case 3:
       case 4:
+        await delay(5000);
         this.communityCards.push(this.deck.pop());
         message = await editMessage(message);
         break;
@@ -344,7 +346,6 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
         return;
     }
 
-    await delay((this.communityCards.length - 1) * 1000);
     await this.rushRound(message, whatsapp, body);
   }
 
@@ -442,8 +443,8 @@ Action on @{{phoneNumber}} (\${{gameMoney}})`;
       mentions: this.getMentions(),
     });
 
-    await delay(1000);
     await this.rushRound(message, whatsapp, newMessage);
+    await delay(1000);
     let endMessage = gameFunctions.showdown(this);
     this.initRound(whatsapp, endMessage);
     setLock(false);
