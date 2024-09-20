@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "cross-env ENV=dev node --watch src/app.js",
-    "start": "cross-env ENV=prod node --watch src/app.js",
+    "start": "cross-env ENV=prod node src/app.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
