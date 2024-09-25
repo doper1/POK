@@ -1,0 +1,5 @@
+# Ignore all tests in src folder
+__tests__/
+
+# In the Dockerfile only /src is copied so currently there
+# is no need for other ignores 
