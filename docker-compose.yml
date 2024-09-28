@@ -1,10 +1,47 @@
-add_users_to_group_whatsapp_api_wev:
-  build:
-    context: ./add_users_to_group_whatsapp_api/web
-    dockerfile: Dockerfile
-  container_name: pok
-  restart: always
-  volumes:
-    - whatsapp_session_add_group:/var/lib/wa/add_group
-  ports:
-    - '3000:3000'
+# add_users_to_group_whatsapp_api_wev:
+#   build:
+#     context: ./add_users_to_group_whatsapp_api/web
+#     dockerfile: Dockerfile
+#   container_name: pok
+#   restart: always
+#   volumes:
+#     - whatsapp_session_add_group:/var/lib/wa/add_group
+#   ports:
+#     - '3000:3000'
+
+services:
+  db:
+    image: postgres:16.4-alpine3.20
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+    volumes:
+      - db_vol:/var/lib/postgresql/data
+
+    ports:
+      - '5432:5432'
+
+  adminer:
+    image: dockette/adminer:postgres
+    restart: always
+    ports:
+      - 80:80
+
+  api:
+    image: dofer123/pok:latest
+    restart: always
+    environment:
+      - ENV=${ENV}
+
+    ports:
+      - 3000:3000
+
+    volumes:
+      - auth_vol:/app/auth
+
+volumes:
+  db_vol:
+  auth_vol:
