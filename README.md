@@ -3,21 +3,34 @@
 ![License](https://img.shields.io/github/license/doper1/POK)
 ![Issues](https://img.shields.io/github/issues/doper1/POK)
 
-POK is an open-source bot that allows users to play poker directly within a WhatsApp group chat. The bot facilitates poker games, managing the rules, dealing cards, and keeping track of the game state.
+POK is an open-source WhatsApp bot that brings poker games to group chats, automating card dealing, game rules, and tracking the game state for seamless play.
 
 ## Features
 
-- **Play Poker in WhatsApp:** Enjoy poker games directly within your WhatsApp group chat.
-- **Automated Gameplay:** The bot handles dealing cards, managing bets, and determining winners.
-- **Multiple Game Modes:** Support for various poker variants.
+- **Play Poker on WhatsApp:** Enjoy poker games directly within your WhatsApp group chat.
+- **Automated gameplay:** The bot handles dealing cards, managing bets, and determining winners.
 - **Cross-Platform:** Works on any device that supports WhatsApp.
-- **Open Source:** Free to use and modify under the MIT license.
+- **Open Source:** Free to use and modify under the Apache license.
+
+## Tech Stack
+
+- [Node](https://nodejs.org/) v20
+- [PostgreSQL](https://www.postgresql.org/)
+- [Drizzle ORM](https://orm.drizzle.team/) for DB integration. Also provides [drizzle studio](https://orm.drizzle.team/drizzle-studio/overview)
+- [Docker](https://www.docker.com/) for deployment
 
 ## Installation
 
 ### Prerequisites
 
+If using docker:
+
+- [Docker](https://www.docker.com/) desktop or Docker
+
+If not using docker:
+
 - [Node.js](https://nodejs.org/) and npm (Node Package Manager) installed on your system.
+- https://nodejs.org/ database up and running
 - A valid WhatsApp account
 
 ### Clone the Repository
@@ -27,7 +40,7 @@ git clone https://github.com/doper1/POK.git
 cd POK
 ```
 
-### Install Dependencies
+### Install Dependencies (if not using docker)
 
 ```bash
 npm install
@@ -35,13 +48,13 @@ npm install
 
 ### Run the Bot
 
-- In development
+- Using docker
 
 ```bash
-npm run dev
+docker compose up --build
 ```
 
-- In production
+- Without docker
 
 ```bash
 npm start
@@ -49,9 +62,12 @@ npm start
 
 ## Usage
 
-1. **Setup the Bot:** Once the bot is running, follow the instructions to link it with your WhatsApp account.
-2. **Add the Bot to a Group:** Invite the bot to your WhatsApp group chat where you want to play poker.
-3. **Start a Game:** Use the command `pok start` to begin a new poker game.
+1. **Setup the Bot:** Once the bot is running, a QR code will appear on the terminal. Scan the QR code with your whatsapp app this will enable the bot to communicate through you whatsapp account
+2. **Start a Game:** At least 2 players need to join the game using `pok join`. They then need to buy chips using `pok buy` or just `pok join [chip amount]` right away
+
+_IMPORTANT_ - Each players get $1000 (in-game) when they first join. The ONLY way to earn more is buy playing. If you lost all of your 1000 - you cannot play anymore. The initial $1000 are consists between whatsapp group and are not individual to each group.
+
+Currently, blinds are 1/2 and there is no way to change it. I suggest to buy in between $50 to $150 for each game, until there will be a mechanism to increase blinds
 
 ### Pre-Game Commands
 
@@ -66,9 +82,11 @@ npm start
 - `pok check` - Check (pass the action to the next player).
 - `pok call` - Call (match the current highest bet).
 - `pok raise [amount]` - Raise the bet by a specified amount.
+- `pok all (in)` - Raise all in
 - `pok fold` - Fold your hand.
+- `pok buy [amount]` - buy more chips with your money
 - `pok help` - Display help information.
-- `pok join` - Join the game (if not already joined).
+- `pok join [amount]` - Join the game (if not already joined). You can also buy while joining
 - `pok show` - Show the list of players in the game.
 - `pok exit` - Exit the game.
 - `pok end` - End the current poker game.
@@ -83,14 +101,14 @@ Contributions are welcome! Please fork the repository, create a new branch, and 
 4. Push to the branch: `git push origin feature/your-feature`.
 5. Open a pull request.
 
-Please ensure your code adheres to the project's coding standards and includes appropriate tests.
+Please ensure your commits are clear and are by the [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) standard. Also make sure to write tests using jest and put them in the closet `__tests__` directory.
+
+Because of the DB integration all the tests got invalid so I deleted them all. The can still be found in version 3.1.0 and prior. Their directories still exists
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the Apache License.
 
 ## Contact
 
 For issues, questions, or feedback, feel free to open an issue on GitHub
-
-will release-please work?
