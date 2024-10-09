@@ -11,7 +11,7 @@ const constants = require('../utils/constants');
 
 // TABLE: game
 const game = pgTable('game', {
-  id: varchar('id', { length: 18 }).primaryKey(),
+  id: varchar('id', { length: 256 }).primaryKey(),
   groupName: varchar('group_name', { length: 100 }),
   type: varchar('type').default('nlh'),
   status: varchar('status').default('pending'),
@@ -42,7 +42,7 @@ const user = pgTable('user', {
 const player = pgTable(
   'player',
   {
-    gameId: varchar('game_id', { length: 18 }).references(() => game.id),
+    gameId: varchar('game_id', { length: 256 }).references(() => game.id),
     userId: varchar('user_id', { length: 12 }).references(() => user.id),
     gameMoney: integer('game_money').default(0),
     currentBet: integer('current_bet'),
@@ -67,7 +67,7 @@ const player = pgTable(
 // TABLE: pot
 const pot = pgTable('pot', {
   id: uuid('id').defaultRandom().primaryKey(),
-  gameId: varchar('game_id', { length: 18 }).references(() => game.id),
+  gameId: varchar('game_id', { length: 256 }).references(() => game.id),
   value: integer('value'),
   highestBet: integer('highest_bet'),
 });
