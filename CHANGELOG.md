@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.2](https://github.com/doper1/POK/compare/v4.0.1...v4.0.2) (2024-10-09)
+
+
+### Bug Fixes
+
+* groups id length increase ([1018cc8](https://github.com/doper1/POK/commit/1018cc8fd792fc1d1db07c9f3250eb07a0217c4e))
+* wrong help message ([675af79](https://github.com/doper1/POK/commit/675af79df5cae1f1db10b1667d908e9f84b375b9))
+
 ## [4.0.1](https://github.com/doper1/POK/compare/v4.0.0...v4.0.1) (2024-10-09)
 
 
