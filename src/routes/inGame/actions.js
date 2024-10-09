@@ -1,188 +1,162 @@
 const Mustache = require('mustache');
-const gameFunctions = require('../../game/gameFunctions');
-const { emote, formatId } = require('../../generalFunctions');
-const constants = require('../../constants');
+const gameFunctions = require('../../utils/gameFunctions');
+const { emote } = require('../../utils/generalFunctions');
+const constants = require('../../utils/constants');
+const Pot = require('../../models/Pot');
+const User = require('../../models/User');
 
-// globals
-let newMessage;
-let current;
-let amount;
-let template;
-let player;
-let id;
-
-function end(game, message) {
-  game.toEnd = true;
+async function end(game, message, chat) {
+  await game.set('status', 'to end');
 
   message.react(emote('sad'));
-  game.chat.sendMessage('⚠️  Game ending after this hand ⚠️ ');
+  await chat.sendMessage('⚠️  Game ending after this hand ⚠️ ');
 }
 
-function check(game, whatsapp) {
-  current = game.order.currentPlayer;
+async function check(game, whatsapp, current) {
+  await current.set('status', 'played');
 
-  template = `@{{name}} checked`;
-  player = {
-    name: current.phoneNumber,
+  const template = `@{{name}} checked`;
+  const player = {
+    name: current.userId,
   };
-  newMessage = Mustache.render(template, player);
-  game.updateRound(whatsapp, newMessage);
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
 }
 
-function raise(game, amount, whatsapp) {
-  current = game.order.currentPlayer;
+async function raise(game, amount, whatsapp, current) {
+  await current.set('status', 'played');
 
-  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
-  current.isPlayed = true;
-  current.currentBet = amount + current.currentBet;
-  game.pot.mainPot += amount;
-  current.gameMoney -= amount;
-  game.pot.currentBet = current.currentBet;
+  await gameFunctions.qualifyToAllInsPots(game, amount, current);
+  await current.bet(amount, game.mainPot);
 
-  template = `@{{name}} raised $${amount}`;
-  player = {
-    name: current.phoneNumber,
+  const template = `@{{name}} raised $${amount}`;
+  const player = {
+    name: current.userId,
   };
-  newMessage = Mustache.render(template, player);
-  game.updateRound(whatsapp, newMessage);
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
 }
 
-function allIn(game, whatsapp) {
-  current = game.order.currentPlayer;
-  amount = current.gameMoney;
+async function allIn(game, whatsapp, current) {
+  await current.set('status', 'all in');
+  const amount = current.gameMoney;
 
-  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
-  current.isAllIn = true;
-  current.isPlayed = true;
-  game.pot.mainPot += amount;
-  current.currentBet += amount;
-  current.gameMoney = 0;
+  await gameFunctions.qualifyToAllInsPots(game, amount, current);
+  await current.bet(amount, game.mainPot);
 
-  if (current.currentBet > game.pot.currentBet) {
-    game.pot.currentBet = current.currentBet;
-  }
+  await game.addAllInPot(current.currentBet);
 
-  game.pot.addAllIn(game);
-
-  template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
-  player = {
-    name: current.phoneNumber,
+  const template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
+  const player = {
+    name: current.userId,
     amount: amount,
     totalBet: current.currentBet,
   };
-  newMessage = Mustache.render(template, player);
-  game.updateRound(whatsapp, newMessage);
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
 }
 
-function fold(game, message, whatsapp) {
-  current = game.order.currentPlayer;
-  current.isFolded = true;
-  game.folds++;
+async function call(game, whatsapp, current, pot) {
+  await current.set('status', 'played');
+  const amount = pot.highestBet - current.currentBet;
 
-  template = `@{{name}} folded`;
-  player = {
-    name: current.phoneNumber,
-  };
-  newMessage = Mustache.render(template, player);
-  message.react(emote('fold'));
-  game.updateRound(whatsapp, newMessage);
-}
+  await gameFunctions.qualifyToAllInsPots(game, amount, current);
+  await current.bet(amount, pot.id);
 
-function call(game, whatsapp) {
-  current = game.order.currentPlayer;
-  amount = game.pot.currentBet - current.currentBet;
-
-  gameFunctions.qualifyToAllIns(game.pot.allIns, amount, current);
-  current.gameMoney -= amount;
-  current.isPlayed = true;
-  game.pot.mainPot += amount;
-  current.currentBet = game.pot.currentBet;
-
-  template = `Nice! @{{name}} calls \${{amount}}`;
-  player = {
-    name: current.phoneNumber,
+  const template = `Nice! @{{name}} calls \${{amount}}`;
+  const player = {
+    name: current.userId,
     amount: amount,
   };
-  newMessage = Mustache.render(template, player);
-  game.updateRound(whatsapp, newMessage);
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
 }
 
-function buy(game, message, amount) {
-  id = formatId(message.author);
-  player = game.players[id];
+async function fold(game, message, whatsapp, current) {
+  await current.set('status', 'folded');
 
-  player.queueReBuy(amount);
-  player.sessionBalance -= amount;
-  player.money -= amount;
+  const template = `@{{name}} folded`;
+  const player = {
+    name: current.userId,
+  };
+  const newMessage = Mustache.render(template, player);
+  message.react(emote('fold'));
+  await game.updateRound(whatsapp, newMessage);
+}
 
-  template = `Nice! @{{name}} bought \${{amount}}
+async function buy(game, message, chat, amount) {
+  const current = await game.getPlayer(message.author);
+  await current.buy(amount, game.status);
+
+  const template = `Nice! @{{name}} bought \${{amount}}
 it will be added in the next hand`;
 
-  player = {
-    name: player.phoneNumber,
+  const player = {
+    name: current.userId,
     amount: amount,
   };
-  newMessage = Mustache.render(template, player);
+  const newMessage = Mustache.render(template, player);
   message.react(emote('happy'));
-  game.chat.sendMessage(newMessage, { mentions: [id] });
+  await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
 }
 
-function join(games, chatId, message, phoneNumber, chat, amount) {
-  id = formatId(message.author);
-  let game = games[chatId];
+async function join(game, message, chat, amount) {
+  let template = `Hi @{{name}}, welcome to the game!`;
 
-  game.addPlayer(id, phoneNumber);
-  player = game.players[id];
-  player.isFolded = true;
-  game.folds++;
-  game.order.insertAfterCurrent(player);
-
-  if (Number.isNaN(amount)) {
-    template = `Hi @{{name}}, welcome to the game!
-Buy some Chips with 'pok buy [amount]'
-before the next hand starts`;
-  } else {
-    player.gameMoney = amount;
-    player.money -= amount;
-    player.sessionBalance -= amount;
-    template = `Hi @{{name}}, welcome to the game!`;
+  if (!(await User.get(message.author))) {
+    await User.create(message.author);
   }
 
+  const player = await game.addPlayer(message.author);
+  await game.addPlayerMidGame(player.userId);
+
+  if (Number.isNaN(amount)) {
+    template += `\n\nBuy some Chips with 'pok buy [amount]'
+before the next hand starts`;
+  } else {
+    template += `\n\nyou bought \${{amount}}
+wait for the next hand to start`;
+    await player.buy(amount, game.status);
+  }
+
+  message.react(emote('happy'));
   chat.sendMessage(
     Mustache.render(template, {
-      name: player.phoneNumber,
+      name: message.author,
+      amount: amount,
     }),
     {
-      mentions: [id],
+      mentions: await game.getMentions(),
     },
   );
 }
 
-function show(game, chat) {
-  chat.sendMessage(game.getOrderPretty(), { mentions: game.getMentions() });
+async function show(game, chat) {
+  await chat.sendMessage(await game.getOrderPretty(), {
+    mentions: await game.getMentions(),
+  });
 }
 
-function exit(game, message, phoneNumber) {
-  id = formatId(message.author);
-  player = game.players[id];
-  newMessage = `Goodbye @${phoneNumber}!\n${constants.SEPARATOR}`;
+async function exit(game, message, chat, current, whatsapp) {
+  const newMessage = `Goodbye @${current.userId}!\n${constants.SEPARATOR}`;
 
   // If there are 2 players before the exit, also end the game
-  if (Object.keys(game.players).length == 2) {
-    let current = game.order.currentPlayer;
-
+  if ((await game.getPlayers()).length == 2) {
     // When only one player left it should get all the money that remained in the pot
-    if (current.id == id) {
-      current = current.nextPlayer;
+    if (game.currentPlayer == current.userId) {
+      current = await game.getPlayer(current.nextPlayer);
     }
-    current.gameMoney += game.pot.mainPot;
+    await current.set(
+      'gameMoney',
+      current.gameMoney + (await Pot.get(game.mainPot)).value,
+    );
 
-    game.endGame(newMessage);
+    await game.endGame(whatsapp, newMessage);
   } else {
-    game.chat.sendMessage(newMessage);
+    chat.sendMessage(newMessage);
   }
 
-  game.removePlayer(id);
+  await game.removePlayer(message.author);
   message.react('👋');
 }
 

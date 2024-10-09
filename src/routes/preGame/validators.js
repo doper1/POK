@@ -1,40 +1,33 @@
-const { formatId, replyError } = require('../../generalFunctions');
-const constants = require('../../constants');
+const { replyError } = require('../../utils/generalFunctions');
+const constants = require('../../utils/constants');
+const User = require('../../models/User');
 
-function start(game, message) {
-  if (game == undefined) {
-    return replyError(message, 'There are no players on the table :(');
-  }
+async function start(game, chat, message) {
+  let players = await game.getPlayers();
 
-  if (game.players[formatId(message.author)] == undefined) {
+  if (!players.some((player) => player.userId === message.author)) {
     return replyError(message, 'You need to join the game first');
   }
 
-  if (Object.keys(game.players).length == 1) {
+  if (players.length == 1) {
     return replyError(message, 'There is only one player at the table');
   }
 
-  if (
-    Object.values(game.players).filter((player) => player.gameMoney > 0)
-      .length <= 1
-  ) {
-    return replyError(
-      message,
+  if (players.filter((player) => player.gameMoney > 0).length <= 1) {
+    await chat.sendMessage(
       `Not enough player has sufficient money in their stack\n
-${game.getPlayersPretty()}\n
-Use 'pok buy [amount]' to buy some chips`,
-      { mentions: game.getMentions() },
+    ${await game.getPlayersPretty()}\n
+    Use 'pok buy [amount]' to buy some chips`,
+      { mentions: await game.getMentions() },
     );
+    return false;
   }
 
   return true;
 }
 
-function join(game, message, amount) {
-  if (
-    game != undefined &&
-    game.players[formatId(message.author)] !== undefined
-  ) {
+async function join(game, message, amount) {
+  if (await game.getPlayer(message.author)) {
     let newMessage = 'You have already joined!';
 
     if (!Number.isNaN(amount)) {
@@ -43,44 +36,37 @@ function join(game, message, amount) {
 
     return replyError(message, newMessage);
   }
-
-  if (
-    game != undefined &&
-    Object.keys(game.players).length === constants.MAX_PLAYERS
-  ) {
+  if ((await game.getPlayers()).length === constants.MAX_PLAYERS) {
     return replyError(message, 'I am sorry, This game is full');
+  }
+
+  if (!Number.isNaN(amount)) {
+    return await buy(game, message, amount, false);
   }
 
   return true;
 }
 
-function show(game, message) {
-  if (game == undefined) {
+async function show(game, message) {
+  if (!(await game.getPlayers()).length) {
     return replyError(message, 'There are no players at the table');
   }
 
   return true;
 }
 
-function exit(game, message) {
-  if (
-    game === undefined ||
-    game.players[formatId(message.author)] === undefined
-  ) {
+async function exit(game, message) {
+  if (!(await game.getPlayer(message.author))) {
     return replyError(message, 'You have not joined the game yet');
   }
 
   return true;
 }
 
-function buy(game, message, amount) {
-  if (game == undefined) {
-    return replyError(message, 'You need to join the game first (pok join)');
-  }
+async function buy(game, message, amount, joinFlag = true) {
+  let player = await game.getPlayer(message.author);
 
-  let player = game.players[formatId(message.author)];
-
-  if (player === undefined) {
+  if (joinFlag && player === undefined) {
     return replyError(message, 'You need to join the game first (pok join)');
   }
 
@@ -102,8 +88,17 @@ function buy(game, message, amount) {
     return replyError(message, 'Please buy a positive amount');
   }
 
-  if (player.money < amount) {
-    return replyError(message, `You only have $${player.money} behind...`);
+  let user = await User.get(message.author);
+
+  if (joinFlag && user.money < amount) {
+    return replyError(message, `You only have $${user.money} behind...`);
+  }
+
+  if (game.status === 'to end') {
+    return replyError(
+      message,
+      'The game is about to end, You cannot buy chips anymore.',
+    );
   }
 
   return true;

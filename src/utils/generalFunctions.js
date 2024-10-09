@@ -1,17 +1,21 @@
 const Mustache = require('mustache');
-const constants = require('./constants');
+const constants = require('../utils/constants');
+
+function rand(length) {
+  return Math.floor(Math.random() * length);
+}
+
+function currentTime() {
+  return Math.floor(Date.now() / 1000);
+}
 
 // Shuffle an arrary (for order shuffle and cards shuffle)
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
+    let j = rand(i + 1);
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
-}
-
-function hasTwoWords(string) {
-  return /^\S+\s+\S+$/.test(string);
 }
 
 /** Choose a random emoji from the wanted emoji type
@@ -36,9 +40,7 @@ function emote(emojiType) {
 }
 
 function isCurrent(game, message) {
-  let id = formatId(message.author);
-
-  if (game.order.currentPlayer.id != id) {
+  if (game.currentPlayer != message.author) {
     message.react(emote('mistake'));
     message.reply("It's not your turn");
     return false;
@@ -46,25 +48,11 @@ function isCurrent(game, message) {
   return true;
 }
 
-function formatId(id) {
-  return id.replace(/:\d+@/, '@');
-}
-
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-let actionLock = false;
-
-function setLock(state) {
-  actionLock = state;
-}
-
-function isLocked() {
-  return actionLock;
-}
-
-function cleanInstance(instance, keepProperties, keepMethods) {
+function getProperties(instance, keepProperties, keepMethods) {
   const properties = Object.fromEntries(
     keepProperties.map((prop) => [prop, instance[prop]]),
   );
@@ -83,14 +71,12 @@ function replyError(message, errorMessage) {
 }
 
 module.exports = {
+  rand,
+  currentTime,
   shuffleArray,
-  hasTwoWords,
   emote,
   isCurrent,
-  formatId,
   delay,
-  setLock,
-  isLocked,
-  cleanInstance,
+  getProperties,
   replyError,
 };

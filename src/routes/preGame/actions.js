@@ -1,92 +1,76 @@
 const Mustache = require('mustache');
-const Game = require('../../classes/Game');
-const { formatId, emote } = require('../../generalFunctions');
+const { emote } = require('../../utils/generalFunctions');
+const User = require('../../models/User');
 
 // globals
-let id;
 let player;
 let template;
-let game;
 let newMessage;
 
-function start(game, message, whatsapp) {
-  game.isMidRound = true;
+async function start(game, message, whatsapp) {
+  await game.set('status', 'running');
 
-  game.generateOrder();
-  game.initRound(whatsapp, '🎰 *The game has STARTED!* 🎰');
+  await game.generateOrder();
+  await game.initRound(whatsapp, '🎰 *The game has STARTED!* 🎰');
 
   message.react(emote('happy'));
 }
 
-function join(games, chatId, message, phoneNumber, chat, amount) {
-  id = formatId(message.author);
+async function join(game, message, chat, amount) {
+  let template = `Hi @{{name}}, welcome to the game!`;
 
-  if (games[chatId] == undefined) games[chatId] = new Game(chatId, chat);
+  if (!(await User.get(message.author))) {
+    await User.create(message.author);
+  }
 
-  game = games[chatId];
-  game.addPlayer(id, phoneNumber);
-  player = game.players[id];
+  const player = await game.addPlayer(message.author);
 
   if (Number.isNaN(amount)) {
-    template = `Hi @{{name}}, welcome to the game!
-Buy some Chips with 'pok buy [amount]'
+    template += `\n\nBuy some Chips with 'pok buy [amount]'
 before the game starts`;
   } else {
-    player.gameMoney = amount;
-    player.money -= amount;
-    player.sessionBalance -= amount;
-    template = `Hi @{{name}}, welcome to the game!`;
+    template += `\n\nyou bought \${{amount}}`;
+    await player.buy(amount, game.status);
   }
 
   message.react(emote('happy'));
   chat.sendMessage(
     Mustache.render(template, {
-      name: player.phoneNumber,
+      name: message.author,
+      amount: amount,
     }),
     {
-      mentions: [id],
+      mentions: await game.getMentions(),
     },
   );
 }
 
-function show(game, chat) {
-  chat.sendMessage(game.getPlayersPretty(), { mentions: game.getMentions() });
+async function show(game, chat) {
+  await chat.sendMessage(await game.getPlayersPretty(), {
+    mentions: await game.getMentions(),
+  });
 }
 
-function exit(games, chatId, message) {
-  games[chatId].players[formatId(message.author)].isFolded = true;
-  games[chatId].folds++;
+function exit(game, message) {
+  game.removePlayer(message.author);
 
-  if (Object.keys(games[chatId].players).length == 1) {
-    delete games[chatId];
-
-    message.react('👋');
-    message.reply(`Goodbye!`);
-  } else {
-    delete games[chatId].players[formatId(message.author)];
-
-    message.react('👋');
-    message.reply(`Goodbye!`);
-  }
+  message.react('👋');
+  message.reply(`Goodbye!`);
 }
 
-function buy(game, message, amount) {
-  id = formatId(message.author);
-  player = game.players[id];
+async function buy(game, message, chat, amount) {
+  player = await game.getPlayer(message.author);
 
-  player.gameMoney += amount;
-  player.sessionBalance -= amount;
-  player.money -= amount;
+  await player.buy(amount, game.status);
 
   template = `Nice! @{{name}} bought \${{amount}}`;
-
   player = {
-    name: player.phoneNumber,
+    name: player.userId,
     amount: amount,
   };
   newMessage = Mustache.render(template, player);
   message.react(emote('happy'));
-  game.chat.sendMessage(newMessage, { mentions: [id] });
+  await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
   return true;
 }
 

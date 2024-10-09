@@ -1,58 +1,68 @@
+require('dotenv').config();
 const qrCode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const router = require('./routes/router.js');
-const { isLocked, cleanInstance } = require('./generalFunctions.js');
-
-// Globals
-let games = {};
-
-// Variables that differs between prod and dev
-let event;
-
-const mode = process.env.ENV;
-if (mode === 'prod') {
-  console.log('PRODUCTION MODE');
-  event = 'message';
-} else {
-  console.log('DEVELOPMENT MODE');
-  event = 'message_create';
-}
+const middleware = require('./utils/middleware.js');
+const preGameRoute = require('./routes/preGame/index.js');
+const inGameRoute = require('./routes/inGame/index.js');
 
 let whatsapp = new Client({
-  authStrategy: new LocalAuth(),
+  authStrategy: new LocalAuth({ dataPath: './auth' }),
+  webVersionCache: {
+    type: 'remote',
+    remotePath:
+      'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2409.0.html',
+  },
 });
 
-// Clean up the whatsapp instance before passing it to the router
-whatsapp = cleanInstance(whatsapp, [], ['sendMessage', 'on', 'initialize']);
+// Clean up the whatsapp instance before passing it to the routes
+whatsapp = middleware.filterWhatsapp(whatsapp);
 
-// Event listeners
-whatsapp.on(event, async (messagePromise) => {
-  let message = await messagePromise;
-  let chat = await message.getChat();
-  const body = message.body.toLowerCase().split(' ');
+// message_create: in case you want to play with the number the bot is hosted on
+// message: will be more optimized- ignore all of it's own messages
+whatsapp.on('message_create', async (msg) => {
+  if (msg.author == undefined) return; // Prevents replying to it's own replies
 
-  message = cleanInstance(
-    message,
-    ['timestamp', 'author'],
-    ['getContact', 'getChat', 'react', 'reply'],
-  );
-  chat = cleanInstance(chat, ['id', 'name', 'isGroup'], ['sendMessage']);
+  const message = middleware.filterMessage(msg);
+  const chat = middleware.filterChat(await msg.getChat());
 
-  if (!isLocked()) {
-    if (router.validateMessage(message, body, chat)) {
-      // Log the chat name, sender, and message body (if the message is valid)
-      console.log('chat: ', chat.name, 'from: ', message.author, ' - ', body);
-
-      // Move the message for farther processing
-      router.route(whatsapp, message, body, chat, games);
-    }
+  if (!middleware.validateMessage(msg, chat)) {
+    middleware.logMessage(message, chat.name, 'invalid');
+    return;
   }
+
+  const game = await middleware.getGame(chat);
+
+  if (!(await middleware.validateLock(game))) {
+    middleware.logMessage(message, chat.name, 'locked');
+    return;
+  }
+
+  middleware.logMessage(message, chat.name, 'success');
+
+  await middleware.lockGame(game);
+
+  const params = {
+    whatsapp,
+    message,
+    chat,
+    game,
+  };
+
+  if (game.status == 'pending') {
+    await preGameRoute(params);
+  } else {
+    await inGameRoute(params);
+  }
+
+  await middleware.unlockGame(game);
 });
 
+// Reject calls
 whatsapp.on('call', async (call) => {
   await call.reject();
 });
 
+// Generate a QR to authenticate the bot
 whatsapp.on('qr', (qr) => {
   qrCode.generate(qr, {
     small: true,
@@ -60,7 +70,7 @@ whatsapp.on('qr', (qr) => {
 });
 
 whatsapp.on('ready', () => {
-  console.log('Client is ready!');
+  console.warn('-----| Client is ready |-----');
 });
 
 whatsapp.initialize();

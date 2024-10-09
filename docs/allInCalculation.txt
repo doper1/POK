@@ -2,57 +2,32 @@ The all in has a complex architecture that is supported by few classes:
 
 Pot
 -----
-- Each game (group chat) has a single instance of Pot.
+- Each game (group chat) has one main pot. More pots are created during the game EVERY time a player goes 'All in'.
 - The purpose of the pot instance is to store all the related data to the "money on the table",
   while the data on the each player money holding is saved at the own player instance 
-
-Pot properties:
----------------
-main_pot: int = The total money in the pot
-
-last_round_pot: int = The total money in the pot of the last betting round
-
-all_ins: list = A list of all the all ins (more details explanation in a moment)
-
-current_bet: int = The highest bet of the current round which everyone should be either equal to at the end of the round or all in
-
-current_rounde_bets: list = List of all the bets in the current betting round
-
-AllIn
------
-- New AllIn instance is created whenever player goes all in
-- Each AllIn instance is tracking the players that have to possiblity to win
-  the pot including the current all in bet, the pot to this point, and the
-  raise the player who went all in did.
-
-AllIn properties
----------------
-players: list = the players that are competing for the pot including the all in
-
-pot: int = the money the player with the best hand between the competing players will win
-
-current_bet: int = the bet amount that created the all in instance
-
 
 Flow chart
 ---------------
 
 1. Player goes all in (raise all his game money/pok raise all/ pok all)
 
-2. The player is marked as 'all_in' and 'is_played' and his money is added into the pot and so on
+2. The player status changes to 'all in' and his money is added into the pot
 
-3. An AllIn instance is created under pot with the amount the player who put the all in is able to access
+3. A Pot instance is created under. The value of a pot is calculated as follows:
 
-3.5 after each successful raise, call or all in, if there is a successful action- the amount of the raise/call/all in will be added to the current round all ins (unless they already called the all in). If they called just part of the all in, this amount will be added to the all in pot. When there is a new round (flop/turn/river) the all in's 'current_bet' will be change from their sum to '-1'. This way we won't add to all ins the all the playing players called already. Also, after raise/call the player will be added as qualified to the all ins that were made in this round (and because of that all the rounds until that point). If two (or more) players went all in at the same round, it will be checked to see to which all ins they are qualified to participate in.
+last round pot value (0 if it's preflop) +
+The player current round bet +
+all the bets in the current round that are lower then the player current round bet +
+amount that is equal to the player bet for every bet that is higher then his
+= value
 
-4. Whenever a new 'All In' is happening the, all ins list is updates and reorganized if someone with less money went all in after somebody with more money.
-   Whenver a new raise is happening, if the current bet before this one wasn't enought to cover the current round all ins current bet- the amount
-   is added to the current round all in the fit this criteria.
+For the player that went all-in and for all the players the has bet at least the amount the 'all-in player' bet, a new row is added in the participants table.
+At showdown, this will indicate which players are able to 'access' which pot.
 
-5. At the end of the river- a winner is checked for each individual winner, and his money counts goes up until all money is distributed and the main pot
-   is empty. Then, the amounts the winners got will be printed using the regular printing templates (hand, hand type, cards and amount)
-   The order the winner per pot is checked is from the first all in (the lowest one) to the last all in (the highest one).
-   Before all ins are awarded to players, there is an 'generalization' were every all in is subtracted from the all in before him, this will make the total amount of all in equal to the full pot and will remove the overlapping parts.
+4. after each successful raise, call or all in- the amount of the raise/call/all in will be added to all the 'active' pots, and up the the amount of the bet of the player that went all in (which marked as highest bet).
+In 'active' pot is an all-in pot that created in the current round. Between rounds the 'highest bet' of each all-in pot from the last round will be changed to -1. This will indicate that the pot value can no longer grow
 
-6. At the same round of the all in, if a player after the all in calls or reraise the all in- the amount that calls the all in is added to the current all in pot.
-   This operation happens for all the all ins that accured on the current round.
+6. At the end of the river- a winner is checked for each individual pot. If there is a tie on a pot, the pot value is shared between the winners. if the pot value cannot be split equally,
+   a random player from the pot winners will get the reminder of it
+
+7. At the end of the winning distribution phase there is announcement of the total earning each winner player of the hand has gotten

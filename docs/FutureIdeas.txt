@@ -1,0 +1,17 @@
+UX
+----
+
+- Usage of buttons or polls instead of messaging for performing certain Actions
+
+
+Architecture
+----
+
+- Multiple instance with load balancing (LB might not be needed but it also could be the only possible way)
+- Switch PostgreSQL with citus for horizontal scaling
+
+game
+----
+
+- More game modes: Omaha, Stud, limit hold'em
+- Add tournament mode (with timer and increasing blinds, and a set amount of allowed re-buys)

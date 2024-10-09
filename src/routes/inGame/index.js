@@ -1,66 +1,64 @@
-const constants = require('../../constants');
+const constants = require('../../utils/constants');
 const actions = require('./actions.js');
 const validators = require('./validators.js');
-const { emote } = require('../../generalFunctions');
+const { emote } = require('../../utils/generalFunctions');
+const Pot = require('../../models/Pot.js');
 
-function inGameRoute({
-  whatsapp,
-  message,
-  body,
-  chat,
-  games,
-  chatId,
-  phoneNumber,
-}) {
-  const game = games[chatId];
-  const current = game.order.currentPlayer;
-  const amount = Number(body[2]);
+async function inGameRoute({ whatsapp, message, chat, game }) {
+  const current = await game.getPlayer(message.author);
+  const amount = Number(message.body[2]);
 
-  switch (body[1]) {
+  switch (message.body[1]) {
     case 'check':
-      if (validators.check(game, message)) actions.check(game, whatsapp);
+      if (await validators.check(game, message, current))
+        await actions.check(game, whatsapp, current);
       break;
     case 'call':
-      if (game.pot.currentBet - current.currentBet >= current.gameMoney) {
-        if (validators.allIn(game, message)) actions.allIn(game, whatsapp);
-      } else if (validators.call(game, message)) actions.call(game, whatsapp);
+      let pot = await Pot.get(game.mainPot);
+
+      if (pot.value - current.currentBet >= current.gameMoney) {
+        if (validators.allIn(game, message))
+          await actions.allIn(game, whatsapp, current);
+      } else if (validators.call(game, message, current, pot))
+        await actions.call(game, whatsapp, current, pot);
       break;
     case 'raise':
-      if (body[2] == 'all' || current.gameMoney == amount) {
+      if (message.body[2] == 'all' || current.gameMoney == amount) {
         if (validators.allIn(game, message)) {
-          actions.allIn(game, whatsapp);
+          await actions.allIn(game, whatsapp, current);
         }
-      } else if (validators.raise(game, message, amount)) {
-        actions.raise(game, amount, whatsapp);
+      } else if (await validators.raise(game, message, amount, current)) {
+        await actions.raise(game, amount, whatsapp, current);
       }
       break;
     case 'all':
-      if (validators.allIn(game, message)) actions.allIn(game, whatsapp);
+      if (validators.allIn(game, message))
+        await actions.allIn(game, whatsapp, current);
       break;
     case 'fold':
-      if (validators.fold(game, message)) actions.fold(game, message, whatsapp);
+      if (validators.fold(game, message))
+        await actions.fold(game, message, whatsapp, current);
       break;
     case 'buy':
-      if (validators.buy(game, message, amount))
-        actions.buy(game, message, amount);
+      if (await validators.buy(game, message, amount))
+        await actions.buy(game, message, chat, amount);
       break;
     case 'help':
       message.reply(constants.HELP_PRE_GAME);
       break;
     case 'join':
-      if (validators.join(games[chatId], message, amount))
-        actions.join(games, chatId, message, phoneNumber, chat, amount);
+      if (await validators.join(game, message, amount))
+        await actions.join(game, message, chat, amount);
       break;
     case 'show':
-      if (validators.show(games[chatId], message))
-        actions.show(games[chatId], chat);
+      if (await validators.show(game, message)) await actions.show(game, chat);
       break;
     case 'exit':
-      if (validators.exit(game, message))
-        actions.exit(game, message, phoneNumber);
+      if (await validators.exit(game, message))
+        await actions.exit(game, message, chat, current, whatsapp);
       break;
     case 'end':
-      if (validators.end(game, message)) actions.end(games[chatId], message);
+      if (validators.end(game, message)) await actions.end(game, message, chat);
       break;
     case 'start':
       message.react(emote('mistake'));
