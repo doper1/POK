@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.0.1](https://github.com/doper1/POK/compare/v4.0.0...v4.0.1) (2024-10-09)
+
+
+### Bug Fixes
+
+* post merge fixes ([cb7a322](https://github.com/doper1/POK/commit/cb7a3225d2d40be818ddf9aae80a73cd4abeea22))
+* **src:** add sandbox to puppeteer client ([36a5322](https://github.com/doper1/POK/commit/36a53223b7fd9c63bcd1edc35b354ae3b8497584))
+
 ## [4.0.0](https://github.com/doper1/POK/compare/v3.1.0...v4.0.0) (2024-10-09)
 
 
