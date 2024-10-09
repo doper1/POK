@@ -1,40 +1,32 @@
-const constants = require('../../constants.js');
+const constants = require('../../utils/constants.js');
 const actions = require('./actions.js');
 const validators = require('./validators.js');
 
-function preGameRoute({
-  whatsapp,
-  message,
-  body,
-  chat,
-  games,
-  chatId,
-  phoneNumber,
-}) {
-  const game = games[chatId];
-  const amount = Number(body[2]);
+async function preGameRoute({ whatsapp, message, chat, game }) {
+  const amount = Number(message.body[2]);
 
-  switch (body[1]) {
+  switch (message.body[1]) {
     case 'help':
       message.reply(constants.HELP_PRE_GAME);
       break;
     case 'join':
-      if (validators.join(game, message, amount))
-        actions.join(games, chatId, message, phoneNumber, chat, amount);
+      if (await validators.join(game, message, amount))
+        await actions.join(game, message, chat, amount);
       break;
     case 'show':
-      if (validators.show(game, message)) actions.show(game, chat);
+      if (await validators.show(game, message)) await actions.show(game, chat);
       break;
     case 'exit':
-      if (validators.exit(game, message)) actions.exit(games, chatId, message);
+      if (await validators.exit(game, message))
+        await actions.exit(game, message);
       break;
     case 'start':
-      if (validators.start(game, message))
-        actions.start(game, message, whatsapp);
+      if (await validators.start(game, chat, message))
+        await actions.start(game, message, whatsapp);
       break;
     case 'buy':
-      if (validators.buy(game, message, amount))
-        actions.buy(game, message, amount);
+      if (await validators.buy(game, message, amount))
+        await actions.buy(game, message, chat, amount);
       break;
     default:
       message.reply(constants.HELP_PRE_GAME);
