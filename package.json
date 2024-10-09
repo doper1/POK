@@ -9,8 +9,8 @@
     "doc": "/docs"
   },
   "scripts": {
-    "dev": "node --env-file=.env.dev --watch src/app.js ",
-    "start": "node --env-file=.env.prod src/app.js",
+    "dev": "node --watch src/app.js ",
+    "start": "node src/app.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
