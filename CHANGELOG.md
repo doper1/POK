@@ -1,5 +1,39 @@
 # Changelog
 
+## [4.0.0](https://github.com/doper1/POK/compare/v3.1.0...v4.0.0) (2024-10-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **src:** DB integration in helper scripts
+* **src:** refactor classes into models
+* **src:** created repos for DB access
+* **db:** schema and drizzle configuration
+* **db:** full drizzle-orm setup
+* **deployment:** full Docker set up
+
+### Features
+
+* **db:** full drizzle-orm setup ([f2ec755](https://github.com/doper1/POK/commit/f2ec755955675e0734180db9b98f58d333481454))
+* **db:** schema and drizzle configuration ([9e6080e](https://github.com/doper1/POK/commit/9e6080e1eb8ed6f03c5f169bf6ad33b8dee40125))
+* **deployment:** full Docker set up ([d690ee5](https://github.com/doper1/POK/commit/d690ee5ef972b19ee1709bacf887aaf98fdd5bac)), closes [#130](https://github.com/doper1/POK/issues/130)
+* **deployment:** initial docker implementation ([b6dc22d](https://github.com/doper1/POK/commit/b6dc22d0b454b0e3a2124fe6a0a1539eba898a21))
+* **src:** created repos for DB access ([a5bd80d](https://github.com/doper1/POK/commit/a5bd80db034aea0c76990c483c0192008ea3b662))
+
+
+### Bug Fixes
+
+* add drizzle-kit to image ([85db269](https://github.com/doper1/POK/commit/85db269f697c7d581b9654be01540ded013a979d))
+* **cfg:** moved cross-env to dependencies from dev deps ([1211e50](https://github.com/doper1/POK/commit/1211e503f858ad4f4b63ae90e40c6e04a2c1e1ec))
+* **cfg:** remove --watch from 'npm start' ([47badce](https://github.com/doper1/POK/commit/47badce656a3d3dc408a445f59184404e58ab384))
+* **ci:** renamed release workflow for clarity ([52968e4](https://github.com/doper1/POK/commit/52968e4d45fe4349231863335dc390953a730678))
+
+
+### Code Refactoring
+
+* **src:** DB integration in helper scripts ([9629cee](https://github.com/doper1/POK/commit/9629ceeb64ec614b7ce8f069361b82d75d594b65))
+* **src:** refactor classes into models ([8fba983](https://github.com/doper1/POK/commit/8fba983a7face9f38bb6837e7aa60053e209fc62))
+
 ## [3.1.0](https://github.com/doper1/POK/compare/v3.0.1...v3.1.0) (2024-09-20)
 
 
