@@ -12,12 +12,12 @@ COPY package*.json ./
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-RUN npm ci --omit=dev 
-
-COPY ./entrypoint.sh .
+RUN npm ci 
 
 COPY --chown=pok ./src ./src
 
+COPY --chown=pok ./drizzle.config.ts .
+
 RUN mkdir auth
 
-CMD ["/bin/sh", "entrypoint.sh"]
+CMD ["node", "src/app.js"]
