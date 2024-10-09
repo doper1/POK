@@ -1,6 +1,5 @@
 # POK
 
-![License](https://img.shields.io/github/license/doper1/POK)
 ![Issues](https://img.shields.io/github/issues/doper1/POK)
 
 POK is an open-source WhatsApp bot that brings poker games to group chats, automating card dealing, game rules, and tracking the game state for seamless play.
@@ -14,8 +13,8 @@ POK is an open-source WhatsApp bot that brings poker games to group chats, autom
 
 ## Tech Stack
 
-- [Node](https://nodejs.org/) v20
-- [PostgreSQL](https://www.postgresql.org/)
+- [Node](https://nodejs.org/) - v20
+- [PostgreSQL](https://www.postgresql.org/) - v16.4
 - [Drizzle ORM](https://orm.drizzle.team/) for DB integration. Also provides [drizzle studio](https://orm.drizzle.team/drizzle-studio/overview)
 - [Docker](https://www.docker.com/) for deployment
 
