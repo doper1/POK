@@ -1,5 +1,5 @@
 {
-  "id": "a97d169a-3d69-40f9-8e62-2e6e9ae520e7",
+  "id": "52f4b444-dff7-4e96-ba77-bb59da368df7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -13,6 +13,12 @@
           "type": "varchar(18)",
           "primaryKey": true,
           "notNull": true
+        },
+        "group_name": {
+          "name": "group_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
         },
         "type": {
           "name": "type",
@@ -42,7 +48,21 @@
         },
         "deck": {
           "name": "deck",
-          "type": "varchar(1)[][]",
+          "type": "varchar(16)[][]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'::varchar[][]"
+        },
+        "community_cards": {
+          "name": "community_cards",
+          "type": "varchar(16)[][]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'::varchar[][]"
+        },
+        "main_pot": {
+          "name": "main_pot",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -51,14 +71,20 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "lock": {
+          "name": "lock",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "game_current_player_player_id_fk": {
-          "name": "game_current_player_player_id_fk",
+        "game_current_player_user_id_fk": {
+          "name": "game_current_player_user_id_fk",
           "tableFrom": "game",
-          "tableTo": "player",
+          "tableTo": "user",
           "columnsFrom": [
             "current_player"
           ],
@@ -68,12 +94,25 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "game_button_player_id_fk": {
-          "name": "game_button_player_id_fk",
+        "game_button_user_id_fk": {
+          "name": "game_button_user_id_fk",
           "tableFrom": "game",
-          "tableTo": "player",
+          "tableTo": "user",
           "columnsFrom": [
             "button"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "game_main_pot_pot_id_fk": {
+          "name": "game_main_pot_pot_id_fk",
+          "tableFrom": "game",
+          "tableTo": "pot",
+          "columnsFrom": [
+            "main_pot"
           ],
           "columnsTo": [
             "id"
@@ -85,8 +124,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.player": {
-      "name": "player",
+    "public.user": {
+      "name": "user",
       "schema": "",
       "columns": {
         "id": {
@@ -108,8 +147,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.game_player": {
-      "name": "game_player",
+    "public.player": {
+      "name": "player",
       "schema": "",
       "columns": {
         "game_id": {
@@ -118,8 +157,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "player_id": {
-          "name": "player_id",
+        "user_id": {
+          "name": "user_id",
           "type": "varchar(12)",
           "primaryKey": false,
           "notNull": false
@@ -160,9 +199,10 @@
         },
         "hole_cards": {
           "name": "hole_cards",
-          "type": "varchar(1)[][]",
+          "type": "varchar(16)[][]",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'{}'::varchar[][]"
         },
         "next_player": {
           "name": "next_player",
@@ -173,9 +213,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "game_player_game_id_game_id_fk": {
-          "name": "game_player_game_id_game_id_fk",
-          "tableFrom": "game_player",
+        "player_game_id_game_id_fk": {
+          "name": "player_game_id_game_id_fk",
+          "tableFrom": "player",
           "tableTo": "game",
           "columnsFrom": [
             "game_id"
@@ -186,12 +226,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "game_player_player_id_player_id_fk": {
-          "name": "game_player_player_id_player_id_fk",
-          "tableFrom": "game_player",
-          "tableTo": "player",
+        "player_user_id_user_id_fk": {
+          "name": "player_user_id_user_id_fk",
+          "tableFrom": "player",
+          "tableTo": "user",
           "columnsFrom": [
-            "player_id"
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -199,10 +239,10 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "game_player_next_player_player_id_fk": {
-          "name": "game_player_next_player_player_id_fk",
-          "tableFrom": "game_player",
-          "tableTo": "player",
+        "player_next_player_user_id_fk": {
+          "name": "player_next_player_user_id_fk",
+          "tableFrom": "player",
+          "tableTo": "user",
           "columnsFrom": [
             "next_player"
           ],
@@ -214,11 +254,11 @@
         }
       },
       "compositePrimaryKeys": {
-        "game_player_game_id_player_id_pk": {
-          "name": "game_player_game_id_player_id_pk",
+        "player_game_id_user_id_pk": {
+          "name": "player_game_id_user_id_pk",
           "columns": [
             "game_id",
-            "player_id"
+            "user_id"
           ]
         }
       },
@@ -232,7 +272,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "game_id": {
           "name": "game_id",
@@ -272,8 +313,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.pot_player": {
-      "name": "pot_player",
+    "public.participant": {
+      "name": "participant",
       "schema": "",
       "columns": {
         "pot_id": {
@@ -282,8 +323,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "player_id": {
-          "name": "player_id",
+        "user_id": {
+          "name": "user_id",
           "type": "varchar(12)",
           "primaryKey": false,
           "notNull": false
@@ -291,9 +332,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "pot_player_pot_id_pot_id_fk": {
-          "name": "pot_player_pot_id_pot_id_fk",
-          "tableFrom": "pot_player",
+        "participant_pot_id_pot_id_fk": {
+          "name": "participant_pot_id_pot_id_fk",
+          "tableFrom": "participant",
           "tableTo": "pot",
           "columnsFrom": [
             "pot_id"
@@ -304,12 +345,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "pot_player_player_id_player_id_fk": {
-          "name": "pot_player_player_id_player_id_fk",
-          "tableFrom": "pot_player",
-          "tableTo": "player",
+        "participant_user_id_user_id_fk": {
+          "name": "participant_user_id_user_id_fk",
+          "tableFrom": "participant",
+          "tableTo": "user",
           "columnsFrom": [
-            "player_id"
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -319,11 +360,11 @@
         }
       },
       "compositePrimaryKeys": {
-        "pot_player_pot_id_player_id_pk": {
-          "name": "pot_player_pot_id_player_id_pk",
+        "participant_pot_id_user_id_pk": {
+          "name": "participant_pot_id_user_id_pk",
           "columns": [
             "pot_id",
-            "player_id"
+            "user_id"
           ]
         }
       },

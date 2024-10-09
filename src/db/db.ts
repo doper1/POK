@@ -1,7 +1,8 @@
+require('dotenv').config();
 const { drizzle } = require('drizzle-orm/postgres-js');
 const postgres = require('postgres');
 const schema = require('./schema.ts');
-console.log(process.env.POSTGRES_USER);
+
 const connection = postgres({
   host: process.env.POSTGRES_HOST,
   user: process.env.POSTGRES_USER,

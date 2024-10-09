@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { db, connection } = require('./db.ts');
 const { migrate } = require('drizzle-orm/postgres-js/migrator');
 
@@ -13,4 +14,5 @@ runMigration().catch((error) => {
   process.exit(1);
 });
 
+module.exports = { runMigration };
 export {};
