@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.4](https://github.com/doper1/POK/compare/v4.0.3...v4.0.4) (2024-10-10)
+
+
+### Bug Fixes
+
+* **src:** missing async in pre exit ([fa88e57](https://github.com/doper1/POK/commit/fa88e5754f1605c4c478026bcf82e65c5fda2126))
+
 ## [4.0.3](https://github.com/doper1/POK/compare/v4.0.2...v4.0.3) (2024-10-10)
 
 
