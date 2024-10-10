@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.3](https://github.com/doper1/POK/compare/v4.0.2...v4.0.3) (2024-10-10)
+
+
+### Bug Fixes
+
+* **src:** message timeout and pre/inGame routing ([d07574a](https://github.com/doper1/POK/commit/d07574a680a2c49488ecb6a2d08e8d4dfd92c431))
+
 ## [4.0.2](https://github.com/doper1/POK/compare/v4.0.1...v4.0.2) (2024-10-09)
 
 
