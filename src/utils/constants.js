@@ -7,7 +7,7 @@ module.exports.PLAYER_STATUSES = [
   'all in',
   'no money',
 ];
-module.exports.MESSAGE_MAX_AGE = 10;
+module.exports.MESSAGE_MAX_AGE = 30;
 module.exports.LOCK_MAX_AGE = 30;
 module.exports.MAX_PLAYERS = 23;
 module.exports.BASE_MONEY = 1000;

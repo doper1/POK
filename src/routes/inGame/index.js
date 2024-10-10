@@ -4,8 +4,7 @@ const validators = require('./validators.js');
 const { emote } = require('../../utils/generalFunctions');
 const Pot = require('../../models/Pot.js');
 
-async function inGameRoute({ whatsapp, message, chat, game }) {
-  const current = await game.getPlayer(message.author);
+async function inGameRoute({ whatsapp, message, chat, game, current }) {
   const amount = Number(message.body[2]);
 
   switch (message.body[1]) {

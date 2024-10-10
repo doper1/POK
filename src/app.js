@@ -53,14 +53,17 @@ whatsapp.on('message_create', async (msg) => {
 
   await middleware.lockGame(game);
 
+  const current = await game.getPlayer(message.author);
+
   const params = {
     whatsapp,
     message,
     chat,
     game,
+    current,
   };
 
-  if (game.status == 'pending') {
+  if (!current || game.status == 'pending') {
     await preGameRoute(params);
   } else {
     await inGameRoute(params);
