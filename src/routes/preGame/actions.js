@@ -51,11 +51,11 @@ async function show(game, chat) {
   });
 }
 
-function exit(game, message) {
-  game.removePlayer(message.author);
+async function exit(game, message) {
+  await game.removePlayer(message.author);
 
-  message.react('👋');
-  message.reply(`Goodbye!`);
+  await message.react('👋');
+  await message.reply(`Goodbye!`);
 }
 
 async function buy(game, message, chat, amount) {
