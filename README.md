@@ -29,7 +29,7 @@ If using docker:
 If not using docker:
 
 - [Node.js](https://nodejs.org/) and npm (Node Package Manager) installed on your system.
-- https://nodejs.org/ database up and running
+- [PostgreSQL](https://www.postgresql.org/) database up and running
 - A valid WhatsApp account
 
 ### Clone the Repository
