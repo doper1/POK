@@ -42,9 +42,7 @@ function filterChat(chat) {
 
 function validateMessage(msg, chat) {
   return (
-    currentTime() - msg.timestamp < constants.MESSAGE_MAX_AGE &&
-    chat.isGroup &&
-    msg.body[0] == 'pok'
+    currentTime() - msg.timestamp < constants.MESSAGE_MAX_AGE && chat.isGroup
   );
 }
 

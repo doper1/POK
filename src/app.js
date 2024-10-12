@@ -37,6 +37,10 @@ whatsapp.on('message_create', async (msg) => {
   const message = middleware.filterMessage(msg);
   const chat = middleware.filterChat(await msg.getChat());
 
+  if (msg.body[0] !== 'pok') {
+    return;
+  }
+
   if (!middleware.validateMessage(msg, chat)) {
     middleware.logMessage(message, chat.name, 'invalid');
     return;
