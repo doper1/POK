@@ -300,14 +300,24 @@ Action on @{{id}} (\${{money}})`;
     return await this.getPlayer(this.button);
   }
 
-  async moveCurrentPlayer() {
-    let currentPlayer = await this.getPlayer(this.currentPlayer);
-    let nextCurrent = await this.getPlayer(currentPlayer.nextPlayer);
+  async getNextCurrent(current) {
+    let nextCurrent = await this.getPlayer(current.nextPlayer);
 
-    while (nextCurrent.status === 'all in' || nextCurrent.status === 'folded') {
+    while (
+      nextCurrent.status === 'all in' ||
+      nextCurrent.status === 'folded' ||
+      nextCurrent.status === 'no money'
+    ) {
       nextCurrent = await this.getPlayer(nextCurrent.nextPlayer);
     }
 
+    return nextCurrent;
+  }
+
+  async moveCurrentPlayer() {
+    let nextCurrent = await this.getNextCurrent(
+      await this.getPlayer(this.currentPlayer),
+    );
     await this.set('currentPlayer', nextCurrent.userId);
     return await this.getPlayer(this.currentPlayer);
   }
@@ -344,9 +354,7 @@ Action on @{{id}} (\${{money}})`;
 
   async putBlind(current, blindAmount) {
     // Skips [small/big] blind candidate players until there is a player with in-game money
-    while (current.status === 'folded') {
-      current = await this.getPlayer(current.nextPlayer);
-    }
+    current = await this.getNextCurrent(current);
 
     if (current.gameMoney <= blindAmount) {
       await current.set('status', 'all in');
