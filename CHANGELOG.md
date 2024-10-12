@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.6](https://github.com/doper1/POK/compare/v4.0.5...v4.0.6) (2024-10-12)
+
+
+### Bug Fixes
+
+* **src:** remove log of unrelated messages ([369c812](https://github.com/doper1/POK/commit/369c8127d402a89448838737ae9a88c6863bcf98))
+
 ## [4.0.5](https://github.com/doper1/POK/compare/v4.0.4...v4.0.5) (2024-10-12)
 
 
