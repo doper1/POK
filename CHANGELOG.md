@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.5](https://github.com/doper1/POK/compare/v4.0.4...v4.0.5) (2024-10-12)
+
+
+### Bug Fixes
+
+* **src:** pick SB/BB player ([4f931f7](https://github.com/doper1/POK/commit/4f931f74687a8503ba5b6f855e369b5f86956342))
+
 ## [4.0.4](https://github.com/doper1/POK/compare/v4.0.3...v4.0.4) (2024-10-10)
 
 
