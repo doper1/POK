@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.7](https://github.com/doper1/POK/compare/v4.0.6...v4.0.7) (2024-10-13)
+
+
+### Bug Fixes
+
+* **deployment:** remove neon workflow ([2eb16f4](https://github.com/doper1/POK/commit/2eb16f41b0ffcb6838d22637f9d8661e65f90109))
+
 ## [4.0.6](https://github.com/doper1/POK/compare/v4.0.5...v4.0.6) (2024-10-12)
 
 
