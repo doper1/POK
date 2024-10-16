@@ -1,5 +1,5 @@
-const { db } = require('../db/db.ts');
-const { player, user, pot, game } = require('../db/schema.ts');
+const { db } = require('../../db/db.ts');
+const { player, user, pot, game } = require('../../db/schema.ts');
 const { eq, and, sql } = require('drizzle-orm');
 const potRepo = require('./potRepo.js');
 const gameRepo = require('./gameRepo.js');

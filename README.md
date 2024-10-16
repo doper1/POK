@@ -1,7 +1,5 @@
 # POK
 
-![Issues](https://img.shields.io/github/issues/doper1/POK)
-
 POK is an open-source WhatsApp bot that brings poker games to group chats, automating card dealing, game rules, and tracking the game state for seamless play.
 
 ## Features

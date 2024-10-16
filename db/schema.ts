@@ -7,7 +7,7 @@ const {
   uuid,
 } = require('drizzle-orm/pg-core');
 const { relations, sql } = require('drizzle-orm');
-const constants = require('../utils/constants');
+const constants = require('../src/utils/constants');
 
 // TABLE: game
 const game = pgTable('game', {

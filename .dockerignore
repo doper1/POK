@@ -1,5 +1,8 @@
-# Ignore all tests in src folder
-**__tests__**
+# Ignore all tests
+**__tests__
 
-# In the Dockerfile only /src is copied so currently there
-# is no need for other ignores 
+# Ignore unneeded DB files
+/db/migrations
+/db/migrate.ts
+/db/seed.ts
+/db/wipeDatabase.ts

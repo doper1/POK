@@ -19,11 +19,6 @@ let whatsapp = new Client({
     ],
   },
   authStrategy: new LocalAuth({ dataPath: './auth' }),
-  webVersionCache: {
-    type: 'remote',
-    remotePath:
-      'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2409.0.html',
-  },
 });
 
 // Clean up the whatsapp instance before passing it to the routes

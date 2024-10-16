@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { db, connection } = require('./db.ts');
-const schema = require('./schema'); // Assuming the provided schema is in a file named schema.js
-const constants = require('../utils/constants');
+const schema = require('./schema');
+const constants = require('../src/utils/constants');
 
 async function seed() {
   try {
