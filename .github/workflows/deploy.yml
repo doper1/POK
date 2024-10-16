@@ -41,12 +41,13 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          request_pty: true
           script: |
             cd /pok
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             source ~/.bashrc
             nvm install 20
-            ~/.nvm/versions/node/v20.18.0/bin/npm update drizzle-kit
+            npm update drizzle-kit
             echo POSTGRES_HOST=localhost > /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
