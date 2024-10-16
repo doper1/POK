@@ -1,19 +1,10 @@
 name: Deploy
 
 on:
-  push:
-    paths:
-      - 'src/**'
-      - 'db/**'
-      - 'package*.json'
-      - 'drizzle.config.ts'
-      - 'docker-compose.yml'
-      - 'Dockerfile'
-      - '.dockerignore'
-      - '.github/workflows/deploy.yml'
-      - '.github/workflows/release.yml'
-    branches:
-      - main
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+    branches: [main]
 
 jobs:
   deploy:
