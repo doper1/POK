@@ -1,0 +1,57 @@
+Github Actions
+---------------
+
+1. Testing and linting - test.yml
+
+Objective:
+    ensure code correctness, quality and conventions on dev and main branches
+
+Triggers:
+    - On push to dev
+    - On PR to dev or main
+
+Actions:
+    1. Validate linting
+    2. Validate tests
+
+------------------------------------------------------------------------------------------------
+
+2. Release and upload to docker hub - release.yml
+
+    Objective:
+        1. Create a PR for new release- create new release and CHANGELOG.md based on the commit messages using Google 'release-please'.
+           To override the semantic release default tag, a 'Release-As: x.x.x' tag can be included inside a commit body.
+           Otherwise, it will choose a new version based on the commits messages which are written in 'conventional commits' format.
+        
+        2. Upload to docker hub- build the API docker file and upload 2 images to docker hub.
+            The first image being 'dofer123/pok:latest' and the second is 'dofer123/pok:x.x.x' (x.x.x refers to the new version number).
+    
+    Triggers:
+        - Triggers by 'Testing and linting' workflow
+
+    Actions:
+        1. Run 'release-please' to analyze commit message and create new change log and release
+        2. Login to docker hub
+        3. Build the pok API Dockerfile
+        3. Push an image with x.x.x (version) tag
+        4. Push the image with 'latest' tag
+
+------------------------------------------------------------------------------------------------
+
+3. Deploy on a server - deploy.yml
+
+    Objectives:
+        Deploy the API from the new docker image on the server and push new migrations (if exists) onto the PostgreSQL
+    
+    Triggers:
+        - Release and upload to docker hub
+    
+    Actions:
+        1. Copy docker-compose, and the db files to the server using SCP
+        2. Create a .env file
+        3. Install drizzle-kit
+        2. stop the API
+        3. Apply migrations to the DB using drizzle-kit
+        4. Start the API using docker compose, which will pull the new image from docker hub
+
+
