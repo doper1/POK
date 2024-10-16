@@ -1,10 +1,9 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: [Test]
-    types: [completed]
-    branches: [main]
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -42,6 +41,7 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
@@ -50,6 +50,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
