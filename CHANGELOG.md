@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.6.7](https://github.com/doper1/POK/compare/v4.6.6...v4.6.7) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** fix job skip ([f43dc94](https://github.com/doper1/POK/commit/f43dc942585e11147032442c3f62230984603418))
+* **cicd:** pty ([16d8067](https://github.com/doper1/POK/commit/16d80677d24697a978e43ea1f347150123d67e77))
+
 ## [4.6.6](https://github.com/doper1/POK/compare/v4.6.5...v4.6.6) (2024-10-16)
 
 
