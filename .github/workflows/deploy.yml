@@ -8,7 +8,6 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.ref_name != 'main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -44,6 +43,9 @@ jobs:
           request_pty: true
           script: |
             cd /pok
+            echo ${{ github.base_ref }} > branch
+            echo ${{ github.head_ref }} >> branch
+            echo ${{ github.ref_name }} >> branch
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             source ~/.bashrc
             nvm install 20
