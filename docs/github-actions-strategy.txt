@@ -7,7 +7,7 @@ Objective:
     ensure code correctness, quality and conventions on dev and main branches
 
 Triggers:
-    - On push to dev
+    - On push to dev or main
     - On PR to dev or main
 
 Actions:
