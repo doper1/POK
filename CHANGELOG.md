@@ -1,5 +1,56 @@
 # Changelog
 
+## [4.0.7](https://github.com/doper1/POK/compare/v4.0.6...v4.0.7) (2024-10-13)
+
+
+### Bug Fixes
+
+* **deployment:** remove neon workflow ([2eb16f4](https://github.com/doper1/POK/commit/2eb16f41b0ffcb6838d22637f9d8661e65f90109))
+
+## [4.0.6](https://github.com/doper1/POK/compare/v4.0.5...v4.0.6) (2024-10-12)
+
+
+### Bug Fixes
+
+* **src:** remove log of unrelated messages ([369c812](https://github.com/doper1/POK/commit/369c8127d402a89448838737ae9a88c6863bcf98))
+
+## [4.0.5](https://github.com/doper1/POK/compare/v4.0.4...v4.0.5) (2024-10-12)
+
+
+### Bug Fixes
+
+* **src:** pick SB/BB player ([4f931f7](https://github.com/doper1/POK/commit/4f931f74687a8503ba5b6f855e369b5f86956342))
+
+## [4.0.4](https://github.com/doper1/POK/compare/v4.0.3...v4.0.4) (2024-10-10)
+
+
+### Bug Fixes
+
+* **src:** missing async in pre exit ([fa88e57](https://github.com/doper1/POK/commit/fa88e5754f1605c4c478026bcf82e65c5fda2126))
+
+## [4.0.3](https://github.com/doper1/POK/compare/v4.0.2...v4.0.3) (2024-10-10)
+
+
+### Bug Fixes
+
+* **src:** message timeout and pre/inGame routing ([d07574a](https://github.com/doper1/POK/commit/d07574a680a2c49488ecb6a2d08e8d4dfd92c431))
+
+## [4.0.2](https://github.com/doper1/POK/compare/v4.0.1...v4.0.2) (2024-10-09)
+
+
+### Bug Fixes
+
+* groups id length increase ([1018cc8](https://github.com/doper1/POK/commit/1018cc8fd792fc1d1db07c9f3250eb07a0217c4e))
+* wrong help message ([675af79](https://github.com/doper1/POK/commit/675af79df5cae1f1db10b1667d908e9f84b375b9))
+
+## [4.0.1](https://github.com/doper1/POK/compare/v4.0.0...v4.0.1) (2024-10-09)
+
+
+### Bug Fixes
+
+* post merge fixes ([cb7a322](https://github.com/doper1/POK/commit/cb7a3225d2d40be818ddf9aae80a73cd4abeea22))
+* **src:** add sandbox to puppeteer client ([36a5322](https://github.com/doper1/POK/commit/36a53223b7fd9c63bcd1edc35b354ae3b8497584))
+
 ## [4.0.0](https://github.com/doper1/POK/compare/v3.1.0...v4.0.0) (2024-10-09)
 
 
