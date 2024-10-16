@@ -1,14 +1,22 @@
 name: Deploy
 
 on:
-  workflow_run:
-    workflows: ['Release']
-    types: [completed]
+  push:
+    paths:
+      - 'src/**'
+      - 'db/**'
+      - 'package*.json'
+      - 'drizzle.config.ts'
+      - 'docker-compose.yml'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/release.yml'
     branches:
-      - 'main'
+      - main
 
 jobs:
-  Deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,6 +42,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - uses: garygrossgarten/github-action-scp@release
         with:
@@ -42,6 +51,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - uses: garygrossgarten/github-action-scp@release
         with:
@@ -50,6 +60,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - uses: garygrossgarten/github-action-scp@release
         with:
@@ -58,6 +69,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: install drizzle-kit
         uses: appleboy/ssh-action@v1.1.0

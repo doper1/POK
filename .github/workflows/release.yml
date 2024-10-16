@@ -2,10 +2,9 @@ name: Release
 
 on:
   workflow_run:
-    workflows: ['Test']
+    workflows: [Test]
     types: [completed]
-    branches:
-      - 'main'
+    branches: [main]
 
 permissions:
   contents: write
@@ -16,7 +15,7 @@ env:
   IMAGE_NAME: 'pok'
 
 jobs:
-  Release:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Create a semantic release based on new commits
