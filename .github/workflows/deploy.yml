@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: copy files
+      - name: Copy files
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
@@ -24,18 +24,17 @@ jobs:
           source: 'docker-compose.yml,drizzle.config.ts,db,package.json'
           target: '/pok'
 
-      - name: Install drizzle
-        uses: appleboy/ssh-action@v1.1.0
+      - name: Copy constants
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /pok
-            npm update drizzle-kit
+          source: 'src/utils/constants.js'
+          target: '/src/utils'
 
-      - name: Create .env and stop API
+      - name: Start execution sequence
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.HOST }}
@@ -44,7 +43,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /pok
-            touch .env
+            whoami
+            su ubuntu
+            whoami
+            echo ${{ github.ref_name }}
+            npm update drizzle-kit
             echo POSTGRES_HOST=localhost > /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
@@ -52,25 +55,6 @@ jobs:
             history -c
             history -w
             sudo docker compose stop api
-
-      - name: Push migrations
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /pok
             npm run db:push
-
-      - name: Start the api and prune old image
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
             sudo docker compose up --pull always -d
             sudo docker image prune -f
