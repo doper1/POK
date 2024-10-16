@@ -1,10 +1,6 @@
 name: Deploy
 
-on:
-  workflow_run:
-    workflows: [Release]
-    types: [requested]
-    branches: [main]
+on: workflow_call
 
 jobs:
   deploy:
