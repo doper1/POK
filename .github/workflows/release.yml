@@ -54,3 +54,7 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Start deployment only when not triggered by release-please
+        if: ${{ steps.release.outputs.release_created == false }}
+        uses: ./.github/workflows/deploy.yml
