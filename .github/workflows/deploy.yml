@@ -3,7 +3,7 @@ name: Deploy
 on:
   workflow_run:
     workflows: [Release]
-    types: [completed]
+    types: [requested]
     branches: [main]
 
 jobs:
@@ -42,7 +42,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /pok
-            echo ${{ github.ref_type }} >> typecheck
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             nvm install 20
             npm update drizzle-kit
@@ -53,6 +52,6 @@ jobs:
             history -c
             history -w
             sudo docker compose stop api
-            npm run db:push
+            npm run db:migrate
             sudo docker compose up --pull always -d
             sudo docker image prune -f
