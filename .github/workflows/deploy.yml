@@ -3,7 +3,7 @@ name: Deploy
 on:
   workflow_run:
     workflows: [Release]
-    types: [completed]
+    types: [requested]
     branches: [main]
 
 jobs:
@@ -52,6 +52,6 @@ jobs:
             history -c
             history -w
             sudo docker compose stop api
-            npm run db:push
+            npm run db:migrate
             sudo docker compose up --pull always -d
             sudo docker image prune -f

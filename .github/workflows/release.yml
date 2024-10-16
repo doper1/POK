@@ -23,7 +23,6 @@ jobs:
         with:
           token: ${{ secrets.POK_PAT }}
           release-type: node
-          skip-github-pull-request: true
 
       - name: Checkout repository
         uses: actions/checkout@v2
