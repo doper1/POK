@@ -34,6 +34,7 @@ jobs:
           script: |
             cd /pok
             whoami
+            echo ${{ github.ref_name }}
             npm update drizzle-kit
             echo POSTGRES_HOST=localhost > /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
