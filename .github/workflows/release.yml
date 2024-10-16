@@ -16,9 +16,11 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release-please.outputs.release_created }}
     steps:
       - name: Create a semantic release based on new commits
-        id: release
+        id: release-please
         uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.POK_PAT }}
@@ -38,7 +40,7 @@ jobs:
 
       - name: Build and push Docker versioned docker image
         uses: docker/build-push-action@v2
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release-please.outputs.release_created }}
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -55,6 +57,7 @@ jobs:
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Start deployment only when not triggered by release-please
-        if: ${{ steps.release.outputs.release_created == false }}
-        uses: ./.github/workflows/deploy.yml
+  call-deploy:
+    needs: release
+    if: ${{ needs.release.outputs.release_created == false }}
+    uses: ./.github/workflows/deploy.yml
