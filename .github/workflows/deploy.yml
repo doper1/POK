@@ -44,7 +44,7 @@ jobs:
           script: |
             cd /pok
             whoami > whoam
-            su ubuntu
+            sudo su ubuntu
             whoami >> whoam
             echo ${{ github.ref_name }}
             npm update drizzle-kit
