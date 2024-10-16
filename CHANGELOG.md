@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.1](https://github.com/doper1/POK/compare/v4.5.0...v4.5.1) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** workflow triggers ([f4b1c70](https://github.com/doper1/POK/commit/f4b1c70f3d03a3e10f3c45e03af21c360b4dc17f))
+
 ## [4.5.0](https://github.com/doper1/POK/compare/v4.0.7...v4.5.0) (2024-10-16)
 
 
