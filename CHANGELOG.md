@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.6.0](https://github.com/doper1/POK/compare/v4.5.5...v4.6.0) (2024-10-16)
+
+
+### Features
+
+* **cicd:** add images for amd and arm ([d6ade9f](https://github.com/doper1/POK/commit/d6ade9fc33c7710850833a63612aee6d9ab15510))
+
+
+### Bug Fixes
+
+* **cicd:** deployment ([ff33653](https://github.com/doper1/POK/commit/ff3365340f826870bbd93991f01ab94e7ed5c134))
+* **cicd:** docker permissions ([a0461af](https://github.com/doper1/POK/commit/a0461afe1e9b47f7548da95c6ba9711046275e79))
+* **cicd:** increase timeout of SCP ([7bd8a14](https://github.com/doper1/POK/commit/7bd8a1409aebf489adba5c772d8503163277f995))
+* **cicd:** remove test trigger for push on main ([0e50e4d](https://github.com/doper1/POK/commit/0e50e4d4ae732042321adecf258e7781684dc523))
+* **cicd:** ssh address and port ([d1744d9](https://github.com/doper1/POK/commit/d1744d9253739af7f16cd8e4aaf59aebfc140922))
+* **cicd:** trigger of the release workflow ([097fa43](https://github.com/doper1/POK/commit/097fa431af41d83dfe40d7b9eabafe4177be6376))
+
 ## [4.5.5](https://github.com/doper1/POK/compare/v4.5.4...v4.5.5) (2024-10-16)
 
 
