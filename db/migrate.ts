@@ -4,7 +4,7 @@ const { migrate } = require('drizzle-orm/postgres-js/migrator');
 
 async function runMigration() {
   console.log('Migrating database...');
-  await migrate(db, { migrationsFolder: 'src/db/migrations' });
+  await migrate(db, { migrationsFolder: 'db/migrations' });
   await connection.end();
   console.warn('Migration completed successfully');
 }
