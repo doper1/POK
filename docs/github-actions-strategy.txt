@@ -27,7 +27,7 @@ Actions:
             The first image being 'dofer123/pok:latest' and the second is 'dofer123/pok:x.x.x' (x.x.x refers to the new version number).
     
     Triggers:
-        - Triggers by 'Testing and linting' workflow
+        - Every push to main
 
     Actions:
         1. Run 'release-please' to analyze commit message and create new change log and release
@@ -44,7 +44,7 @@ Actions:
         Deploy the API from the new docker image on the server and push new migrations (if exists) onto the PostgreSQL
     
     Triggers:
-        - Every push to main that includes changes in source, code, critical configurations and dependencies or workflow changes 
+        - The release workflow
     
     Actions:
         1. Copy docker-compose, and the db files to the server using SCP
