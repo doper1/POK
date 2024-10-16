@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'src/utils/constants.js'
-          target: '/pok/src/utils/constants.js'
+          target: '/pok/src/utils'
 
       - name: Start execution sequence
         uses: appleboy/ssh-action@v1.1.0
@@ -42,7 +42,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /pok
-            echo $HEAD_REF >> branch
+            echo $HEAD_REF >> branch2
+            echo $GITHUB_REF_NAME >> branch3
+            echo $GITHUB_BASE_REF >> branch4
             echo ${{ github.head_ref }} >> branch
             echo ${{ github.ref_name }} >> branch
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
