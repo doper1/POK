@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.ref_name != 'release-please--branches--main--components--POK' }}
+    if: ${{ github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -43,9 +43,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /pok
-            echo ${{ github.ref_name }} > branch
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-            ~/.nvm install 20
+            source ~/.bashrc
+            nvm install 20
             npm update drizzle-kit
             echo POSTGRES_HOST=localhost > /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
