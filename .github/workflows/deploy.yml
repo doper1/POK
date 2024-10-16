@@ -43,9 +43,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /pok
-            whoami
+            whoami > whoam
             su ubuntu
-            whoami
+            whoami >> whoam
             echo ${{ github.ref_name }}
             npm update drizzle-kit
             echo POSTGRES_HOST=localhost > /pok/.env
