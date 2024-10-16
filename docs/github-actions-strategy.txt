@@ -44,7 +44,7 @@ Actions:
         Deploy the API from the new docker image on the server and push new migrations (if exists) onto the PostgreSQL
     
     Triggers:
-        - Release and upload to docker hub
+        - Every push to main that includes changes in source, code, critical configurations and dependencies or workflow changes 
     
     Actions:
         1. Copy docker-compose, and the db files to the server using SCP
