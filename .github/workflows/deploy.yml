@@ -40,16 +40,14 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          request_pty: true
           script: |
             cd /pok
-            echo ${{ github.base_ref }} > branch
+            echo ${{ github.base_ref }} >> branch
             echo ${{ github.head_ref }} >> branch
             echo ${{ github.ref_name }} >> branch
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-            source ~/.bashrc
             nvm install 20
-            npm update drizzle-kit
+            ~/.nvm/versions/node/v20.18.0/bin/npm update drizzle-kit
             echo POSTGRES_HOST=localhost > /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
