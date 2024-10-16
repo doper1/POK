@@ -1,5 +1,41 @@
 # Changelog
 
+## [4.5.2](https://github.com/doper1/POK/compare/v4.5.1...v4.5.2) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** release and deployment ([a2db865](https://github.com/doper1/POK/commit/a2db865a9b8b8de81a9b32807c6bbd655f08299e))
+
+## [4.5.1](https://github.com/doper1/POK/compare/v4.5.0...v4.5.1) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** workflow triggers ([f4b1c70](https://github.com/doper1/POK/commit/f4b1c70f3d03a3e10f3c45e03af21c360b4dc17f))
+
+## [4.5.0](https://github.com/doper1/POK/compare/v4.0.7...v4.5.0) (2024-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deployment:** CD from github to the server
+
+### Features
+
+* **deployment:** CD from github to the server ([83f3a38](https://github.com/doper1/POK/commit/83f3a3808c10443ef1711f0f450060f4a750045c))
+
+
+### Bug Fixes
+
+* **ci:** test workflow trigger missing ([d6ba51a](https://github.com/doper1/POK/commit/d6ba51ab8e894e8983d4b1db5bf853f69be25df7))
+* **deps:** drizzle and whatsapp-web.js versions ([3389b43](https://github.com/doper1/POK/commit/3389b4302c19a039e05a2b43b58c7f626fcefb94))
+
+
+### Miscellaneous Chores
+
+* release 4.5.0 ([8379fed](https://github.com/doper1/POK/commit/8379fedbb5bf988d6177ccd60bf0f1edf22766ea))
+
 ## [4.0.7](https://github.com/doper1/POK/compare/v4.0.6...v4.0.7) (2024-10-13)
 
 
