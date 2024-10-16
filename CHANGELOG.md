@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.2](https://github.com/doper1/POK/compare/v4.6.1...v4.6.2) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** ignore deploy on release-please PR ([e1f597b](https://github.com/doper1/POK/commit/e1f597b239a5995b30f2ea46d82f5981bdb1f0e0))
+
 ## [4.6.1](https://github.com/doper1/POK/compare/v4.6.0...v4.6.1) (2024-10-16)
 
 
