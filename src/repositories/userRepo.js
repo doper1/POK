@@ -1,5 +1,5 @@
-const { db } = require('../db/db.ts');
-const { user } = require('../db/schema.ts');
+const { db } = require('../../db/db.ts');
+const { user } = require('../../db/schema.ts');
 const { eq } = require('drizzle-orm');
 
 async function createUser(id) {

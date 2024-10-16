@@ -1,5 +1,5 @@
-const { db } = require('../db/db.ts');
-const { participant } = require('../db/schema.ts');
+const { db } = require('../../db/db.ts');
+const { participant } = require('../../db/schema.ts');
 const { eq, and } = require('drizzle-orm');
 
 async function createParticipant(potId, userId) {

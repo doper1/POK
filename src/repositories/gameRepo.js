@@ -1,5 +1,5 @@
-const { db } = require('../db/db.ts');
-const { game, player, user, pot } = require('../db/schema.ts');
+const { db } = require('../../db/db.ts');
+const { game, player, user, pot } = require('../../db/schema.ts');
 const { eq, and } = require('drizzle-orm');
 
 async function createGame(id, groupName) {
