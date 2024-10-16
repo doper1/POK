@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: copy files
+      - name: Copy files
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
@@ -23,6 +23,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'docker-compose.yml,drizzle.config.ts,db,package.json'
           target: '/pok'
+
+      - name: Copy constants
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'src/utils/constants.js'
+          target: '/src/utils'
 
       - name: Start execution sequence
         uses: appleboy/ssh-action@v1.1.0
@@ -33,6 +43,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /pok
+            whoami
+            su ubuntu
             whoami
             echo ${{ github.ref_name }}
             npm update drizzle-kit
