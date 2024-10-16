@@ -61,3 +61,4 @@ jobs:
     needs: release
     if: ${{ needs.release.outputs.release_created == false }}
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit
