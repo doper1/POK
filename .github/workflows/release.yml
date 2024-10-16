@@ -16,7 +16,7 @@ env:
   IMAGE_NAME: 'pok'
 
 jobs:
-  release:
+  Release:
     runs-on: ubuntu-latest
     steps:
       - name: Create a semantic release based on new commits
