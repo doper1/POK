@@ -32,7 +32,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'src/utils/constants.js'
-          target: '/src/utils/constants.js'
+          target: '/pok/src/utils/constants.js'
 
       - name: Start execution sequence
         uses: appleboy/ssh-action@v1.1.0
