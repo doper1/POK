@@ -45,7 +45,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}
+            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
 
       - name: Build and push latest Docker image
         uses: docker/build-push-action@v2
