@@ -32,7 +32,7 @@ jobs:
           source: 'docker-compose.yml,drizzle.config.ts,db,package.json'
           target: '/pok'
 
-      - name: Create a .env file on the server
+      - name: Execute start sequence
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.HOST }}
@@ -49,6 +49,6 @@ jobs:
             echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
             history -c
             history -w
-            docker compose stop api
+            sudo docker compose stop api
             npm run db:push
-            docker compose up --pull always -d
+            sudo docker compose up --pull always -d
