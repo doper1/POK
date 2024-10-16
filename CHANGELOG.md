@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.6](https://github.com/doper1/POK/compare/v4.6.5...v4.6.6) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** one more try ([be30962](https://github.com/doper1/POK/commit/be3096246df339943aa3340a2fb06b1c0976ae14))
+
 ## [4.6.5](https://github.com/doper1/POK/compare/v4.6.4...v4.6.5) (2024-10-16)
 
 
