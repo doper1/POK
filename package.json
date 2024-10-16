@@ -1,6 +1,6 @@
 {
   "name": "POK",
-  "version": "4.6.2",
+  "version": "4.6.3",
   "private": true,
   "description": "Poker bot for whatsapp",
   "type": "commonjs",
