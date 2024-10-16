@@ -21,36 +21,36 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           source: ./docker-compose.yml
           target: /pok/docker-compose.yml
+          timeout: 60
 
       - uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           source: ./drizzle.config.ts
           target: /pok/docker-compose.yml
+          timeout: 60
 
       - uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           source: ./db
           target: /pok/db
+          timeout: 60
 
       - uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           source: ./package.json
           target: /pok/package.json
+          timeout: 60
 
       - name: install drizzle-kit
         uses: appleboy/ssh-action@v1.1.0
@@ -58,7 +58,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           script: |
             cd /pok
             npm update drizzle-kit
@@ -69,13 +68,14 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           script: |
             touch .env
             echo POSTGRES_HOST=localhost >> /pok/.env
-            echo POSTGRES_DB="$POSTGRES_DB" >> /pok/.env
-            echo POSTGRES_USER="$POSTGRES_USER" >> /pok/.env
-            echo POSTGRES_PASSWORD="$POSTGRES_PASSWORD" >> /pok/.env
+            echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
+            echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
+            echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
+            history -c
+            history -w
 
       - name: stop the api container
         uses: appleboy/ssh-action@v1.1.0
@@ -83,7 +83,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           script: |
             cd /pok 
             docker compose stop api
@@ -94,7 +93,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           script: |
             cd /pok
             npm run db:push
@@ -105,11 +103,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST_1 }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
           script: |
             cd /pok 
             docker compose up --pull always -d
-
-        # Update documentation if needed
-        # This with act
-        # Bundle everything in commits and test realtime!
