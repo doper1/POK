@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.4](https://github.com/doper1/POK/compare/v4.5.3...v4.5.4) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** ssh config pre scp ([0f2ff19](https://github.com/doper1/POK/commit/0f2ff198876b69a9c6aeaa26e8d3a4d79afa26ab))
+
 ## [4.5.3](https://github.com/doper1/POK/compare/v4.5.2...v4.5.3) (2024-10-16)
 
 
