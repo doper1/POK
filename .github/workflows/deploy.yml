@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.ref_name == 'main' }}
+    if: ${{ github.ref_name != 'main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -41,6 +41,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          request_pty: true
           script: |
             cd /pok
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
