@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.2](https://github.com/doper1/POK/compare/v4.5.1...v4.5.2) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** release and deployment ([a2db865](https://github.com/doper1/POK/commit/a2db865a9b8b8de81a9b32807c6bbd655f08299e))
+
 ## [4.5.1](https://github.com/doper1/POK/compare/v4.5.0...v4.5.1) (2024-10-16)
 
 
