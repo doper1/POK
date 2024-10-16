@@ -30,6 +30,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'docker-compose.yml,drizzle.config.ts,db,package.json'
           target: '/pok'
+          timeout: 300
 
       - name: install drizzle-kit
         uses: appleboy/ssh-action@v1.1.0
