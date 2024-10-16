@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.16](https://github.com/doper1/POK/compare/v4.6.15...v4.6.16) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** inherit secrets ([389615d](https://github.com/doper1/POK/commit/389615da05c3c8e01d966928b6bf57000180cfc6))
+
 ## [4.6.15](https://github.com/doper1/POK/compare/v4.6.14...v4.6.15) (2024-10-16)
 
 
