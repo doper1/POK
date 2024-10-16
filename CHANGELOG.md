@@ -1,5 +1,26 @@
 # Changelog
 
+## [5.0.0](https://github.com/doper1/POK/compare/v4.5.4...v5.0.0) (2024-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* CICD done!
+
+### Features
+
+* CICD done! ([d14fdfc](https://github.com/doper1/POK/commit/d14fdfc85bcb769e77032392773eda073b1a90be))
+* **cicd:** add images for amd and arm ([d88663a](https://github.com/doper1/POK/commit/d88663a2bf0de511e0207e52dff5f7b23739a6b2))
+
+
+### Bug Fixes
+
+* **cicd:** docker permissions ([626f7a0](https://github.com/doper1/POK/commit/626f7a000b8108abfa8240f80570ca4ff5cdeac1))
+* **cicd:** inherit secrets ([600ddbc](https://github.com/doper1/POK/commit/600ddbc9b341654a21826f56f19bf39f603c79cd))
+* **cicd:** remove test trigger for push on main ([8e3370a](https://github.com/doper1/POK/commit/8e3370a3e7de621448c60c0641168538463eba38))
+* **cicd:** ssh address and port ([cb2028b](https://github.com/doper1/POK/commit/cb2028b1f59d9d9c922044b3ac2f7da7f0e4f728))
+* **cicd:** trigger and scp fixes ([b41d6bd](https://github.com/doper1/POK/commit/b41d6bdcc878df76e06beeb2f609641435cc8014))
+
 ## [4.6.16](https://github.com/doper1/POK/compare/v4.6.15...v4.6.16) (2024-10-16)
 
 
