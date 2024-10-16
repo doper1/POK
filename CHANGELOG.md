@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.5](https://github.com/doper1/POK/compare/v4.5.4...v4.5.5) (2024-10-16)
+
+
+### Bug Fixes
+
+* **cicd:** trigger and scp fixes ([d445772](https://github.com/doper1/POK/commit/d44577255d8e1b6385115fdba7e5ad09a54a1c04))
+
 ## [4.5.4](https://github.com/doper1/POK/compare/v4.5.3...v4.5.4) (2024-10-16)
 
 
