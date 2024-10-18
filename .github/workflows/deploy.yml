@@ -51,3 +51,14 @@ jobs:
             npm run db:migrate
             sudo docker compose up --pull always -d
             sudo docker image prune -f
+
+            mkdir -p /pok/backups
+            echo "localhost:5432:${{ secrets.POSTGRES_DB }}:${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.pgpass
+            chmod 600 /pok/.pgpass
+            crontab -l > /pok/mycron
+            cron_job1="0 6 * * 0 pg_dump -h localhost -f /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +\%F).sql -U \${{ secrets.POSTGRES_USER }} \${{ secrets.POSTGRES_DB }}"
+            cron_job2="30 6 * * 0 cp /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +\%F).sql /pg-backups"
+            grep -qxF "$cron_job1" /pok/mycron || echo "$cron_job1" >> /pok/mycron
+            grep -qxF "$cron_job2" /pok/mycron || echo "$cron_job2" >> /pok/mycron
+            crontab /pok/mycron
+            rm /pok/mycron
