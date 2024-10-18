@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.0](https://github.com/doper1/POK/compare/v5.0.0...v5.1.0) (2024-10-18)
+
+
+### Features
+
+* **cicd:** db backups using pg_dump ([01b18fc](https://github.com/doper1/POK/commit/01b18fcee932160457276b11446415d3d80ff813))
+
 ## [5.0.0](https://github.com/doper1/POK/compare/v4.5.4...v5.0.0) (2024-10-16)
 
 
