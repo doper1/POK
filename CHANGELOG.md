@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.1](https://github.com/doper1/POK/compare/v5.1.0...v5.1.1) (2024-10-18)
+
+
+### Bug Fixes
+
+* **cicd:** syntax fix ([2b61dcd](https://github.com/doper1/POK/commit/2b61dcd6b8d7c8d4839e23933cce20469fd1f30b))
+
 ## [5.1.0](https://github.com/doper1/POK/compare/v5.0.0...v5.1.0) (2024-10-18)
 
 
