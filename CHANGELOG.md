@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.2.1](https://github.com/doper1/POK/compare/v5.2.0...v5.2.1) (2024-10-19)
+
+
+### Bug Fixes
+
+* **cicd:** syntax error ([f817f31](https://github.com/doper1/POK/commit/f817f3172f0f7d29c359d5283999c9b3f7cb5f3f))
+
 ## [5.2.0](https://github.com/doper1/POK/compare/v5.1.2...v5.2.0) (2024-10-19)
 
 
