@@ -4,7 +4,7 @@
   "private": true,
   "description": "Poker bot for whatsapp",
   "type": "commonjs",
-  "main": "main.js",
+  "main": "src/app.js",
   "directories": {
     "doc": "/docs"
   },
