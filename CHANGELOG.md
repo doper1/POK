@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.1.2](https://github.com/doper1/POK/compare/v5.1.1...v5.1.2) (2024-10-19)
+
+
+### Bug Fixes
+
+* **cicd:** switch from weekly to daily backups ([01cac16](https://github.com/doper1/POK/commit/01cac16f6717f8a7079f87d7ddef4ce699c38e6e))
+* **config:** main script in package.json ([b2cf77d](https://github.com/doper1/POK/commit/b2cf77d2d04d77a54e885b75b15af98475f86540))
+
 ## [5.1.1](https://github.com/doper1/POK/compare/v5.1.0...v5.1.1) (2024-10-18)
 
 
