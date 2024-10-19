@@ -38,23 +38,28 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /pok
+
+            echo "localhost:5432:${{ secrets.POSTGRES_DB }}:${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}" >> ~/.pgpass
+            chmod 600 ~/.pgpass
+            pg_dump -h localhost -f /pok/backups/${{ secrets.POSTGRES_DB }}-pre-version-\$(date +%F).sql -U ${{ secrets.POSTGRES_USER }} ${{ secrets.POSTGRES_DB }} -w
+
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             nvm install 20
             npm update drizzle-kit
+
             echo POSTGRES_HOST=localhost > /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
             echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
             history -c
             history -w
+
             sudo docker compose stop api
             npm run db:migrate
             sudo docker compose up --pull always -d
             sudo docker image prune -f
 
             mkdir -p /pok/backups
-            echo "localhost:5432:${{ secrets.POSTGRES_DB }}:${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}" >> ~/.pgpass
-            chmod 600 ~/.pgpass
             crontab -l > /pok/mycron
             cron_job1="0 6 * * *  pg_dump -h localhost -f /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +%F).sql -U ${{ secrets.POSTGRES_USER }} ${{ secrets.POSTGRES_DB }} -w"
             cron_job2="30 6 * * * cp /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +\%F).sql /pg-backups"
