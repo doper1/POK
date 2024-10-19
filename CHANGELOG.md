@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.2.0](https://github.com/doper1/POK/compare/v5.1.2...v5.2.0) (2024-10-19)
+
+
+### Features
+
+* **cicd:** take backups before uploading new version ([99639c0](https://github.com/doper1/POK/commit/99639c0aea7d7e5ecdc3bb1b1096ec4e737215b7))
+
 ## [5.1.2](https://github.com/doper1/POK/compare/v5.1.1...v5.1.2) (2024-10-19)
 
 
