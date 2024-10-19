@@ -56,8 +56,8 @@ jobs:
             echo "localhost:5432:${{ secrets.POSTGRES_DB }}:${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}" >> ~/.pgpass
             chmod 600 ~/.pgpass
             crontab -l > /pok/mycron
-            cron_job1="0 6 * * 0  pg_dump -h localhost -f /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +%F).sql -U ${{ secrets.POSTGRES_USER }} ${{ secrets.POSTGRES_DB }} -w"
-            cron_job2="30 6 * * 0 cp /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +\%F).sql /pg-backups"
+            cron_job1="0 6 * * *  pg_dump -h localhost -f /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +%F).sql -U ${{ secrets.POSTGRES_USER }} ${{ secrets.POSTGRES_DB }} -w"
+            cron_job2="30 6 * * * cp /pok/backups/${{ secrets.POSTGRES_DB }}-full-\$(date +\%F).sql /pg-backups"
             grep -qxF "$cron_job1" /pok/mycron || echo "$cron_job1" >> /pok/mycron
             grep -qxF "$cron_job2" /pok/mycron || echo "$cron_job2" >> /pok/mycron
             crontab /pok/mycron
