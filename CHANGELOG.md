@@ -1,5 +1,23 @@
 # Changelog
 
+## [6.0.0](https://github.com/doper1/POK/compare/v5.2.1...v6.0.0) (2024-10-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* **src:** images for displaying cards
+
+### Features
+
+* playing card images ([277ea52](https://github.com/doper1/POK/commit/277ea525111c59cb6a29fa289495f8d730f90b16))
+* **src:** images for displaying cards ([34e88f8](https://github.com/doper1/POK/commit/34e88f8155d5b6c0afaa847c22d7332011c85e5b))
+
+
+### Bug Fixes
+
+* **cicd:** crontab fix ([d2bb2a7](https://github.com/doper1/POK/commit/d2bb2a7095affd41aafe6c56b2a3c38ea5089492))
+* **src:** clean extra whitespaces in messages ([c531d58](https://github.com/doper1/POK/commit/c531d58c8a97bc832814ef5146ef6a28def37ca0))
+
 ## [5.2.1](https://github.com/doper1/POK/compare/v5.2.0...v5.2.1) (2024-10-19)
 
 
