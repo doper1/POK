@@ -9,6 +9,10 @@ on:
       - main
       - dev
 
+env:
+  DOCKER_USERNAME: 'dofer123'
+  IMAGE_NAME: 'pok'
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,3 +35,16 @@ jobs:
         run: npm run test
         env:
           CI: true
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker multi-platform build test
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: false
+          tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
