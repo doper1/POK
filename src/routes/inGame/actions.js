@@ -132,9 +132,20 @@ wait for the next hand to start`;
 }
 
 async function show(game, chat) {
-  await chat.sendMessage(await game.getOrderPretty(), {
-    mentions: await game.getMentions(),
-  });
+  let order = await game.getOrderPretty();
+  const newCards = order[0];
+  const newMessage = order[1];
+
+  if (!newCards) {
+    return await chat.sendMessage(newMessage, {
+      mentions: await game.getMentions(),
+    });
+  } else {
+    return await chat.sendMessage(newCards, {
+      caption: newMessage,
+      mentions: await game.getMentions(),
+    });
+  }
 }
 
 async function exit(game, message, chat, current, whatsapp) {

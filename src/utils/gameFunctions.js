@@ -73,11 +73,11 @@ function randomWinnerKey(possibleWinners) {
 async function showdown(game) {
   let pots = await reorgPots(game);
   let winners = await calcWinners(game, pots);
-
+  let newCards;
   let message = '';
+
   const template = `Congrats! @{{winner}} Won \${{winnings}}
-with {{holeCards}} - {{handStrength}}\n
-{{handCards}}
+with {{holeCards}} - {{handStrength}}
 ${constants.SEPARATOR}`;
 
   for (const index in winners) {
@@ -86,18 +86,19 @@ ${constants.SEPARATOR}`;
     if (player[1] === 0) continue;
     if (message.length > 0) message += '\n';
 
+    newCards = await cardsFunctions.getCards(player.cards);
+
     const winnerData = {
       winner: player.userId,
       winnings: player.winnings,
       holeCards: cardsFunctions.printCards(player.holeCards),
       handStrength: constants.STRENGTH_DICT[player.strength],
-      handCards: cardsFunctions.printCards(player.cards),
     };
 
     message += Mustache.render(template, winnerData);
   }
 
-  return message;
+  return { endMessage: message, newCards };
 }
 
 async function reorgPots(game) {

@@ -15,7 +15,8 @@ services:
 
   # For local testing, comment the api service and run it as a process for hot reloading
   api:
-    image: dofer123/pok:latest
+    build: .
+    # image: dofer123/pok:latest
     restart: always
     environment:
       - POSTGRES_HOST=db

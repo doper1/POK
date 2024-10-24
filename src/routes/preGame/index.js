@@ -1,14 +1,11 @@
-const constants = require('../../utils/constants.js');
 const actions = require('./actions.js');
 const validators = require('./validators.js');
+const constants = require('../../utils/constants');
 
 async function preGameRoute({ whatsapp, message, chat, game }) {
   const amount = Number(message.body[2]);
 
   switch (message.body[1]) {
-    case 'help':
-      message.reply(constants.HELP_PRE_GAME);
-      break;
     case 'join':
       if (await validators.join(game, message, amount))
         await actions.join(game, message, chat, amount);
