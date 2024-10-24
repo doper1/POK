@@ -46,7 +46,7 @@ async function generateCards(cards, path) {
 
     cmd1.stdout.pipe(cmd2.stdin);
 
-    cmd2.on('close', (_code) => {
+    cmd2.on('close', () => {
       resolve(MessageMedia.fromFilePath(path));
     });
   });
@@ -57,7 +57,7 @@ async function getCards(cards) {
     return new Promise((resolve) => resolve(''));
   }
 
-  return new Promise(async (resolve, _reject) => {
+  return new Promise(async (resolve) => {
     const path = `newCards/${cards.flat().join('')}.png`;
 
     if (fs.existsSync(path)) {

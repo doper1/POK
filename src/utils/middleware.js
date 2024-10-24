@@ -30,10 +30,13 @@ function filterWhatsapp(whatsapp) {
 }
 
 function filterMessage(message) {
-  message.body = message.body.toLowerCase().split(' ');
+  message.body = message.body
+    .toLowerCase()
+    .split(' ')
+    .filter((word) => word != '');
   message.author = message.author.match(/\d+/)[0];
 
-  return getProperties(message, ['body', 'author'], ['react', 'reply']);
+  return getProperties(message, ['body', 'author', 'from'], ['react', 'reply']);
 }
 
 function filterChat(chat) {
