@@ -157,18 +157,15 @@ class Game {
     } while (current.userId != firstPlayerId);
 
     let template = `*Pot:* \${{mainPot}}\n
-{{#CommunityCards}}
-*Community Cards:*
-{{communityCards}}\n
-{{/CommunityCards}}*Playing Order  |  Bet  |  Stack* {{orderString}}`;
+*Playing Order  |  Bet  |  Stack* {{orderString}}`;
 
-    return Mustache.render(template, {
-      mainPot: (await Pot.get(this.mainPot)).value,
-      communityCards:
-        this.communityCards.length &&
-        cardsFunctions.printCards(this.communityCards),
-      orderString: orderString,
-    });
+    return [
+      await cardsFunctions.getCards(this.communityCards),
+      Mustache.render(template, {
+        mainPot: (await Pot.get(this.mainPot)).value,
+        orderString: orderString,
+      }),
+    ];
   }
 
   async resetGameStatus() {
@@ -185,10 +182,7 @@ class Game {
   }
 
   async dealCards(whatsapp, players) {
-    const template = `{{holeCards}}\n
-{{chatName}}`;
-
-    for (let player of players) {
+    for (const player of players) {
       if (player.status === 'folded') continue;
 
       let holeCards = [...this.deck.splice(-2)];
@@ -199,11 +193,11 @@ class Game {
         holeCards,
       );
 
-      const newMessage = Mustache.render(template, {
-        holeCards: cardsFunctions.printCards(holeCards),
-        chatName: this.groupName,
+      const newCards = await cardsFunctions.getCards(holeCards);
+
+      whatsapp.sendMessage(`${player.userId}@c.us`, newCards, {
+        caption: `*${this.groupName}*`,
       });
-      whatsapp.sendMessage(`${player.userId}@c.us`, newMessage);
     }
   }
 
@@ -214,12 +208,12 @@ class Game {
     );
   }
 
-  async initRound(whatsapp, lastRoundMessage) {
+  async initRound(whatsapp, lastRoundMessage, newCards = false) {
     await this.resetGameStatus();
     let players = await this.getPlayers();
 
     if (await this.endCondition(players)) {
-      await this.endGame(whatsapp, lastRoundMessage);
+      await this.endGame(whatsapp, lastRoundMessage, newCards);
       return;
     }
 
@@ -260,17 +254,26 @@ Action on @{{id}} (\${{money}})`;
         template += `\n\nAll in to call`;
       }
     }
+    let order = await this.getOrderPretty();
+
     let newMessage = Mustache.render(template, {
       lastRoundMessage,
-      order: await this.getOrderPretty(),
+      order: order[1],
       id: utg.userId,
       money: utg.gameMoney,
       toCall: callAmount,
     });
 
-    whatsapp.sendMessage(`${this.id}@g.us`, newMessage, {
-      mentions: await this.getMentions(),
-    });
+    if (newCards) {
+      whatsapp.sendMessage(`${this.id}@g.us`, newCards, {
+        caption: newMessage,
+        mentions: await this.getMentions(),
+      });
+    } else {
+      whatsapp.sendMessage(`${this.id}@g.us`, newMessage, {
+        mentions: await this.getMentions(),
+      });
+    }
   }
 
   async generateOrder() {
@@ -353,9 +356,6 @@ Action on @{{id}} (\${{money}})`;
   }
 
   async putBlind(current, blindAmount) {
-    // Skips [small/big] blind candidate players until there is a player with in-game money
-    current = await this.getNextCurrent(current);
-
     if (current.gameMoney <= blindAmount) {
       await current.set('status', 'all in');
       await current.bet(current.gameMoney, this.mainPot);
@@ -372,10 +372,10 @@ Action on @{{id}} (\${{money}})`;
       constants.SMALL_BLIND,
     );
 
-    let bigBlind = await this.putBlind(
-      await this.getPlayer(smallBlind.nextPlayer),
-      constants.BIG_BLIND,
-    );
+    // Skips [small/big] blind candidate players until there is a player with in-game money
+    let current = await this.getNextCurrent(smallBlind);
+
+    let bigBlind = await this.putBlind(current, constants.BIG_BLIND);
 
     return bigBlind;
   }
@@ -443,8 +443,8 @@ Action on @{{id}} (\${{money}})`;
         break;
       // Showdown
       case 5:
-        let endMessage = await gameFunctions.showdown(this);
-        await this.initRound(whatsapp, endMessage);
+        let { endMessage, newCards } = await gameFunctions.showdown(this);
+        await this.initRound(whatsapp, endMessage, newCards);
         break;
     }
   }
@@ -519,18 +519,18 @@ Action on @{{id}} (\${{money}})`;
       template += actionMessage;
     }
 
-    template += `\n\n*Community Cards:*
-{{communityCards}}\n
-Action on @{{id}} (\${{money}})`;
+    template += `\n\nAction on @{{id}} (\${{money}})`;
+
+    const newCards = await cardsFunctions.getCards(this.communityCards);
 
     let newMessage = Mustache.render(template, {
-      communityCards: cardsFunctions.printCards(this.communityCards),
       id: current.userId,
       money: current.gameMoney,
       pot: pot.value,
     });
 
-    await whatsapp.sendMessage(`${this.id}@g.us`, newMessage, {
+    await whatsapp.sendMessage(`${this.id}@g.us`, newCards, {
+      caption: newMessage,
       mentions: await this.getMentions(),
     });
   }
@@ -561,9 +561,9 @@ Action on @{{id}} (\${{money}})`;
 
     await this.rushRound(message, whatsapp, newMessage);
     await delay(1000);
-    let endMessage = await gameFunctions.showdown(this);
+    let { endMessage, newCards } = await gameFunctions.showdown(this);
     await this.set('status', 'running');
-    await this.initRound(whatsapp, endMessage);
+    await this.initRound(whatsapp, endMessage, newCards);
   }
 
   async foldsScenario(whatsapp, current, mainPot) {
@@ -579,7 +579,7 @@ ${constants.SEPARATOR}`,
     );
   }
 
-  async endGame(whatsapp, lastRoundMessage = '') {
+  async endGame(whatsapp, lastRoundMessage = '', newCards = false) {
     let current = await this.getPlayer(this.button);
 
     do {
@@ -593,7 +593,7 @@ ${constants.SEPARATOR}`,
     }
 
     let template = `${lastRoundMessage}🎰 *The game has ended!* 🎰\n
-    *Player  |  Balance  |  Money*{{#players}}\n{{index}}. @{{id}}I  *{{balance}}*  I  \${{money}}{{/players}}`;
+*Player  |  Balance  |  Money*{{#players}}\n{{index}}. @{{id}}I  *{{balance}}*  I  \${{money}}{{/players}}`;
 
     let players = await this.getPlayersWithMoney();
     players.sort((a, b) => b.sessionBalance - a.sessionBalance);
@@ -608,9 +608,17 @@ ${constants.SEPARATOR}`,
           : `-$${player.sessionBalance * -1}🔻`,
     }));
     let newMessage = Mustache.render(template, { players });
-    await whatsapp.sendMessage(`${this.id}@g.us`, newMessage, {
-      mentions: await this.getMentions(),
-    });
+
+    if (newCards) {
+      await whatsapp.sendMessage(`${this.id}@g.us`, newCards, {
+        caption: newMessage,
+        mentions: await this.getMentions(),
+      });
+    } else {
+      await whatsapp.sendMessage(`${this.id}@g.us`, newMessage, {
+        mentions: await this.getMentions(),
+      });
+    }
 
     // Resets the status in-case new game starts
     current = await this.getPlayer(this.button);

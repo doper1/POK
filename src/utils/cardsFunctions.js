@@ -1,11 +1,71 @@
+const { MessageMedia } = require('whatsapp-web.js');
+const os = require('os');
+const { spawn } = require('node:child_process');
+const fs = require('fs');
+const constants = require('./constants.js');
+
 function printCards(cards) {
   let cardsString = '';
   for (let i = 0; i < cards.length - 1; i++) {
-    cardsString += `*I${cards[i][0]}${cards[i][1]}I* `;
+    cardsString += `*(${constants.SHAPES[cards[i][0] - 1]}${cards[i][1]})* `;
   }
-  return `${cardsString}*I${cards[cards.length - 1][0]}${
+  return `${cardsString}*(${constants.SHAPES[cards[cards.length - 1][0] - 1]}${
     cards[cards.length - 1][1]
-  }I*`;
+  })*`;
+}
+
+async function generateCards(cards, path) {
+  return new Promise((resolve) => {
+    let bin;
+    let cmd1Args = [
+      '-border',
+      '30',
+      '-resize',
+      '50%',
+      '-filter',
+      'Lanczos',
+      '-quality',
+      '90',
+      '+append',
+      '-',
+    ];
+    const cmd2Args = ['-', '-border', '30x30', '-strip', path];
+
+    if (os.type().includes('Windows')) {
+      bin = 'magick';
+    } else {
+      bin = 'convert';
+    }
+
+    for (const card of cards) {
+      cmd1Args.unshift(`cards/${card[0]}${card[1]}.png`);
+    }
+
+    let cmd1 = spawn(bin, cmd1Args);
+    let cmd2 = spawn(bin, cmd2Args);
+
+    cmd1.stdout.pipe(cmd2.stdin);
+
+    cmd2.on('close', (_code) => {
+      resolve(MessageMedia.fromFilePath(path));
+    });
+  });
+}
+
+async function getCards(cards) {
+  if (!cards.length) {
+    return new Promise((resolve) => resolve(''));
+  }
+
+  return new Promise(async (resolve, _reject) => {
+    const path = `newCards/${cards.flat().join('')}.png`;
+
+    if (fs.existsSync(path)) {
+      resolve(MessageMedia.fromFilePath(path));
+    } else {
+      resolve(await generateCards(cards, path));
+    }
+  });
 }
 
 function countCards(cards, type) {
@@ -269,12 +329,13 @@ module.exports = {
   isPair,
   parseCardNumber,
   ReverseParseCardNumber,
-  printCards,
+  getCards,
   sortCards,
   countCards,
   getHandStrength,
   getHand,
   isCardInCards,
   calcHandsStrength,
+  printCards,
   formatHand,
 };
