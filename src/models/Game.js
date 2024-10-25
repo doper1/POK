@@ -118,7 +118,7 @@ class Game {
       (player) => (players[player.userId] = player),
     );
 
-    let current = await this.getFirstPlayer();
+    let current = await this.getFirstPlayer(players);
     let firstPlayerId = current.userId;
     let i = 1;
 
@@ -644,12 +644,12 @@ ${constants.SEPARATOR}`,
     await this.set('lastRoundPot', 0);
   }
 
-  async getFirstPlayer() {
-    let players = {};
-
-    (await this.getPlayers()).forEach(
-      (player) => (players[player.userId] = player),
-    );
+  async getFirstPlayer(players = {}) {
+    if (!Object.keys(players).length) {
+      (await this.getPlayers()).forEach(
+        (player) => (players[player.userId] = player),
+      );
+    }
 
     let current = players[this.button]; // Button
 
@@ -680,6 +680,14 @@ ${constants.SEPARATOR}`,
 
     let previousPlayer = await this.getPreviousPlayer(id);
     await previousPlayer.set('nextPlayer', player.nextPlayer);
+
+    if (player.userId === this.button) {
+      await this.set('button', player.nextPlayer);
+    }
+
+    if (player.userId === this.currentPlayer) {
+      await this.set('currentPlayer', player.nextPlayer);
+    }
 
     await playerRepo.deletePlayer(this.id, id);
   }
