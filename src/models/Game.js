@@ -118,7 +118,7 @@ class Game {
       (player) => (players[player.userId] = player),
     );
 
-    let current = await this.getFirstPlayer(players);
+    let current = await this.getFirstPlayer();
     let firstPlayerId = current.userId;
     let i = 1;
 
@@ -644,12 +644,12 @@ ${constants.SEPARATOR}`,
     await this.set('lastRoundPot', 0);
   }
 
-  async getFirstPlayer(players = {}) {
-    if (!Object.keys(players).length) {
-      (await this.getPlayers()).forEach(
-        (player) => (players[player.userId] = player),
-      );
-    }
+  async getFirstPlayer() {
+    let players = {};
+
+    (await this.getPlayers()).forEach(
+      (player) => (players[player.userId] = player),
+    );
 
     let current = players[this.button]; // Button
 
