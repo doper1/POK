@@ -162,7 +162,7 @@ async function exit(game, message, chat, current, whatsapp) {
       current.gameMoney + (await Pot.get(game.mainPot)).value,
     );
 
-    await game.endGame(whatsapp, newMessage);
+    await game.endGame(whatsapp, `${newMessage}\n${constants.SEPARATOR}`);
   } else {
     chat.sendMessage(newMessage);
   }
