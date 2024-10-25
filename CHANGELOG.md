@@ -1,5 +1,13 @@
 # Changelog
 
+## [6.0.1](https://github.com/doper1/POK/compare/v6.0.0...v6.0.1) (2024-10-25)
+
+
+### Bug Fixes
+
+* **src:** exit output mistake ([a2af129](https://github.com/doper1/POK/commit/a2af1293f5de0c9309232607155de9b56dfa1bf3))
+* **src:** getFirstPlayer sytnax error ([9a86063](https://github.com/doper1/POK/commit/9a860630cba930bb97b99a84850f0181898c546a))
+
 ## [6.0.0](https://github.com/doper1/POK/compare/v5.2.1...v6.0.0) (2024-10-24)
 
 
