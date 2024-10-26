@@ -7,5 +7,5 @@ coverage
 .vscode
 auth
 .env
-newCardsA
+newCards
 *.sql
