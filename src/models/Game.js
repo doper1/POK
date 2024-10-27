@@ -357,8 +357,10 @@ Action on @{{id}} (\${{money}})`;
 
   async putBlind(current, blindAmount) {
     if (current.gameMoney <= blindAmount) {
-      await current.set('status', 'all in');
-      await current.bet(current.gameMoney, this.mainPot);
+      await Promise.all([
+        current.set('status', 'all in'),
+        current.bet(current.gameMoney, this.mainPot),
+      ]);
     } else {
       await current.bet(blindAmount, this.mainPot);
     }
@@ -381,11 +383,14 @@ Action on @{{id}} (\${{money}})`;
   }
 
   async updateRound(whatsapp, actionMessage) {
-    let players = await this.getPlayers();
-    let current = await this.getPlayer(this.currentPlayer);
-    let next = await this.getPlayer(current.nextPlayer);
-    let pots = await this.getPots();
-    let mainPot = pots.find((pot) => pot.id === this.mainPot);
+    const [players, current, pots] = await Promise.all([
+      this.getPlayers(),
+      this.getPlayer(this.currentPlayer),
+      this.getPots(),
+    ]);
+
+    const next = await this.getPlayer(current.nextPlayer);
+    const mainPot = pots.find((pot) => pot.id === this.mainPot);
     let foldsCount = players.reduce((folds, player) => {
       if (player.status === 'folded') {
         return folds + 1;
@@ -484,11 +489,14 @@ Action on @{{id}} (\${{money}})`;
 
     for (let player of players) {
       player = await this.getPlayer(player.userId);
-      await player.set('currentBet', 0);
-      await player.set(
-        'status',
-        player.status === 'played' ? 'pending' : player.status,
-      );
+
+      await Promise.all([
+        player.set('currentBet', 0),
+        player.set(
+          'status',
+          player.status === 'played' ? 'pending' : player.status,
+        ),
+      ]);
 
       if (isNewHand) {
         await player.buyIn();
@@ -502,10 +510,13 @@ Action on @{{id}} (\${{money}})`;
 
   async resetRoundStatus(whatsapp, actionMessage = ' ') {
     let pot = await Pot.get(this.mainPot);
-    await this.set('lastRoundPot', pot.value);
 
-    await Pot.resetPotsBets(this.mainPot, await this.getPots());
-    await this.resetPlayersStatus(false);
+    await Promise.all([
+      this.set('lastRoundPot', pot.value),
+      Pot.resetPotsBets(this.mainPot, await this.getPots()),
+      this.resetPlayersStatus(false),
+    ]);
+
     let current = await this.getFirstPlayer();
 
     while (current.status == 'all in' || current.status == 'folded') {
@@ -610,12 +621,12 @@ ${constants.SEPARATOR}`,
     let newMessage = Mustache.render(template, { players });
 
     if (newCards) {
-      await whatsapp.sendMessage(`${this.id}@g.us`, newCards, {
+      whatsapp.sendMessage(`${this.id}@g.us`, newCards, {
         caption: newMessage,
         mentions: await this.getMentions(),
       });
     } else {
-      await whatsapp.sendMessage(`${this.id}@g.us`, newMessage, {
+      whatsapp.sendMessage(`${this.id}@g.us`, newMessage, {
         mentions: await this.getMentions(),
       });
     }
@@ -625,23 +636,29 @@ ${constants.SEPARATOR}`,
 
     do {
       let next = current.nextPlayer;
-      await current.set('nextPlayer', null);
-      await current.set('gameMoney', 0);
-      await current.set('currentBet', 0);
-      await current.set('status', 'pending');
-      await current.set('reBuy', 0);
-      await current.set('holeCards', []);
-      await current.set('sessionBalance', 0);
+      await Promise.all([
+        current.set('sessionBalance', 0),
+        current.set('holeCards', []),
+        current.set('reBuy', 0),
+        current.set('reBuy', 0),
+        current.set('nextPlayer', null),
+        current.set('gameMoney', 0),
+        current.set('currentBet', 0),
+        current.set('status', 'pending'),
+      ]);
+
       current = await this.getPlayer(next);
     } while (current.userId !== this.button);
 
     // Reset game status
-    await this.set('status', 'pending');
-    await this.set('currentPlayer', null);
-    await this.set('button', null);
-    await this.set('deck', []);
-    await this.set('communityCards', []);
-    await this.set('lastRoundPot', 0);
+    await Promise.all([
+      this.set('status', 'pending'),
+      this.set('currentPlayer', null),
+      this.set('button', null),
+      this.set('deck', []),
+      this.set('communityCards', []),
+      this.set('lastRoundPot', 0),
+    ]);
   }
 
   async getFirstPlayer(players = {}) {
