@@ -149,7 +149,7 @@ async function show(game, chat) {
 }
 
 async function exit(game, message, chat, current, whatsapp) {
-  const newMessage = `Goodbye @${current.userId}!\n${constants.SEPARATOR}`;
+  const newMessage = `Goodbye @${current.userId}!`;
 
   // If there are 2 players before the exit, also end the game
   if ((await game.getPlayers()).length == 2) {
