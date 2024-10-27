@@ -61,7 +61,7 @@ async function exit(game, message) {
 async function buy(game, message, chat, amount) {
   player = await game.getPlayer(message.author);
 
-  await player.buy(amount, game.status);
+  await player.buy(amount, 'pending');
 
   template = `Nice! @{{name}} bought \${{amount}}`;
   player = {

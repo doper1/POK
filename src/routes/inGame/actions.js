@@ -2,6 +2,7 @@ const Mustache = require('mustache');
 const gameFunctions = require('../../utils/gameFunctions');
 const { emote } = require('../../utils/generalFunctions');
 const constants = require('../../utils/constants');
+const preGameActions = require('../preGame/actions');
 const Pot = require('../../models/Pot');
 const User = require('../../models/User');
 
@@ -85,8 +86,17 @@ async function fold(game, message, whatsapp, current) {
 }
 
 async function buy(game, message, chat, amount) {
+  // Route to pregame buy in-case no one played already
+  if (
+    constants.BIG_BLIND + constants.SMALL_BLIND ===
+    (await Pot.get(game.mainPot)).value
+  ) {
+    await preGameActions.buy(game, message, chat, amount);
+    return;
+  }
+
   const current = await game.getPlayer(message.author);
-  await current.buy(amount, game.status);
+  await current.buy(amount, 'running');
 
   const template = `Nice! @{{name}} bought \${{amount}}
 it will be added in the next hand`;
