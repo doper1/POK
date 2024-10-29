@@ -1,6 +1,10 @@
 name: Visualize project
 
-on: workflow_call
+on:
+  push:
+    branches:
+      - dev
+      - main
 
 jobs:
   get_data:
