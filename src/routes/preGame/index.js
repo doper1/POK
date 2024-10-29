@@ -4,6 +4,7 @@ const constants = require('../../utils/constants');
 
 async function preGameRoute({ whatsapp, message, chat, game }) {
   const amount = Number(message.body[2]);
+  const player = await game.getPlayer(message.author); // TODO: pass to validators and actions instead of in scope fetch
 
   switch (message.body[1]) {
     case 'join':
@@ -23,7 +24,7 @@ async function preGameRoute({ whatsapp, message, chat, game }) {
       break;
     case 'buy':
       if (await validators.buy(game, message, amount))
-        await actions.buy(game, message, chat, amount);
+        await actions.buy(game, message, chat, amount, player);
       break;
     default:
       message.reply(constants.HELP_PRE_GAME);

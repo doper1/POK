@@ -181,18 +181,21 @@ class Game {
     await this.resetPlayersStatus(true);
   }
 
+  async deal(userId, whatsapp) {
+    let holeCards = [...this.deck.splice(-2)];
+    await playerRepo.updatePlayer(this.id, userId, 'holeCards', holeCards);
+    const newCards = await cardsFunctions.getCards(holeCards);
+
+    whatsapp.sendMessage(`${userId}@c.us`, newCards, {
+      caption: `*${this.groupName}*`,
+    });
+  }
+
   async dealCards(whatsapp, players) {
     for (const player of players) {
       if (player.status === 'no money') continue;
 
-      let holeCards = [...this.deck.splice(-2)];
-      playerRepo.updatePlayer(this.id, player.userId, 'holeCards', holeCards);
-
-      const newCards = await cardsFunctions.getCards(holeCards);
-
-      whatsapp.sendMessage(`${player.userId}@c.us`, newCards, {
-        caption: `*${this.groupName}*`,
-      });
+      await this.deal(player.userId, whatsapp);
     }
   }
 

@@ -2,11 +2,6 @@ const Mustache = require('mustache');
 const { emote } = require('../../utils/generalFunctions');
 const User = require('../../models/User');
 
-// globals
-let player;
-let template;
-let newMessage;
-
 async function start(game, message, whatsapp) {
   await game.set('status', 'running');
 
@@ -58,17 +53,16 @@ async function exit(game, message) {
   await message.reply(`Goodbye!`);
 }
 
-async function buy(game, message, chat, amount) {
-  player = await game.getPlayer(message.author);
+async function buy(game, message, chat, amount, player) {
+  const template = `Nice! @{{name}} bought \${{amount}}`;
 
   await player.buy(amount, 'pending');
 
-  template = `Nice! @{{name}} bought \${{amount}}`;
-  player = {
+  const newMessage = Mustache.render(template, {
     name: player.userId,
     amount: amount,
-  };
-  newMessage = Mustache.render(template, player);
+  });
+
   message.react(emote('happy'));
   await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
   return true;
