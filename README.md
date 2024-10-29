@@ -9,6 +9,8 @@ POK is an open-source WhatsApp bot that brings poker games to group chats, autom
 - **Cross-Platform:** Works on any device that supports WhatsApp.
 - **Open Source:** Free to use and modify under the Apache license.
 
+## Architecture
+
 ![Visualization of the codebase](./docs/diagram.svg)
 
 ## Tech Stack

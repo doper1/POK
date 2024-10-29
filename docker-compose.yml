@@ -13,7 +13,7 @@ services:
     ports:
       - 5432:5432
 
-  # For local testing, comment the api service and run it as a process for hot reloading
+  # For local testing, stop the API after running the DB using docker compose, then run the API in a terminal
   api:
     image: dofer123/pok:latest
     restart: always

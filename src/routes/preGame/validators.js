@@ -26,8 +26,8 @@ async function start(game, chat, message) {
   return true;
 }
 
-async function join(game, message, amount) {
-  if (await game.getPlayer(message.author)) {
+async function join(game, message, amount, current) {
+  if (current) {
     let newMessage = 'You have already joined!';
 
     if (!Number.isNaN(amount)) {
@@ -41,7 +41,7 @@ async function join(game, message, amount) {
   }
 
   if (!Number.isNaN(amount)) {
-    return await buy(game, message, amount, false);
+    return await buy(game, message, amount, current, false);
   }
 
   return true;
@@ -55,18 +55,16 @@ async function show(game, message) {
   return true;
 }
 
-async function exit(game, message) {
-  if (!(await game.getPlayer(message.author))) {
+async function exit(message, current) {
+  if (!current) {
     return replyError(message, 'You have not joined the game yet');
   }
 
   return true;
 }
 
-async function buy(game, message, amount, joinFlag = true) {
-  let player = await game.getPlayer(message.author);
-
-  if (joinFlag && player === undefined) {
+async function buy(game, message, amount, current, joinFlag = true) {
+  if (joinFlag && current === undefined) {
     return replyError(message, 'You need to join the game first (pok join)');
   }
 

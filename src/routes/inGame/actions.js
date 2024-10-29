@@ -84,18 +84,36 @@ async function fold(game, message, whatsapp, current) {
   await game.updateRound(whatsapp, newMessage);
 }
 
-async function buy(game, message, chat, amount) {
+async function buy(game, message, chat, amount, whatsapp) {
   const current = await game.getPlayer(message.author);
-  await current.buy(amount, game.status);
+  let template = `Nice! @{{name}} bought \${{amount}} `;
 
-  const template = `Nice! @{{name}} bought \${{amount}}
-it will be added in the next hand`;
+  // Route to pregame buy in-case no one played already
+  if (
+    constants.BIG_BLIND + constants.SMALL_BLIND ===
+    (await Pot.get(game.mainPot)).value
+  ) {
+    if (current.holeCards.length === 0) {
+      template += 'Check your DM for your cards 🤫\n';
+      await game.deal(message.author, whatsapp);
+    }
 
-  const player = {
+    template += `${constants.SEPARATOR}
+{{orderMessage}}`;
+
+    await current.buy(amount, 'pending');
+    await current.set('status', 'pending');
+  } else {
+    template += `it will be added in the next hand`;
+    await current.buy(amount, 'running');
+  }
+
+  const newMessage = Mustache.render(template, {
     name: current.userId,
     amount: amount,
-  };
-  const newMessage = Mustache.render(template, player);
+    orderMessage: (await game.getOrderPretty())[1],
+  });
+
   message.react(emote('happy'));
   await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
 }
@@ -149,7 +167,7 @@ async function show(game, chat) {
 }
 
 async function exit(game, message, chat, current, whatsapp) {
-  const newMessage = `Goodbye @${current.userId}!\n${constants.SEPARATOR}`;
+  const newMessage = `Goodbye @${current.userId}!`;
 
   // If there are 2 players before the exit, also end the game
   if ((await game.getPlayers()).length == 2) {
