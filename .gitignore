@@ -1,5 +1,5 @@
 node_modules
-/*.png
+docs/diagram.svg
 .wwebjs_cache
 .wwebjs_auth
 coverage
