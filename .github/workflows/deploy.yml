@@ -41,7 +41,7 @@ jobs:
 
             echo "localhost:5432:${{ secrets.POSTGRES_DB }}:${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}" >> ~/.pgpass
             chmod 600 ~/.pgpass
-            pg_dump -h localhost -f /pok/backups/${{ secrets.POSTGRES_DB }}-pre-version-$(date +%F).sql -U ${{ secrets.POSTGRES_USER }} ${{ secrets.POSTGRES_DB }} -w
+            pg_dump -h localhost -f /pok/backups/${{ secrets.POSTGRES_DB }}-pre-version-$(date +%F-%T).sql -U ${{ secrets.POSTGRES_USER }} ${{ secrets.POSTGRES_DB }} -w
 
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             nvm install 20
@@ -54,9 +54,10 @@ jobs:
             history -c
             history -w
 
+            sudo docker compose pull api
             sudo docker compose stop api
             npm run db:migrate
-            sudo docker compose up --pull always -d
+            sudo docker compose up -d
             sudo docker image prune -f
 
             mkdir -p /pok/backups

@@ -48,7 +48,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: false
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
-
-  call-deploy:
-    if: success()
-    uses: ./.github/workflows/visualize.yml
