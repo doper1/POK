@@ -1,5 +1,20 @@
 # Changelog
 
+## [6.1.0](https://github.com/doper1/POK/compare/v6.0.1...v6.1.0) (2024-10-30)
+
+
+### Features
+
+* **middleware:** LLM transaltion POC ([c0e36c3](https://github.com/doper1/POK/commit/c0e36c35ad853949fe33d30a0185adb3f64bf370))
+* **route:** buy immediatly in game before first bet ([66ceb3e](https://github.com/doper1/POK/commit/66ceb3e5347dc0a36c6718f00873358930f9d688))
+* **routes:** buy before first bet of the hand ([f9b5016](https://github.com/doper1/POK/commit/f9b501674f2d58643293d9f885f2d55af72e53a8))
+
+
+### Bug Fixes
+
+* **models:** handling players without money ([4bb33ef](https://github.com/doper1/POK/commit/4bb33ef7a122ea35219fa88f6d2e8e3a426f8047))
+* **routes:** remove double line ([99337c8](https://github.com/doper1/POK/commit/99337c8bf71a4c774128b491cc6a6e4a0cf7c441))
+
 ## [6.0.1](https://github.com/doper1/POK/compare/v6.0.0...v6.0.1) (2024-10-25)
 
 
