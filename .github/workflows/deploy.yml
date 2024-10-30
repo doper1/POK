@@ -54,9 +54,10 @@ jobs:
             history -c
             history -w
 
+            sudo docker compose pull api
             sudo docker compose stop api
             npm run db:migrate
-            sudo docker compose up --pull always -d
+            sudo docker compose up -d
             sudo docker image prune -f
 
             mkdir -p /pok/backups
