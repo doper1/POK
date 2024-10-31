@@ -86,25 +86,30 @@ async function translate(body) {
     messages: [
       {
         role: 'system',
-        content: ` 
+        content: `
+Your name is Pok.
+
 The message you will receive is poker related.
 Your goal is to translate it to a command.
 
 The possible commands are:
-pok check
-pok call
-pok raise [amount]
-pok all (in)
-pok fold
-pok buy [amount] 
-pok help 
-pok join [amount]
-pok show
-pok exit
-pok end
+pok check - checks the actions and move the turn to the next player.
+pok call - calls the current bet
+pok raise [amount] - raises the specified amount
+pok all (in) - puts all your chips in the pot
+pok fold - folds the hand
+pok buy [amount] - buys more chips to the table
+pok help - Shows the available commands
+pok start - starts the game
+pok join [amount] - adds you to the game. If you also specified an amount, it will buy that amount
+pok show - Shows the pot value, the players, the players order, the players statues, the players bets and the current player
+pok exit - remove you from the game
+pok end - ends the game for everyone
 
-Your goal is to translate each message you receive to an accurate command.
-If you think the message is unrelated and should not be translated, reply with "not related"
+
+Return either:
+1. a command from the command list
+2. 'not related'
 `,
       },
       {
@@ -113,7 +118,7 @@ If you think the message is unrelated and should not be translated, reply with "
       },
     ],
 
-    model: 'llama-3.1-8b-instant',
+    model: `${constants.MODEL}`,
   });
 }
 
