@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.2.0](https://github.com/doper1/POK/compare/v6.1.0...v6.2.0) (2024-10-31)
+
+
+### Features
+
+* **middleware:** improved model and prompt ([6c6d718](https://github.com/doper1/POK/commit/6c6d71835261196fda62226b8b64fac23e6c391b))
+
+
+### Bug Fixes
+
+* **cd:** grok API key env variable name ([d67940f](https://github.com/doper1/POK/commit/d67940f52284a92432a8c4e2bceaaea4e34c025c))
+
 ## [6.1.0](https://github.com/doper1/POK/compare/v6.0.1...v6.1.0) (2024-10-30)
 
 
