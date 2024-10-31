@@ -35,7 +35,9 @@ whatsapp.on('message_create', async (msg) => {
   const groqOutput = await middleware.translate(message.body);
 
   let newBody = groqOutput.choices[0]?.message?.content;
-  message.body = newBody.split(' ');
+  message.body = newBody
+    .split(' ')
+    .filter((word) => word != '' && word !== '\n');
 
   if (message.body[0] !== 'pok') {
     return;

@@ -1,3 +1,4 @@
+module.exports.MODEL = 'gemma2-9b-it';
 module.exports.GAME_TYPES = ['nlh'];
 module.exports.GAME_STATUSES = ['pending', 'running', 'to end'];
 module.exports.PLAYER_STATUSES = [
