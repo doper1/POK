@@ -40,6 +40,12 @@ async function join(game, message, amount, current) {
     return replyError(message, 'I am sorry, This game is full');
   }
 
+  if (game.status === 'to end') {
+    return replyError(
+      'There is no point in joining now, the game is about to end',
+    );
+  }
+
   if (!Number.isNaN(amount)) {
     return await buy(game, message, amount, current, false);
   }

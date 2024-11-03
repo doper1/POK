@@ -51,7 +51,7 @@ jobs:
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
             echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
-            echo GROQ_API_KEY="${{ secrets.GROQ_API_KEY }}" >> /pok/.env
+            echo GLHF_API_KEYS="${{ secrets.GLHF_API_KEYS }}" >> /pok/.env
             history -c
             history -w
 

@@ -1,142 +1,186 @@
 require('dotenv').config();
-const { db, connection } = require('./db.ts');
-const schema = require('./schema');
-const constants = require('../src/utils/constants');
+const { exec } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const util = require('util');
 
-async function seed() {
-  try {
-    // Seed users
-    const users = await db
-      .insert(schema.user)
-      .values([
-        { id: 'user1', money: constants.BASE_MONEY },
-        { id: 'user2', money: constants.BASE_MONEY },
-        { id: 'user3', money: constants.BASE_MONEY },
-        { id: 'user4', money: constants.BASE_MONEY },
-      ])
-      .returning();
+// ============= CONFIGURATION =============
+// Modify these values according to your setup
+const config = {
+  containerName: 'pok-db-1', // Your PostgreSQL container name
+  username: process.env.POSTGRES_USER,
+  database: process.env.POSTGRES_DB,
+  dumpFilePath: './mocked_test_data.sql',
+};
+// =======================================
 
-    console.log('Users seeded:', users);
+const execAsync = util.promisify(exec);
 
-    // Seed a game
-    const [game] = await db
-      .insert(schema.game)
-      .values({
-        id: 'game1',
-        type: 'nlh',
-        status: 'ongoing',
-        currentPlayer: users[0].id,
-        button: users[1].id,
-        deck: [
-          ['A', 's'],
-          ['K', 'h'],
-          ['Q', 'd'],
-          ['J', 'c'],
-          ['T', 's'],
-          ['9', 'h'],
-          ['8', 'd'],
-          ['7', 'c'],
-        ],
-        communityCards: [
-          ['A', 'h'],
-          ['K', 's'],
-          ['Q', 'c'],
-        ],
-        lastRoundPot: 100,
-      })
-      .returning();
+class PostgresRestore {
+  config: any;
 
-    console.log('Game seeded:', game);
+  constructor(config) {
+    this.config = config;
+    this.validateConfig();
+  }
 
-    // Seed players
-    const players = await db
-      .insert(schema.player)
-      .values([
-        {
-          gameId: game.id,
-          userId: users[0].id,
-          gameMoney: 1000,
-          currentBet: 50,
-          status: 'active',
-          holeCards: [
-            ['A', 's'],
-            ['K', 'h'],
-          ],
-          nextPlayer: users[1].id,
-        },
-        {
-          gameId: game.id,
-          userId: users[1].id,
-          gameMoney: 950,
-          currentBet: 100,
-          status: 'active',
-          holeCards: [
-            ['Q', 'd'],
-            ['J', 'c'],
-          ],
-          nextPlayer: users[2].id,
-        },
-        {
-          gameId: game.id,
-          userId: users[2].id,
-          gameMoney: 1000,
-          currentBet: 0,
-          status: 'folded',
-          holeCards: [
-            ['T', 's'],
-            ['9', 'h'],
-          ],
-          nextPlayer: users[3].id,
-        },
-        {
-          gameId: game.id,
-          userId: users[3].id,
-          gameMoney: 1050,
-          currentBet: 50,
-          status: 'active',
-          holeCards: [
-            ['8', 'd'],
-            ['7', 'c'],
-          ],
-          nextPlayer: users[0].id,
-        },
-      ])
-      .returning();
+  validateConfig() {
+    const requiredFields = [
+      'containerName',
+      'username',
+      'database',
+      'dumpFilePath',
+    ];
+    for (const field of requiredFields) {
+      if (!this.config[field]) {
+        throw new Error(`Missing required configuration field: ${field}`);
+      }
+    }
+  }
 
-    console.log('Players seeded:', players);
+  async executeCommand(command, errorMessage) {
+    try {
+      const { stdout, stderr } = await execAsync(command);
 
-    // Seed pot
-    const [pot] = await db
-      .insert(schema.pot)
-      .values({
-        gameId: game.id,
-        value: 200,
-        highestBet: 100,
-      })
-      .returning();
+      if (stderr && !stderr.includes('NOTICE:')) {
+        console.warn('Command produced stderr:', stderr);
+      }
+      return stdout;
+    } catch (error) {
+      throw new Error(`${errorMessage}: ${error.message}`);
+    }
+  }
 
-    console.log('Pot seeded:', pot);
+  async checkPrerequisites() {
+    // Check if dump file exists
+    if (!fs.existsSync(this.config.dumpFilePath)) {
+      throw new Error(`Dump file not found at: ${this.config.dumpFilePath}`);
+    }
 
-    // Seed participants
-    const participants = await db
-      .insert(schema.participant)
-      .values([
-        { potId: pot.id, userId: users[0].id },
-        { potId: pot.id, userId: users[1].id },
-        { potId: pot.id, userId: users[3].id },
-      ])
-      .returning();
+    // Check if container is running
+    const checkContainerCmd =
+      process.platform === 'win32'
+        ? `docker ps --filter name=${this.config.containerName} --format "{{.Names}}"`
+        : `docker ps | grep ${this.config.containerName}`;
 
-    console.log('Participants seeded:', participants);
+    try {
+      const result = await this.executeCommand(
+        checkContainerCmd,
+        'Container not found or not running',
+      );
+      if (!result.includes(this.config.containerName)) {
+        throw new Error(
+          `Container ${this.config.containerName} is not running`,
+        );
+      }
+    } catch (error) {
+      throw new Error(
+        `PostgreSQL container '${this.config.containerName}' is not running`,
+      );
+    }
+  }
 
-    console.log('Seeding completed successfully!');
-  } catch (error) {
-    console.error('Error seeding database:', error);
-  } finally {
-    await connection.end();
+  async createDatabaseIfNotExists() {
+    const checkDbCmd = `docker exec ${this.config.containerName} psql -U ${this.config.username} -lqt`;
+
+    try {
+      const result = await this.executeCommand(
+        checkDbCmd,
+        'Error checking database existence',
+      );
+      const dbExists = result
+        .split('\n')
+        .some((line) => line.includes(this.config.database));
+
+      if (!dbExists) {
+        console.log(
+          `Database ${this.config.database} does not exist. Creating...`,
+        );
+        await this.executeCommand(
+          `docker exec ${this.config.containerName} createdb -U ${this.config.username} ${this.config.database}`,
+          'Error creating database',
+        );
+      }
+    } catch (error) {
+      throw new Error(`Error managing database: ${error.message}`);
+    }
+  }
+
+  async copyDumpToContainer() {
+    const containerPath = `/tmp/${path.basename(this.config.dumpFilePath)}`;
+    await this.executeCommand(
+      `docker cp "${this.config.dumpFilePath}" ${this.config.containerName}:${containerPath}`,
+      'Error copying dump file to container',
+    );
+  }
+
+  async restoreDatabase() {
+    const containerPath = `/tmp/${path.basename(this.config.dumpFilePath)}`;
+    const isCustomFormat =
+      this.config.dumpFilePath.endsWith('.backup') ||
+      this.config.dumpFilePath.endsWith('.custom');
+
+    const restoreCommand = isCustomFormat
+      ? `docker exec ${this.config.containerName} pg_restore -U ${this.config.username} -d ${this.config.database} -v ${containerPath}`
+      : `docker exec ${this.config.containerName} psql -U ${this.config.username} -d ${this.config.database} -f ${containerPath}`;
+
+    await this.executeCommand(restoreCommand, 'Error restoring database');
+  }
+
+  async cleanup() {
+    const containerPath = `/tmp/${path.basename(this.config.dumpFilePath)}`;
+    await this.executeCommand(
+      `docker exec ${this.config.containerName} rm ${containerPath}`,
+      'Error cleaning up dump file from container',
+    );
+  }
+
+  async restore() {
+    try {
+      console.log('Starting PostgreSQL restore process...');
+      console.log('Using configuration:', {
+        containerName: this.config.containerName,
+        username: this.config.username,
+        database: this.config.database,
+        dumpFile: this.config.dumpFilePath,
+      });
+
+      console.log('\nChecking prerequisites...');
+      await this.checkPrerequisites();
+
+      console.log("\nCreating database if it doesn't exist...");
+      await this.createDatabaseIfNotExists();
+
+      console.log('\nCopying dump file to container...');
+      await this.copyDumpToContainer();
+
+      console.log('\nRestoring database...');
+      await this.restoreDatabase();
+
+      console.log('\nCleaning up...');
+      await this.cleanup();
+
+      console.log('\nDatabase restore completed successfully!');
+    } catch (error) {
+      console.error('\nDatabase restore failed:', error.message);
+      process.exit(1);
+    }
   }
 }
 
-seed();
+// Main execution
+if (require.main === module) {
+  const restorer = new PostgresRestore(config);
+  restorer
+    .restore()
+    .then(() => {
+      console.log('Script execution completed.');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Script execution failed:', error);
+      process.exit(1);
+    });
+}
 
-export {};
+module.exports = { PostgresRestore };
