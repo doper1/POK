@@ -1,5 +1,23 @@
 # Changelog
 
+## [6.2.0](https://github.com/doper1/POK/compare/v6.1.0...v6.2.0) (2024-11-03)
+
+
+### Features
+
+* **db:** seeding and test data declassification ([b152ab5](https://github.com/doper1/POK/commit/b152ab5dd5574d7fc841382c01e90211a741f0b3))
+* **middleware:** improved model and prompt ([6c6d718](https://github.com/doper1/POK/commit/6c6d71835261196fda62226b8b64fac23e6c391b))
+* **middleware:** multiple API keys to increase limits ([46fa3e1](https://github.com/doper1/POK/commit/46fa3e18e5bcc2bcd6ca80e757cff19c6cbf84d0))
+* **test:** renew tests with mock data ([81f63b1](https://github.com/doper1/POK/commit/81f63b16f76efa25f943d3c2baf918f2a1bff021))
+
+
+### Bug Fixes
+
+* **cd:** env variable name ([b1db6e2](https://github.com/doper1/POK/commit/b1db6e2e94fd4a37a225f3e9c09d44a869e43e75))
+* **cd:** grok API key env variable name ([d67940f](https://github.com/doper1/POK/commit/d67940f52284a92432a8c4e2bceaaea4e34c025c))
+* **configuration:** eslint ([5e27c5a](https://github.com/doper1/POK/commit/5e27c5ac711249aa25f05d46611695554a5e2dc8))
+* **middleware:** swap groq with glhf ([b5e32dc](https://github.com/doper1/POK/commit/b5e32dcbd607c0b75fe31dff5b535e8ec7dff592))
+
 ## [6.1.0](https://github.com/doper1/POK/compare/v6.0.1...v6.1.0) (2024-10-30)
 
 
