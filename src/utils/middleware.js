@@ -2,7 +2,7 @@ const constants = require('./constants');
 const { rand, getProperties, currentTime } = require('./generalFunctions');
 const Mustache = require('mustache');
 const Game = require('../models/Game.js');
-const Groq = require('groq-sdk');
+const OpenAI = require('openai');
 
 function logMessage(message, chatName, messageLevel) {
   const template = `CHAT: {{chatName}} || FROM: {{author}} || MESSAGE: {{body}}`;
@@ -86,7 +86,10 @@ const getRandomKey = () => {
 };
 
 async function translate(body) {
-  const groq = new Groq({ apiKey: getRandomKey() });
+  const groq = new OpenAI({
+    apiKey: process.env.GLHF_API_KEY,
+    baseURL: 'https://glhf.chat/api/openai/v1',
+  });
 
   return groq.chat.completions.create({
     messages: [
