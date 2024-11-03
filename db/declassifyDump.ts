@@ -174,6 +174,7 @@ class PostgresMocker {
     console.log('Starting SQL dump processing...');
 
     this.writeStream.write("CREATE USER user_1 WITH PASSWORD 'password';\n");
+    this.writeStream.write('GRANT ALL ON SCHEMA public TO user_1;\n');
 
     const fileStream = FS.createReadStream(this.inputFile);
     const rl = readline.createInterface({
