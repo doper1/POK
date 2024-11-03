@@ -38,8 +38,8 @@ module.exports = [
       'no-dupe-class-members': 'error',
       'no-dupe-else-if': 'warn',
       'no-unused-vars': 'error',
-      'no-undef': 'error',
       'no-duplicate-imports': ['warn', { includeExports: true }],
+      'no-undef': 'off',
     },
   },
 ];

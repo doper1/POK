@@ -9,3 +9,4 @@ auth
 .env
 newCards
 *.sql
+!mocked_test_data.sql

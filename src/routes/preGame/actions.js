@@ -20,14 +20,18 @@ async function join(game, message, chat, amount) {
 
   const player = await game.addPlayer(message.author);
 
-  if (Number.isNaN(amount)) {
-    template += `\n\nBuy some Chips with 'pok buy [amount]'
-before the game starts`;
+  if (!Number.isInteger(amount)) {
+    template += `\n\nBuy some Chips with 'pok buy [amount]'`;
   } else {
-    template += `\n\nyou bought \${{amount}}`;
+    template += `\n\nYou bought \${{amount}}`;
     await player.buy(amount, game.status);
   }
 
+  if (game.status === 'running') {
+    await game.addPlayerMidGame(player.userId);
+  }
+
+  // before the game starts`;
   message.react(emote('happy'));
   chat.sendMessage(
     Mustache.render(template, {
