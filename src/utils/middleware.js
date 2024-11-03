@@ -1,5 +1,5 @@
 const constants = require('./constants');
-const { rand, getProperties, currentTime } = require('./generalFunctions');
+const { getProperties, currentTime } = require('./generalFunctions');
 const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
@@ -78,12 +78,6 @@ async function getGame(chat) {
 
   return game;
 }
-const getRandomKey = () => {
-  const values = process.env.GROQ_API_KEYS.split(',').filter(
-    (key) => key != '',
-  );
-  return values[rand(values.length)];
-};
 
 async function translate(body) {
   const groq = new OpenAI({
