@@ -28,6 +28,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: set environment variables
+        run: |
+          echo POSTGRES_HOST=db >.env
+          echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> .env
+          echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> .env
+          echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" >> .env
+
       - name: Lint code
         run: npm run lint
 
