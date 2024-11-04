@@ -14,6 +14,8 @@ services:
     image: dofer123/pok:latest
     restart: always
     env_file: .env
+    environment:
+      - POSTGRES_HOST=db
     volumes:
       - auth_vol:/app/auth
 
