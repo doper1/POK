@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:16.4-alpine3.20
     restart: always
+    env_file: .env
     volumes:
       - db_vol:/var/lib/postgresql/data
 
@@ -12,6 +13,7 @@ services:
   api:
     image: dofer123/pok:latest
     restart: always
+    env_file: .env
     volumes:
       - auth_vol:/app/auth
 
