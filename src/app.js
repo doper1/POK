@@ -32,14 +32,6 @@ whatsapp.on('message_create', async (msg) => {
   const message = middleware.filterMessage(msg);
   const chat = middleware.filterChat(await msg.getChat());
 
-  if (message.body[0] !== 'pok') {
-    message.body = await middleware.messageToCommand(message.body);
-  }
-
-  if (message.body[0] !== 'pok') {
-    return;
-  }
-
   if (!middleware.validateMessage(msg, chat)) {
     middleware.logMessage(message, chat.name, 'invalid');
     return;
@@ -49,6 +41,13 @@ whatsapp.on('message_create', async (msg) => {
 
   if (!(await middleware.validateLock(game))) {
     middleware.logMessage(message, chat.name, 'locked');
+    return;
+  }
+  if (message.body[0] !== 'pok') {
+    message.body = await middleware.messageToCommand(message.body);
+  }
+
+  if (message.body[0] !== 'pok') {
     return;
   }
 

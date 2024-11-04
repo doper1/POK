@@ -4,15 +4,12 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 
-// ============= CONFIGURATION =============
-// Modify these values according to your setup
 const config = {
-  containerName: 'pok-db-1', // Your PostgreSQL container name
+  containerName: 'pok-db-1',
   username: process.env.POSTGRES_USER,
   database: process.env.POSTGRES_DB,
   dumpFilePath: './mocked_test_data.sql',
 };
-// =======================================
 
 const execAsync = util.promisify(exec);
 

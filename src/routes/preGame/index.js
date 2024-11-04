@@ -7,7 +7,7 @@ async function preGameRoute({ whatsapp, message, chat, game, current }) {
 
   switch (message.body[1]) {
     case 'join':
-      if (await validators.join(game, message, amount))
+      if (await validators.join(game, message, amount, current))
         await actions.join(game, message, chat, amount);
       break;
     case 'show':
