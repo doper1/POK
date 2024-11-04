@@ -3,7 +3,6 @@ name: Visualize project
 on:
   push:
     branches:
-      - dev
       - main
 
 jobs:
