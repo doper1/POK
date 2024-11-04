@@ -36,6 +36,9 @@ jobs:
           echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> .env
           echo OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" >> .env
 
+      - name: start db
+        run: docker compose up db -d
+
       - name: Lint code
         run: npm run lint
 
