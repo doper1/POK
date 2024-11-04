@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.3.1](https://github.com/doper1/POK/compare/v6.3.0...v6.3.1) (2024-11-04)
+
+
+### Bug Fixes
+
+* **cd:** docker host variable ([6899426](https://github.com/doper1/POK/commit/68994266ce1d3c2e4c7c0571191fb3e5a47d2b75))
+
 ## [6.3.0](https://github.com/doper1/POK/compare/v6.2.0...v6.3.0) (2024-11-04)
 
 
