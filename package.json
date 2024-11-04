@@ -1,6 +1,6 @@
 {
   "name": "POK",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "private": true,
   "description": "Poker bot for whatsapp",
   "type": "commonjs",
@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "node --watch src/app.js ",
     "start": "node src/app.js",
-    "test": "jest",
+    "test": "tsx db/wipeDatabase.ts && tsx db/seed.ts && jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
     "lint": "eslint .",
@@ -21,10 +21,11 @@
     "db:push": "drizzle-kit push",
     "db:drop": "drizzle-kit drop",
     "db:migrate": "drizzle-kit generate && tsx db/migrate.ts",
-    "db:wipe:CONFIRM": "tsx db/wipeDatabase.ts",
-    "db:reset:CONFIRM": "tsx db/wipeDatabase.ts && drizzle-kit push",
-    "db:seed:CONFIRM": "tsx db/wipeDatabase.ts && drizzle-kit push && tsx db/seed.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:wipe": "tsx db/wipeDatabase.ts",
+    "db:reset": "tsx db/wipeDatabase.ts && drizzle-kit push",
+    "db:seed": "tsx db/wipeDatabase.ts && tsx db/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "db:declassify": "tsx db/declassifyDump.ts"
   },
   "repository": {
     "type": "git",
@@ -46,6 +47,7 @@
     "dotenv": "^16.4.5",
     "drizzle-orm": "0.34.1",
     "mustache": "^4.2.0",
+    "openai": "^4.70.2",
     "postgres": "^3.4.4",
     "punycode": "^2.3.1",
     "puppeteer-core": "^22.11.1",
@@ -55,6 +57,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
+    "@faker-js/faker": "^9.1.0",
     "drizzle-kit": "0.25.0",
     "eslint": "^9.9.1",
     "globals": "^15.9.0",

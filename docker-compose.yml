@@ -2,11 +2,7 @@ services:
   db:
     image: postgres:16.4-alpine3.20
     restart: always
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-
+    env_file: .env
     volumes:
       - db_vol:/var/lib/postgresql/data
 
@@ -17,12 +13,7 @@ services:
   api:
     image: dofer123/pok:latest
     restart: always
-    environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-
+    env_file: .env
     volumes:
       - auth_vol:/app/auth
 

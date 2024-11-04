@@ -132,7 +132,7 @@ async function join(game, message, chat, amount) {
     template += `\n\nBuy some Chips with 'pok buy [amount]'
 before the next hand starts`;
   } else {
-    template += `\n\nyou bought \${{amount}}
+    template += `\n\nYou bought \${{amount}}
 wait for the next hand to start`;
     await player.buy(amount, game.status);
   }

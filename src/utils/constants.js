@@ -1,3 +1,4 @@
+module.exports.MODEL = 'hf:meta-llama/Meta-Llama-3.1-405B-Instruct';
 module.exports.GAME_TYPES = ['nlh'];
 module.exports.GAME_STATUSES = ['pending', 'running', 'to end'];
 module.exports.PLAYER_STATUSES = [
