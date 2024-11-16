@@ -4,6 +4,31 @@ const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 
+function validateEnv(groupName) {
+  return (
+    (process.env.ENV === 'dev' && groupName.startsWith('POKDEV')) ||
+    (process.env.ENV === 'prod' && !groupName.startsWith('POKDEV'))
+  );
+}
+
+function validateMessage(msg, chat) {
+  return (
+    currentTime() - msg.timestamp < constants.MESSAGE_MAX_AGE && chat.isGroup
+  );
+}
+
+async function validateLock(game) {
+  if (!game.lock) {
+    return true;
+  } else if (BigInt(currentTime()) - game.lock > constants.LOCK_MAX_AGE) {
+    // For cases where a game still has a lock because of an external error
+    await unlockGame(game);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function logMessage(message, chatName, messageLevel) {
   const template = `CHAT: {{chatName}} || FROM: {{author}} || MESSAGE: {{body}}`;
   const values = {
@@ -44,30 +69,12 @@ function filterChat(chat) {
   return getProperties(chat, ['id', 'name', 'isGroup'], ['sendMessage']);
 }
 
-function validateMessage(msg, chat) {
-  return (
-    currentTime() - msg.timestamp < constants.MESSAGE_MAX_AGE && chat.isGroup
-  );
-}
-
 async function lockGame(game) {
   await game.set('lock', currentTime());
 }
 
 async function unlockGame(game) {
   await game.set('lock', null);
-}
-
-async function validateLock(game) {
-  if (!game.lock) {
-    return true;
-  } else if (BigInt(currentTime()) - game.lock > constants.LOCK_MAX_AGE) {
-    // For cases where a game still has a lock because of an external error
-    await unlockGame(game);
-    return true;
-  } else {
-    return false;
-  }
 }
 
 async function getGame(chat) {
@@ -80,12 +87,12 @@ async function getGame(chat) {
 }
 
 async function translate(body) {
-  const groq = new OpenAI({
+  const glhf = new OpenAI({
     apiKey: process.env.GLHF_API_KEY,
     baseURL: 'https://glhf.chat/api/openai/v1',
   });
 
-  return groq.chat.completions.create({
+  return glhf.chat.completions.create({
     messages: [
       {
         role: 'system',
@@ -139,11 +146,12 @@ async function messageToCommand(body) {
 
 module.exports = {
   validateMessage,
+  validateEnv,
+  validateLock,
   filterWhatsapp,
   filterMessage,
   filterChat,
   logMessage,
-  validateLock,
   lockGame,
   unlockGame,
   getGame,
