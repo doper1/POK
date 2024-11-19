@@ -1,6 +1,11 @@
 const Mustache = require('mustache');
 const constants = require('../utils/constants.js');
-const { rand, shuffleArray, delay } = require('../utils/generalFunctions.js');
+const {
+  rand,
+  shuffleArray,
+  delay,
+  notifyImagenerator,
+} = require('../utils/generalFunctions.js');
 const cardsFunctions = require('../utils/cardsFunctions.js');
 const gameFunctions = require('../utils/gameFunctions.js');
 const Pot = require('./Pot.js');
@@ -168,17 +173,20 @@ class Game {
     ];
   }
 
-  async resetGameStatus() {
+  async resetGameStatus(isInitial) {
     await this.deletePots();
     let pot = await Pot.create(this.id);
     await this.set('mainPot', pot.id);
-    await this.set(
-      'deck',
-      shuffleArray(constants.DECK.map((card) => [...card])),
-    );
     await this.set('communityCards', []);
     await this.set('lastRoundPot', 0);
     await this.resetPlayersStatus(true);
+
+    if (!isInitial) {
+      await this.set(
+        'deck',
+        shuffleArray(constants.DECK.map((card) => [...card])),
+      );
+    }
   }
 
   async deal(userId, whatsapp) {
@@ -206,8 +214,13 @@ class Game {
     );
   }
 
-  async initRound(whatsapp, lastRoundMessage, newCards = false) {
-    await this.resetGameStatus();
+  async initRound(
+    whatsapp,
+    lastRoundMessage,
+    newCards = false,
+    isInitial = false,
+  ) {
+    await this.resetGameStatus(isInitial && this.deck.length > 0);
     let players = await this.getPlayers();
 
     if (await this.endCondition(players)) {
@@ -462,8 +475,10 @@ Action on @{{id}} (\${{money}})`;
       // Showdown
       case 5:
         let { endMessage, newCards } = await gameFunctions.showdown(this);
+
         await this.initRound(whatsapp, endMessage, newCards);
-        break;
+
+        notifyImagenerator('new-hand', this.id, 0);
     }
   }
 
@@ -587,6 +602,8 @@ Action on @{{id}} (\${{money}})`;
     await delay(1000);
     let { endMessage, newCards } = await gameFunctions.showdown(this);
     await this.initRound(whatsapp, endMessage, newCards);
+
+    notifyImagenerator('new-hand', this.id, 0);
   }
 
   async foldsScenario(whatsapp, current, mainPot) {
@@ -600,6 +617,8 @@ Action on @{{id}} (\${{money}})`;
       `Congrats! @${current.userId} Won $${mainPot.value}!
 ${constants.SEPARATOR}`,
     );
+
+    notifyImagenerator('new-hand', this.id, 0);
   }
 
   async endGame(whatsapp, lastRoundMessage = '', newCards = false) {

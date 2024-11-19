@@ -26,7 +26,7 @@ async function start(game, chat, message) {
   return true;
 }
 
-async function join(game, message, amount, current) {
+async function join(game, message, amount, current, players) {
   if (current) {
     let newMessage = 'You have already joined!';
 
@@ -36,7 +36,7 @@ async function join(game, message, amount, current) {
 
     return replyError(message, newMessage);
   }
-  if ((await game.getPlayers()).length === constants.MAX_PLAYERS) {
+  if (players.length === constants.MAX_PLAYERS) {
     return replyError(message, 'I am sorry, This game is full');
   }
 

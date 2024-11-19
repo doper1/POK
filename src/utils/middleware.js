@@ -13,7 +13,8 @@ function validateEnv(groupName) {
 
 function validateMessage(msg, chat) {
   return (
-    currentTime() - msg.timestamp < constants.MESSAGE_MAX_AGE && chat.isGroup
+    currentTime() - msg.timestamp < constants.MESSAGE_MAX_AGE &&
+    (chat.isGroup || msg.from.length > 22 || msg.to.length > 22)
   );
 }
 

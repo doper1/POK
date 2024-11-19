@@ -1,5 +1,6 @@
 const Mustache = require('mustache');
 const constants = require('../utils/constants');
+const { connection } = require('../../db/db.ts');
 
 function rand(length) {
   return Math.floor(Math.random() * length);
@@ -70,6 +71,16 @@ function replyError(message, errorMessage) {
   return false;
 }
 
+/**
+ * Notify the imagenerator container about an event
+ * @param {string} event Name of the event
+ * @param {string} gameId Game ID (UUID)
+ * @param {int} cardIndex Index of the first card to use
+ */
+function notifyImagenerator(event, gameId, cardIndex) {
+  connection.notify('imagenerator', `${event}_${gameId}_${cardIndex}`);
+}
+
 module.exports = {
   rand,
   currentTime,
@@ -79,4 +90,5 @@ module.exports = {
   delay,
   getProperties,
   replyError,
+  notifyImagenerator,
 };

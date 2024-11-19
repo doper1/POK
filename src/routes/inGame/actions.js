@@ -1,6 +1,6 @@
 const Mustache = require('mustache');
 const gameFunctions = require('../../utils/gameFunctions');
-const { emote } = require('../../utils/generalFunctions');
+const { emote, notifyImagenerator } = require('../../utils/generalFunctions');
 const constants = require('../../utils/constants');
 const Pot = require('../../models/Pot');
 const User = require('../../models/User');
@@ -88,30 +88,33 @@ async function buy(game, message, chat, amount, whatsapp) {
   const current = await game.getPlayer(message.author);
   let template = `Nice! @{{name}} bought \${{amount}} `;
 
-  // Route to pregame buy in-case no one played already
   if (
     constants.BIG_BLIND + constants.SMALL_BLIND ===
     (await Pot.get(game.mainPot)).value
   ) {
     if (current.holeCards.length === 0) {
-      template += 'Check your DM for your cards 🤫\n';
-      await game.deal(message.author, whatsapp);
-    }
-
-    template += `${constants.SEPARATOR}
+      template += `\n\nCheck your DM for your cards 🤫
+${constants.SEPARATOR}
 {{orderMessage}}`;
 
+      await game.deal(message.author, whatsapp);
+      await current.set('status', 'pending');
+    }
+
     await current.buy(amount, 'pending');
-    await current.set('status', 'pending');
+
+    notifyImagenerator('mid-join', game.id, 0);
   } else {
-    template += `it will be added in the next hand`;
+    template += `it will be added at the next hand`;
     await current.buy(amount, 'running');
   }
 
   const newMessage = Mustache.render(template, {
     name: current.userId,
     amount: amount,
-    orderMessage: (await game.getOrderPretty())[1],
+    orderMessage: template.includes('orderMessage')
+      ? (await game.getOrderPretty())[1]
+      : '',
   });
 
   message.react(emote('happy'));
