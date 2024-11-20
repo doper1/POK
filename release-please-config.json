@@ -4,12 +4,10 @@
   "tag-separator": "@",
   "separate-pull-requests": true,
   "packages": {
-    "pok": {
-      "path": "",
+    ".": {
       "release-type": "node"
     },
     "imagen": {
-      "path": "imagen",
       "release-type": "rust"
     }
   },
