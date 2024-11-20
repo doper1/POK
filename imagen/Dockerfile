@@ -6,8 +6,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
-RUN cargo new --bin imagenerator
-WORKDIR /usr/src/app/imagenerator
+RUN cargo new --bin imagen
+WORKDIR /usr/src/app/imagen
 
 COPY Cargo.toml Cargo.lock ./
 RUN cargo fetch
@@ -24,7 +24,7 @@ COPY --from=builder /lib64/ld-linux-x86-64.so.2 /lib64/
 
 COPY --from=builder /usr/bin/convert /usr/bin/
 COPY --from=builder /usr/bin/optipng /usr/bin/
-COPY --from=builder /usr/src/app/imagenerator/target/release/imagenerator /usr/bin/
+COPY --from=builder /usr/src/app/imagen/target/release/imagen /usr/bin/
 
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 /usr/lib/x86_64-linux-gnu/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libm.so.6 /usr/lib/x86_64-linux-gnu/
@@ -60,4 +60,4 @@ COPY --from=builder /usr/lib/x86_64-linux-gnu/libbsd.so.0 /usr/lib/x86_64-linux-
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libmd.so.0 /usr/lib/x86_64-linux-gnu/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/ImageMagick-6.9.11/ /usr/lib/x86_64-linux-gnu/ImageMagick-6.9.11/
 
-CMD ["/usr/bin/imagenerator"]
+CMD ["/usr/bin/imagen"]

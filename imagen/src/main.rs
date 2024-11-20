@@ -134,7 +134,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     // Listen to events
-    listener_client.execute("LISTEN imagenerator", &[]).await?;
+    listener_client.execute("LISTEN imagen", &[]).await?;
     info!("Listening to notifications");
 
     // Block the main thread

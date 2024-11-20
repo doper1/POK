@@ -268,7 +268,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "imagenerator"
+name = "imagen"
 version = "0.1.0"
 dependencies = [
  "dotenv",
