@@ -5,7 +5,7 @@
   "separate-pull-requests": true,
   "packages": {
     "pok": {
-      "path": "./",
+      "path": ".",
       "release-type": "node"
     },
     "imagen": {
