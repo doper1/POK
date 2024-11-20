@@ -17,4 +17,3 @@ jobs:
           output_file: 'docs/diagram.svg'
           root_path: 'src/'
           excluded_paths: '__tests__'
-          file_colors: '{ "js": "orange" }'
