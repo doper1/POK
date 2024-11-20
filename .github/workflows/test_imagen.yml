@@ -30,16 +30,15 @@ jobs:
       - name: start db
         run: docker compose up db -d
 
-      - name: Move into imagen
-        run: cd imagen
-
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
       - name: Run tests
-        run: cargo test
+        run: |
+          cd imagen
+          cargo test
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -50,6 +49,7 @@ jobs:
       - name: Docker multi-platform build test
         uses: docker/build-push-action@v6
         with:
+          context: ./imagen
           platforms: linux/amd64,linux/arm64
           push: false
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
