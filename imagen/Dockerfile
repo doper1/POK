@@ -21,10 +21,10 @@ FROM scratch
 COPY cards /cards
 
 COPY --from=builder /lib64/ld-linux-x86-64.so.2 /lib64/ 
+COPY --from=builder /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/
 
 COPY --from=builder /usr/bin/convert /usr/bin/
 COPY --from=builder /usr/bin/optipng /usr/bin/
 COPY --from=builder /usr/src/app/imagen/target/release/imagen /usr/bin/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/
 
 CMD ["/usr/bin/imagen"]
