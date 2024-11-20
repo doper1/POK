@@ -20,7 +20,7 @@ FROM scratch
 
 COPY cards /cards
 
-COPY --from=builder /lib64/ld-linux-x86-64.so.2 /lib64/ 
+COPY --from=builder /lib64/ /lib64/ 
 COPY --from=builder /usr/lib/ /usr/lib/
 
 COPY --from=builder /usr/bin/convert /usr/bin/
