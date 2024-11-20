@@ -36,9 +36,9 @@ If not using docker:
 
 For development:
 
-- [Rust](https://www.rust-lang.org/) for the imagenerator container
-- [ImageMagick](https://imagemagick.org/) for the imagenerator container
-- [Optipng](https://optipng.sourceforge.net/) for the imagenerator container
+- [Rust](https://www.rust-lang.org/) for the imagen container
+- [ImageMagick](https://imagemagick.org/) for the imagen container
+- [Optipng](https://optipng.sourceforge.net/) for the imagen container
 
 ### Clone the Repository
 

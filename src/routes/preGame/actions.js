@@ -2,7 +2,7 @@ const Mustache = require('mustache');
 const {
   emote,
   shuffleArray,
-  notifyImagenerator,
+  notifyImagen,
 } = require('../../utils/generalFunctions');
 const User = require('../../models/User');
 const constants = require('../../utils/constants');
@@ -16,7 +16,7 @@ async function start(game, message, whatsapp) {
 
   message.react(emote('happy'));
 
-  notifyImagenerator('start', game.id, 0);
+  notifyImagen('start', game.id, 0);
 }
 
 async function join(game, message, chat, amount, players, whatsapp) {
@@ -58,10 +58,10 @@ ${constants.SEPARATOR}
       await game.deal(message.author, whatsapp);
       await player.set('status', 'pending');
 
-      notifyImagenerator('mid-join', game.id, 0);
+      notifyImagen('mid-join', game.id, 0);
     }
   } else {
-    notifyImagenerator('join', game.id, players.length * 4);
+    notifyImagen('join', game.id, players.length * 4);
   }
 
   const newMessage = Mustache.render(template, {

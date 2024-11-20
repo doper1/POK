@@ -4,7 +4,7 @@ const {
   rand,
   shuffleArray,
   delay,
-  notifyImagenerator,
+  notifyImagen,
 } = require('../utils/generalFunctions.js');
 const cardsFunctions = require('../utils/cardsFunctions.js');
 const gameFunctions = require('../utils/gameFunctions.js');
@@ -478,7 +478,7 @@ Action on @{{id}} (\${{money}})`;
 
         await this.initRound(whatsapp, endMessage, newCards);
 
-        notifyImagenerator('new-hand', this.id, 0);
+        notifyImagen('new-hand', this.id, 0);
     }
   }
 
@@ -603,7 +603,7 @@ Action on @{{id}} (\${{money}})`;
     let { endMessage, newCards } = await gameFunctions.showdown(this);
     await this.initRound(whatsapp, endMessage, newCards);
 
-    notifyImagenerator('new-hand', this.id, 0);
+    notifyImagen('new-hand', this.id, 0);
   }
 
   async foldsScenario(whatsapp, current, mainPot) {
@@ -618,7 +618,7 @@ Action on @{{id}} (\${{money}})`;
 ${constants.SEPARATOR}`,
     );
 
-    notifyImagenerator('new-hand', this.id, 0);
+    notifyImagen('new-hand', this.id, 0);
   }
 
   async endGame(whatsapp, lastRoundMessage = '', newCards = false) {

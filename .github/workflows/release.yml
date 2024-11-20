@@ -11,20 +11,23 @@ permissions:
 
 env:
   DOCKER_USERNAME: 'dofer123'
-  IMAGE_NAME: 'pok'
+  IMAGE_NAME_POK: 'pok'
+  IMAGE_NAME_IMAGEN: 'imagen'
 
 jobs:
   release:
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release-please.outputs.release_created }}
+      pok--release_created: ${{ steps.release-please.outputs.pok--release_created}}
+      imagen--release_created: ${{ steps.release-please.outputs.imagen--release_created}}
     steps:
       - name: Create a semantic release based on new commits
         id: release-please
         uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.POK_PAT }}
-          release-type: node
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -40,13 +43,13 @@ jobs:
 
       - name: Build and push Docker versioned docker image
         uses: docker/build-push-action@v2
-        if: ${{ steps.release-please.outputs.release_created }}
+        if: ${{ steps.release-please.outputs.pok--release_created }}
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.release-please.outputs.major }}.${{ steps.release-please.outputs.minor }}.${{ steps.release-please.outputs.patch }}
+            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_POK }}:${{ steps.release-please.outputs.pok--major }}.${{ steps.release-please.outputs.pok--minor }}.${{ steps.release-please.outputs.pok--patch }}
 
       - name: Build and push latest Docker image
         uses: docker/build-push-action@v2
@@ -55,10 +58,35 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_POK }}:latest
 
-  call-deploy:
+      - name: Build and push Docker versioned docker image
+        uses: docker/build-push-action@v2
+        if: ${{ steps.release-please.outputs.imagen--release_created }}
+        with:
+          context: ./imagen
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_IMAGEN }}:${{ steps.release-please.outputs.imagen--major }}.${{ steps.release-please.outputs.imagen--minor }}.${{ steps.release-please.outputs.imagen--patch }}
+
+      - name: Build and push latest Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./imagen
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_IMAGEN }}:latest
+
+  call-deploy-pok:
     needs: release
-    if: ${{ needs.release.outputs.release_created == false }}
-    uses: ./.github/workflows/deploy.yml
+    if: ${{ needs.release.outputs.pok--release_created }}
+    uses: ./.github/workflows/deploy_pok.yml
+    secrets: inherit
+
+  call-deploy-imagen:
+    needs: release
+    if: ${{ needs.release.outputs.imagen--release_created }}
+    uses: ./.github/workflows/deploy_imagen.yml
     secrets: inherit

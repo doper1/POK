@@ -72,13 +72,13 @@ function replyError(message, errorMessage) {
 }
 
 /**
- * Notify the imagenerator container about an event
+ * Notify imagen container about an event
  * @param {string} event Name of the event
  * @param {string} gameId Game ID (UUID)
  * @param {int} cardIndex Index of the first card to use
  */
-function notifyImagenerator(event, gameId, cardIndex) {
-  connection.notify('imagenerator', `${event}_${gameId}_${cardIndex}`);
+function notifyImagen(event, gameId, cardIndex) {
+  connection.notify('imagen', `${event}_${gameId}_${cardIndex}`);
 }
 
 module.exports = {
@@ -90,5 +90,5 @@ module.exports = {
   delay,
   getProperties,
   replyError,
-  notifyImagenerator,
+  notifyImagen,
 };

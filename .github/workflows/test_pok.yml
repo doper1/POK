@@ -1,13 +1,12 @@
-name: Test
+name: Test pok
 
 on:
-  push:
-    branches:
-      - dev
   pull_request:
     branches:
       - main
-      - dev
+    paths-ignore:
+      - 'imagen/**'
+      - 'docs/**'
 
 env:
   DOCKER_USERNAME: 'dofer123'
@@ -39,10 +38,10 @@ jobs:
       - name: start db
         run: docker compose up db -d
 
-      - name: Lint code
+      - name: Lint test
         run: npm run lint
 
-      - name: Run tests
+      - name: Unit tests
         run: npm run test
         env:
           CI: true

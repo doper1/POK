@@ -1,0 +1,44 @@
+name: Deploy imagen
+
+on: workflow_call
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Copy files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'docker-compose.yml'
+          target: '/pok'
+
+      - name: Start execution sequence
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /pok
+
+            echo ENV=prod > /pok/.env
+            echo POSTGRES_HOST=localhost >> /pok/.env
+            echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
+            echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
+            echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
+            echo OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" >> /pok/.env
+            history -c
+            history -w
+
+            sudo docker compose pull imagen 
+            sudo docker compose stop imagen 
+            sudo docker compose up imagen -d
+            sudo docker image prune -f

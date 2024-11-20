@@ -27,12 +27,12 @@ services:
     ports:
       - 3000:3000
 
-  imagenerator:
+  imagen:
     depends_on:
       db:
         condition: service_started
 
-    image: dofer123/imagenerator:latest
+    image: dofer123/imagen:latest
     restart: always
     env_file: .env
     environment:

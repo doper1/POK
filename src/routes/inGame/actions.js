@@ -1,6 +1,6 @@
 const Mustache = require('mustache');
 const gameFunctions = require('../../utils/gameFunctions');
-const { emote, notifyImagenerator } = require('../../utils/generalFunctions');
+const { emote, notifyImagen } = require('../../utils/generalFunctions');
 const constants = require('../../utils/constants');
 const Pot = require('../../models/Pot');
 const User = require('../../models/User');
@@ -103,7 +103,7 @@ ${constants.SEPARATOR}
 
     await current.buy(amount, 'pending');
 
-    notifyImagenerator('mid-join', game.id, 0);
+    notifyImagen('mid-join', game.id, 0);
   } else {
     template += `it will be added at the next hand`;
     await current.buy(amount, 'running');
