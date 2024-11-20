@@ -80,7 +80,7 @@ async function addPlayerMidGame(gameId, userId) {
 
     let currentPlayer = (
       await tx
-        .select()
+        .select({ ...player })
         .from(player)
         .innerJoin(game, eq(game.id, player.gameId))
         .where(

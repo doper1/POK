@@ -88,12 +88,12 @@ function call(game, message, current, pot) {
   return true;
 }
 
-async function buy(game, message, amount) {
-  return await preGameValidators.buy(game, message, amount);
+async function buy(game, message, amount, current) {
+  return await preGameValidators.buy(game, message, amount, current);
 }
 
-async function join(game, message, amount) {
-  return await preGameValidators.join(game, message, amount);
+async function join(game, message, amount, current, players) {
+  return await preGameValidators.join(game, message, amount, current, players);
 }
 
 async function show(game, message) {

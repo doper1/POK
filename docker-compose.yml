@@ -1,3 +1,5 @@
+# For local testing of one of the services, start only those
+
 services:
   db:
     image: postgres:16.4-alpine3.20
@@ -9,8 +11,10 @@ services:
     ports:
       - 5432:5432
 
-  # For local testing, stop the API after running the DB using docker compose, then run the API in a terminal
   api:
+    depends_on:
+      - db
+
     image: dofer123/pok:latest
     restart: always
     env_file: .env
@@ -18,10 +22,25 @@ services:
       - POSTGRES_HOST=db
     volumes:
       - auth_vol:/app/auth
+      - new_cards_vol:/newCards
 
     ports:
       - 3000:3000
 
+  imagen:
+    depends_on:
+      db:
+        condition: service_started
+
+    image: dofer123/imagen:latest
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=db
+    volumes:
+      - new_cards_vol:/newCards
+
 volumes:
   db_vol:
   auth_vol:
+  new_cards_vol:

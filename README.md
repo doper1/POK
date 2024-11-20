@@ -34,6 +34,12 @@ If not using docker:
 - [PostgreSQL](https://www.postgresql.org/) database up and running
 - A valid WhatsApp account
 
+For development:
+
+- [Rust](https://www.rust-lang.org/) for the imagen container
+- [ImageMagick](https://imagemagick.org/) for the imagen container
+- [Optipng](https://optipng.sourceforge.net/) for the imagen container
+
 ### Clone the Repository
 
 ```bash

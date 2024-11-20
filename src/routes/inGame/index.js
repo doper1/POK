@@ -39,11 +39,13 @@ async function inGameRoute({ whatsapp, message, chat, game, current }) {
         await actions.fold(game, message, whatsapp, current);
       break;
     case 'buy':
-      if (await validators.buy(game, message, amount))
+      if (await validators.buy(game, message, amount, current))
         await actions.buy(game, message, chat, amount, whatsapp);
       break;
     case 'join':
-      if (await validators.join(game, message, amount))
+      const players = await game.getPlayers();
+
+      if (await validators.join(game, message, amount, current, players))
         await actions.join(game, message, chat, amount);
       break;
     case 'show':

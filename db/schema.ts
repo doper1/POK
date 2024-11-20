@@ -45,7 +45,7 @@ const player = pgTable(
     gameId: varchar('game_id', { length: 256 }).references(() => game.id),
     userId: varchar('user_id', { length: 12 }).references(() => user.id),
     gameMoney: integer('game_money').default(0),
-    currentBet: integer('current_bet'),
+    currentBet: integer('current_bet').default(0),
     status: varchar('status').default('pending'),
     reBuy: integer('re_buy').default(0),
     sessionBalance: integer('session_balance').default(0),

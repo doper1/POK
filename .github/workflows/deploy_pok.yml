@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy pok
 
 on: workflow_call
 
@@ -16,17 +16,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'docker-compose.yml,drizzle.config.ts,db,package.json'
-          target: '/pok'
-
-      - name: Copy constants
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'src/utils/constants.js'
+          source: 'docker-compose.yml,drizzle.config.ts,db,package.json,src/utils/constants.js'
           target: '/pok'
 
       - name: Start execution sequence
@@ -47,7 +37,8 @@ jobs:
             nvm install 20
             npm update drizzle-kit
 
-            echo POSTGRES_HOST=localhost > /pok/.env
+            echo ENV=prod > /pok/.env
+            echo POSTGRES_HOST=localhost >> /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
             echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
@@ -58,7 +49,7 @@ jobs:
             sudo docker compose pull api
             sudo docker compose stop api
             npm run db:migrate
-            sudo docker compose up -d
+            sudo docker compose up imagen -d
             sudo docker image prune -f
 
             mkdir -p /pok/backups

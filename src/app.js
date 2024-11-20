@@ -32,6 +32,10 @@ whatsapp.on('message_create', async (msg) => {
   const message = middleware.filterMessage(msg);
   const chat = middleware.filterChat(await msg.getChat());
 
+  if (!middleware.validateEnv(chat.name)) {
+    return;
+  }
+
   if (!middleware.validateMessage(msg, chat)) {
     middleware.logMessage(message, chat.name, 'invalid');
     return;
@@ -65,7 +69,7 @@ whatsapp.on('message_create', async (msg) => {
     current,
   };
 
-  if (!current || game.status == 'pending') {
+  if (!current || game.status === 'pending') {
     await preGameRoute(params);
   } else {
     await inGameRoute(params);
