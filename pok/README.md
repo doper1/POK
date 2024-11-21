@@ -8,6 +8,10 @@ Pok is the main API that receive requests from whatsapp and process them
 - [PostgreSQL](https://www.postgresql.org/) - v16.4
 - [Drizzle ORM](https://orm.drizzle.team/) for DB integration. Also provides [Drizzle studio](https://orm.drizzle.team/drizzle-studio/overview)
 
+## Architecture
+
+![Visualization of the codebase](./docs/diagram/diagram_pok.svg)
+
 ## Installation
 
 ### Prerequisites

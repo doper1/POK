@@ -26,4 +26,4 @@ RUN apk update && apk upgrade && apk add --no-cache \
 
 COPY --from=builder /usr/src/app/imagen/target/release/imagen /app/imagen
 
-# CMD ["/app/imagen"]
+CMD ["/app/imagen"]
