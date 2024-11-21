@@ -1,12 +1,5 @@
-node_modules
-docs/diagram.svg
-.wwebjs_cache
-.wwebjs_auth
-coverage
 .VSCodeCounter
 .vscode
-auth
-.env
-newCards
 *.sql
 !mocked_test_data.sql
+.env

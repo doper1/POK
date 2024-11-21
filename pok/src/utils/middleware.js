@@ -4,6 +4,32 @@ const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 
+function validateEnvVariables() {
+  if (process.env.POSTGRES_HOST === undefined) {
+    throw new Error('Please set POSTGRES_HOST environment variable');
+  }
+
+  if (process.env.POSTGRES_DB === undefined) {
+    throw new Error('Please set POSTGRES_DB environment variable');
+  }
+
+  if (process.env.POSTGRES_USER === undefined) {
+    throw new Error('Please set POSTGRES_USER environment variable');
+  }
+
+  if (process.env.POSTGRES_PASSWORD === undefined) {
+    throw new Error('Please set POSTGRES_PASSWORD environment variable');
+  }
+
+  if (process.env.OPENAI_API_KEY === undefined) {
+    throw new Error('Please set OPENAI_API_KEY environment variable');
+  }
+
+  if (process.env.ENV === undefined) {
+    throw new Error('Please set ENV environment variable');
+  }
+}
+
 function validateEnv(groupName) {
   return (
     (process.env.ENV === 'dev' && groupName.startsWith('POKDEV')) ||
@@ -146,6 +172,7 @@ async function messageToCommand(body) {
 }
 
 module.exports = {
+  validateEnvVariables,
   validateMessage,
   validateEnv,
   validateLock,

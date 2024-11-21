@@ -4,7 +4,7 @@
   "tag-separator": "@",
   "separate-pull-requests": true,
   "packages": {
-    ".": {
+    "pok": {
       "release-type": "node"
     },
     "imagen": {

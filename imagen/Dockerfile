@@ -1,10 +1,5 @@
 FROM rust:1.75-slim-bookworm AS builder
 
-RUN apt-get update && apt-get install -y \
-        imagemagick \
-        optipng \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /usr/src/app
 RUN cargo new --bin imagen
 WORKDIR /usr/src/app/imagen
@@ -16,15 +11,19 @@ COPY src ./src
 RUN cargo build --release
 
 
-FROM scratch
+FROM alpine:3.19 
+
+WORKDIR /app
 
 COPY cards /cards
 
-COPY --from=builder /lib64/ /lib64/ 
-COPY --from=builder /usr/lib/ /usr/lib/
+RUN addgroup imagen && \
+    adduser -D -h /app -G imagen imagen 
 
-COPY --from=builder /usr/bin/convert /usr/bin/
-COPY --from=builder /usr/bin/optipng /usr/bin/
-COPY --from=builder /usr/src/app/imagen/target/release/imagen /usr/bin/
+RUN apk update && apk upgrade && apk add --no-cache \
+    imagemagick \
+    optipng 
 
-CMD ["/usr/bin/imagen"]
+COPY --from=builder /usr/src/app/imagen/target/release/imagen /app/imagen
+
+# CMD ["/app/imagen"]

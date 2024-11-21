@@ -1,4 +1,4 @@
-# For local testing of one of the services, start only those
+# For local testing start only the ones you are not working on
 
 services:
   db:
@@ -32,7 +32,7 @@ services:
       db:
         condition: service_started
 
-    image: dofer123/imagen:latest
+    image: dofer123/imagen
     restart: always
     env_file: .env
     environment:

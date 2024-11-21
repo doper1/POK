@@ -33,7 +33,7 @@ pub async fn generate_image(
         return Err(Box::new(io::Error::new(
             io::ErrorKind::Other,
             format!(
-                "Failed to add border: {}\nhint: create /newCards folder for the generated images",
+                "Failed to add border: {} HINT: create imagen/newCards folder for the generated images",
                 add_border_output.status
             ),
         )));
