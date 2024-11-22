@@ -4,6 +4,7 @@ const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 const Groq = require('groq-sdk');
+const Redis = require('ioredis');
 
 function validateEnvVariables() {
   if (process.env.POSTGRES_HOST === undefined) {
@@ -135,11 +136,10 @@ async function translate(body) {
         },
       ],
 
-      model: `${constants.MODEL_GLHF}`,
+      model: `${constants.MODEL_GROQ}`,
       temperature: 0.7,
     });
-  } catch (e) {
-    console.log('Groq failure: ', e);
+  } catch {
     return await glhf.chat.completions.create({
       messages: [
         {
@@ -158,11 +158,55 @@ async function translate(body) {
   }
 }
 
-async function messageToCommand(body) {
-  const groqOutput = await translate(body);
+function processOutput(body) {
+  return body.split(' ').filter((word) => word != '' && word !== '\n');
+}
 
-  let newBody = groqOutput.choices[0]?.message?.content;
-  return newBody.split(' ').filter((word) => word != '' && word !== '\n');
+const redis = new Redis({ password: process.env.REDIS_PASSWORD });
+
+async function messageToCommand(body) {
+  const cacheKey = body.join('_').toLowerCase();
+  const isCacheValid = body.length <= 6 && body.join('').length <= 40;
+
+  if (isCacheValid) {
+    const cachedResult = await redis.get(cacheKey);
+
+    if (cachedResult) {
+      await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
+      return processOutput(cachedResult);
+    }
+  }
+
+  const output = await translate(body.join(' '));
+  const newBody = output.choices[0]?.message?.content;
+
+  if (isCacheValid) {
+    await redis.set(cacheKey, newBody);
+    await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
+
+    const cacheSize = await redis.zcard(constants.DATE_CACHE_NAME);
+
+    if (cacheSize > constants.MAX_CACHE_ENTRIES) {
+      await trimCache();
+    }
+  }
+
+  return processOutput(newBody);
+}
+
+async function trimCache() {
+  const keysToRemove = constants.MAX_CACHE_ENTRIES / 5; // Remove 5% of max cache size
+
+  const oldestKeys = await redis.zrange(
+    constants.DATE_CACHE_NAME,
+    0,
+    keysToRemove - 1,
+  );
+
+  if (oldestKeys.length > 0) {
+    await redis.del(...oldestKeys);
+    await redis.zrem(constants.DATE_CACHE_NAME, ...oldestKeys);
+  }
 }
 
 module.exports = {
