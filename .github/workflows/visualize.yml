@@ -7,6 +7,7 @@ on:
 
 jobs:
   get_data:
+    if: ${{ !startsWith(github.head_ref, 'release-please') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
