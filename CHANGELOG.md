@@ -1,5 +1,23 @@
 # Changelog
 
+## [6.3.0](https://github.com/doper1/POK/compare/v6.2.0...v6.3.0) (2024-11-04)
+
+
+### Features
+
+* **test:** global after test configuration ([8b0901e](https://github.com/doper1/POK/commit/8b0901e9472dce228fc56b84f78f9d343c2eeb0c))
+
+
+### Bug Fixes
+
+* **ci:** add env variables to test stage ([9a8ef25](https://github.com/doper1/POK/commit/9a8ef2595de06eb8c4f485a705077c1e8d50e158))
+* **cicd:** postgres hostname ([4593f1a](https://github.com/doper1/POK/commit/4593f1ad7caaea55ceec8783c859760e95521806))
+* **ci:** remove visualization from dev ([5cc6607](https://github.com/doper1/POK/commit/5cc6607f825217f47abcc8d95776ea6d851fadcc))
+* **ci:** run test db in test stage ([fcfca74](https://github.com/doper1/POK/commit/fcfca74f10c2aaa99575f16d50e02f5269be420f))
+* **configuration:** env variables + docker env variables ([14bc2dc](https://github.com/doper1/POK/commit/14bc2dc740d712c5c2cf361cab710e3ab8c60898))
+* **middleware:** reorder to prevent false message parsing ([e2c4297](https://github.com/doper1/POK/commit/e2c429763b76dbd5fb9e85bd7870d58b599875f6))
+* **route:** missing variable ([a0b27cd](https://github.com/doper1/POK/commit/a0b27cded0e01b345cb4cd241b88c09bdc7d4ce4))
+
 ## [6.2.0](https://github.com/doper1/POK/compare/v6.1.0...v6.2.0) (2024-11-03)
 
 
