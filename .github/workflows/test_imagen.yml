@@ -10,6 +10,8 @@ on:
 env:
   DOCKER_USERNAME: 'dofer123'
   IMAGE_NAME: 'imagen'
+  DOCKER_BUILDKIT: 1
+  BUILDKIT_PROGRESS: plain
 
 jobs:
   test:
