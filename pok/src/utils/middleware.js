@@ -3,6 +3,7 @@ const { getProperties, currentTime } = require('./generalFunctions');
 const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
+const Groq = require('groq-sdk');
 
 function validateEnvVariables() {
   if (process.env.POSTGRES_HOST === undefined) {
@@ -113,55 +114,48 @@ async function getGame(chat) {
   return game;
 }
 
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+const glhf = new OpenAI({
+  apiKey: process.env.GLHF_API_KEY,
+  baseURL: 'https://glhf.chat/api/openai/v1',
+});
+
 async function translate(body) {
-  const glhf = new OpenAI({
-    apiKey: process.env.GLHF_API_KEY,
-    baseURL: 'https://glhf.chat/api/openai/v1',
-  });
+  try {
+    return await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: constants.LLM_SYSTEM_MESSAGE,
+        },
+        {
+          role: 'user',
+          content: `${body} `,
+        },
+      ],
 
-  return glhf.chat.completions.create({
-    messages: [
-      {
-        role: 'system',
-        content: `
-Your name is Pok.
+      model: `${constants.MODEL_GLHF}`,
+      temperature: 0.7,
+    });
+  } catch (e) {
+    console.log('Groq failure: ', e);
+    return await glhf.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: constants.LLM_SYSTEM_MESSAGE,
+        },
+        {
+          role: 'user',
+          content: `${body} `,
+        },
+      ],
 
-The message you will receive is poker related.
-Your goal is to translate it to a command.
-
-The possible commands are:
-pok check - checks the actions and move the turn to the next player.
-pok call - calls the current bet
-pok all (in) - puts all your chips in the pot
-pok raise [amount] - raises the specified amount
-pok fold - folds the hand
-pok buy [amount] - buys more chips to the table
-pok help - Shows the available commands
-pok start - starts the game
-pok join [amount] - adds you to the game. If you also specified an amount, it will buy that amount
-pok show - Shows the pot value, the players, the players order, the players statues, the players bets and the current player
-pok exit - remove you from the game
-pok end - ends the game for everyone
-
-Answer either:
-1.  A command from the command list exactly as it's written
-2. Only 'not related'
-
-Don't include any extra data in your answer
-For non-English messages return 'not related'
-
-Translate:
-`,
-      },
-      {
-        role: 'user',
-        content: `${body} `,
-      },
-    ],
-
-    model: `${constants.MODEL}`,
-    temperature: 0.7,
-  });
+      model: `${constants.MODEL_GLHF}`,
+      temperature: 0.7,
+    });
+  }
 }
 
 async function messageToCommand(body) {

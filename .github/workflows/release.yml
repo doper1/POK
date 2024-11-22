@@ -16,6 +16,7 @@ env:
 
 jobs:
   release:
+    if: ${{ !startsWith(github.head_ref, 'release-please') }}
     runs-on: ubuntu-latest
     outputs:
       pok--release_created: ${{ steps.release-please.outputs.pok--release_created}}
@@ -85,12 +86,10 @@ jobs:
 
   call-deploy-pok:
     needs: release
-    if: ${{ needs.release.outputs.pok--release_created }}
     uses: ./.github/workflows/deploy_pok.yml
     secrets: inherit
 
   call-deploy-imagen:
     needs: release
-    if: ${{ needs.release.outputs.imagen--release_created }}
     uses: ./.github/workflows/deploy_imagen.yml
     secrets: inherit
