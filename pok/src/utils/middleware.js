@@ -165,7 +165,7 @@ function processOutput(body) {
 const redis = new Redis({ password: process.env.REDIS_PASSWORD });
 
 async function messageToCommand(body) {
-  const cacheKey = body.join('_');
+  const cacheKey = body.join('_').toLowerCase();
   const isCacheValid = body.length <= 6 && body.join('').length <= 40;
 
   if (isCacheValid) {
