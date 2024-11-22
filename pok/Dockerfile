@@ -25,7 +25,7 @@ RUN chown pok:pok  /var/spool/cron/crontabs/pok && \
 # Switch to 'pok'
 USER pok
 
-COPY --chown=pok --chmod=700 ./imagen/cards ./cards
+COPY --chown=pok --chmod=700 ./cards ./cards
 
 RUN chmod 700 -R ./cards && \
     mkdir newCards && \

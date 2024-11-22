@@ -1,0 +1,8 @@
+node_modules
+docs/diagram.svg
+.wwebjs_cache
+.wwebjs_auth
+coverage
+auth
+.env
+newCards

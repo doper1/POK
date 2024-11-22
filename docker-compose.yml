@@ -1,4 +1,4 @@
-# For local testing of one of the services, start only those
+# For local testing start only the ones you are not working on
 
 services:
   db:
@@ -13,7 +13,8 @@ services:
 
   api:
     depends_on:
-      - db
+      db:
+        condition: service_started
 
     image: dofer123/pok:latest
     restart: always

@@ -1,21 +1,16 @@
-# POK
+# Pok
 
-POK is an open-source WhatsApp bot that brings poker games to group chats, automating card dealing, game rules, and tracking the game state for seamless play.
-
-## Features
-
-- **Play Poker on WhatsApp:** Enjoy poker games directly within your WhatsApp group chat.
-- **Automated gameplay:** The bot handles dealing cards, managing bets, and determining winners.
-- **Cross-Platform:** Works on any device that supports WhatsApp.
-- **Open Source:** Free to use and modify under the Apache license.
+Pok is the main API that receive requests from whatsapp and process them
 
 ## Tech Stack
 
 - [Node](https://nodejs.org/) - v20
 - [PostgreSQL](https://www.postgresql.org/) - v16.4
 - [Drizzle ORM](https://orm.drizzle.team/) for DB integration. Also provides [Drizzle studio](https://orm.drizzle.team/drizzle-studio/overview)
-- [Rust](https://www.rust-lang.org/) for the image generation service
-- [Docker](https://www.docker.com/) for deployment
+
+## Architecture
+
+![Visualization of the codebase](./docs/diagram/diagram_pok.svg)
 
 ## Installation
 
@@ -64,7 +59,7 @@ docker compose up --build
 npm start
 ```
 
-## Usage
+# Usage
 
 1. **Setup the Bot:** Once the bot is running, a QR code will appear on the terminal. Scan the QR code with your whatsapp app this will enable the bot to communicate through you whatsapp account
 
@@ -97,25 +92,3 @@ The bot can understand natural language, but at the end every message is transla
 - `pok show` - Show the list of players in the game.
 - `pok exit` - Exit the game.
 - `pok end` - End the current poker game.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository, create a new branch, and submit a pull request.
-
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature/your-feature`.
-3. Commit your changes: `git commit -m 'Add some feature'`.
-4. Push to the branch: `git push origin feature/your-feature`.
-5. Open a pull request.
-
-Please ensure your commits are clear and are by the [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) standard. Also make sure to write tests using jest and put them in the closet `__tests__` directory.
-
-Because of the DB integration all the tests got invalid so I deleted them all. The can still be found in version 3.1.0 and prior. Their directories still exists
-
-## License
-
-This project is licensed under the Apache License.
-
-## Contact
-
-For issues, questions, or feedback, feel free to open an issue on GitHub

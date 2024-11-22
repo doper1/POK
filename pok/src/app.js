@@ -5,6 +5,8 @@ const middleware = require('./utils/middleware.js');
 const preGameRoute = require('./routes/preGame/index.js');
 const inGameRoute = require('./routes/inGame/index.js');
 
+middleware.validateEnvVariables();
+
 let whatsapp = new Client({
   puppeteer: {
     headless: true,
