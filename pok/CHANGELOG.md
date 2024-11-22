@@ -1,5 +1,20 @@
 # Changelog
 
+## [7.2.0](https://github.com/doper1/POK/compare/POK@v7.1.0...POK@v7.2.0) (2024-11-22)
+
+
+### Features
+
+* delete old images improvement ([7826e40](https://github.com/doper1/POK/commit/7826e40bb5388238b456580fb64c77e9cc21a5e5))
+* **pok:** add cache invalidation ([f2cabb0](https://github.com/doper1/POK/commit/f2cabb0a09aaa88b82c3f8ba95c7b09472f9a68e))
+* **pok:** Redis cache for LLM translation ([1854fcb](https://github.com/doper1/POK/commit/1854fcb67bc62ab4e2185645eb1dd82cecbc73bb))
+
+
+### Bug Fixes
+
+* **pok:** redis host ([fdbcfd7](https://github.com/doper1/POK/commit/fdbcfd794a4683e398d20c8cef4cda8dea1cca45))
+* **pok:** update help message ([194c164](https://github.com/doper1/POK/commit/194c1644bf9a90dae30596a14b0d8e650a7fe700))
+
 ## [7.1.0](https://github.com/doper1/POK/compare/POK@v7.0.0...POK@v7.1.0) (2024-11-22)
 
 
