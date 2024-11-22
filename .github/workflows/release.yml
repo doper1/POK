@@ -16,6 +16,7 @@ env:
 
 jobs:
   release:
+    if: ${{ !startsWith(github.head_ref, 'release-please') }}
     runs-on: ubuntu-latest
     outputs:
       pok--release_created: ${{ steps.release-please.outputs.pok--release_created}}

@@ -4,6 +4,7 @@ on: workflow_call
 
 jobs:
   deploy:
+    if: ${{ !startsWith(github.head_ref, 'release-please') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
