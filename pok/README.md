@@ -10,7 +10,7 @@ Pok is the main API that receive requests from whatsapp and process them
 
 ## Architecture
 
-![Visualization of the codebase](./docs/diagram/diagram_pok.svg)
+![Visualization of the codebase](../docs/diagrams/diagram_pok.svg)
 
 ## Installation
 
