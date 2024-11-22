@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.1.0](https://github.com/doper1/POK/compare/POK@v7.0.0...POK@v7.1.0) (2024-11-22)
+
+
+### Features
+
+* **pok:** dual message translation ([97df3b2](https://github.com/doper1/POK/commit/97df3b20633e11e76829ec1ba115e1f773ba87b8))
+
+
+### Bug Fixes
+
+* **pok:** lint fix ([b987ba0](https://github.com/doper1/POK/commit/b987ba013a9da749fc6be1b0e071c6fb4ebec35b))
+
 ## [7.0.0](https://github.com/doper1/POK/compare/POK-v6.3.1...POK@v7.0.0) (2024-11-22)
 
 
