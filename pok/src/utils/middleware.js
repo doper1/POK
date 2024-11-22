@@ -138,7 +138,8 @@ async function translate(body) {
       model: `${constants.MODEL_GLHF}`,
       temperature: 0.7,
     });
-  } catch (error) {
+  } catch (e) {
+    console.log('Groq failure: ', e);
     return await glhf.chat.completions.create({
       messages: [
         {
