@@ -3,14 +3,18 @@ FROM rust:alpine3.19 AS builder
 RUN apk update && apk upgrade && apk --no-cache add musl-dev
 
 WORKDIR /usr/src/app
-RUN cargo new --bin imagen
+COPY Cargo.toml Cargo.lock imagen/
 WORKDIR /usr/src/app/imagen
 
-COPY Cargo.toml Cargo.lock ./
-RUN cargo build --release --target-dir /
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    cargo fetch
 
 COPY src ./src
-RUN cargo build --release
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    cargo build --release --target-dir /target
 
 
 FROM alpine:3.19
@@ -26,8 +30,8 @@ RUN apk update && apk upgrade && apk add --no-cache \
     imagemagick \
     optipng
 
-USER imagen
+COPY --from=builder --chown=imagen --chmod=700 /target/release/imagen /app/imagen
 
-COPY --from=builder --chown=imagen --chmod=700 /usr/src/app/imagen/target/release/imagen /app/imagen
+USER imagen
 
 ENTRYPOINT ["/app/imagen"]
