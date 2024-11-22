@@ -42,6 +42,14 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-buildx-
+
       - name: Build and push Docker versioned docker image - Pok -
         uses: docker/build-push-action@v2
         if: ${{ steps.release-please.outputs.pok--release_created }}
@@ -51,6 +59,8 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_POK }}:${{ steps.release-please.outputs.pok--major }}.${{ steps.release-please.outputs.pok--minor }}.${{ steps.release-please.outputs.pok--patch }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Build and push latest Docker image - Pok -
         uses: docker/build-push-action@v2
@@ -60,6 +70,8 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_POK }}:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Build and push Docker versioned image - Imagen -
         uses: docker/build-push-action@v6
