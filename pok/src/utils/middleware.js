@@ -162,7 +162,10 @@ function processOutput(body) {
   return body.split(' ').filter((word) => word != '' && word !== '\n');
 }
 
-const redis = new Redis({ password: process.env.REDIS_PASSWORD });
+const redis = new Redis({
+  host: process.env.REDIS_HOST,
+  password: process.env.REDIS_PASSWORD,
+});
 
 async function messageToCommand(body) {
   const cacheKey = body.join('_').toLowerCase();
