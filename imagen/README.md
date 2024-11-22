@@ -8,7 +8,7 @@ Imagen is concurrent image generating service for POK. His purpose is to lower P
 
 ## Architecture
 
-![Visualization of the codebase](./docs/diagrams/diagram_imagen.svg)
+![Visualization of the codebase](../docs/diagrams/diagram_imagen.svg)
 
 # Usage
 
