@@ -4,6 +4,7 @@ const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 const Groq = require('groq-sdk');
+const Redis = require('ioredis');
 
 function validateEnvVariables() {
   if (process.env.POSTGRES_HOST === undefined) {
@@ -135,11 +136,10 @@ async function translate(body) {
         },
       ],
 
-      model: `${constants.MODEL_GLHF}`,
+      model: `${constants.MODEL_GROQ}`,
       temperature: 0.7,
     });
-  } catch (e) {
-    console.log('Groq failure: ', e);
+  } catch {
     return await glhf.chat.completions.create({
       messages: [
         {
@@ -158,11 +158,31 @@ async function translate(body) {
   }
 }
 
-async function messageToCommand(body) {
-  const groqOutput = await translate(body);
+function processOutput(output) {
+  return output.split(' ').filter((word) => word !== '' && word !== '\n');
+}
 
-  let newBody = groqOutput.choices[0]?.message?.content;
-  return newBody.split(' ').filter((word) => word != '' && word !== '\n');
+const redis = new Redis({ password: process.env.REDIS_PASSWORD });
+
+async function messageToCommand(body) {
+  const cacheKey = body.join('_');
+
+  if (body.length <= 6) {
+    const cachedResult = await redis.get(cacheKey);
+
+    if (cachedResult) {
+      return processOutput(cachedResult);
+    }
+  }
+
+  const groqOutput = await translate(body.join(' '));
+  newBody = groqOutput.choices[0]?.message?.content;
+
+  if (body.length <= 6) {
+    await redis.set(cacheKey, newBody);
+  }
+
+  return processOutput(newBody);
 }
 
 module.exports = {

@@ -11,6 +11,15 @@ services:
     ports:
       - 5432:5432
 
+  cache:
+    image: redis:alpine3.19
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    restart: always
+    env_file: .env
+
+    ports:
+      - 6379:6379
+
   api:
     depends_on:
       db:
@@ -21,6 +30,7 @@ services:
     env_file: .env
     environment:
       - POSTGRES_HOST=db
+      - REDIS_HOST=cache
     volumes:
       - auth_vol:/app/auth
       - new_cards_vol:/newCards
