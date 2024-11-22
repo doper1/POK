@@ -158,31 +158,55 @@ async function translate(body) {
   }
 }
 
-function processOutput(output) {
-  return output.split(' ').filter((word) => word !== '' && word !== '\n');
+function processOutput(body) {
+  return body.split(' ').filter((word) => word != '' && word !== '\n');
 }
 
 const redis = new Redis({ password: process.env.REDIS_PASSWORD });
 
 async function messageToCommand(body) {
   const cacheKey = body.join('_');
+  const isCacheValid = body.length <= 6 && body.join('').length <= 40;
 
-  if (body.length <= 6) {
+  if (isCacheValid) {
     const cachedResult = await redis.get(cacheKey);
 
     if (cachedResult) {
+      await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
       return processOutput(cachedResult);
     }
   }
 
-  const groqOutput = await translate(body.join(' '));
-  newBody = groqOutput.choices[0]?.message?.content;
+  const output = await translate(body.join(' '));
+  const newBody = output.choices[0]?.message?.content;
 
-  if (body.length <= 6) {
+  if (isCacheValid) {
     await redis.set(cacheKey, newBody);
+    await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
+
+    const cacheSize = await redis.zcard(constants.DATE_CACHE_NAME);
+
+    if (cacheSize > constants.MAX_CACHE_ENTRIES) {
+      await trimCache();
+    }
   }
 
   return processOutput(newBody);
+}
+
+async function trimCache() {
+  const keysToRemove = constants.MAX_CACHE_ENTRIES / 5; // Remove 5% of max cache size
+
+  const oldestKeys = await redis.zrange(
+    constants.DATE_CACHE_NAME,
+    0,
+    keysToRemove - 1,
+  );
+
+  if (oldestKeys.length > 0) {
+    await redis.del(...oldestKeys);
+    await redis.zrem(constants.DATE_CACHE_NAME, ...oldestKeys);
+  }
 }
 
 module.exports = {

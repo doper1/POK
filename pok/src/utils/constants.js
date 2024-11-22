@@ -142,3 +142,7 @@ Don't include any extra data in your answer
 For non-English messages return 'not related'
 For non-humanly readable messages return 'not related'
 `;
+
+module.exports.MAX_CACHE_SIZE = 10000;
+
+module.exports.DATE_CACHE_NAME = 'date_cache';
