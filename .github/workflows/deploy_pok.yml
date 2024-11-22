@@ -44,9 +44,9 @@ jobs:
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
             echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
             echo OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" >> /pok/.env
-            echo GROQ_API_KEY="${{ secrets.GROQ_API_KEY }}"
+            echo GROQ_API_KEY="${{ secrets.GROQ_API_KEY }}" >> /pok/.env
             echo REDIS_HOST=localhost >> /pok/.env
-            echo REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}"
+            echo REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}" >> /pok/.env
 
             history -c
             history -w
