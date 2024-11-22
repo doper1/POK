@@ -53,7 +53,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-docker-buildx-
 
-      - name: Multi-platform Docker build
+      - name: Docker multi-platform build test
         uses: docker/build-push-action@v6
         with:
           context: ./imagen
