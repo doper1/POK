@@ -26,11 +26,12 @@ jobs:
 
       - name: set environment variables
         run: |
-          echo POSTGRES_HOST=localhost > /pok/.env
-          echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
-          echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
-          echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> /pok/.env
-          echo OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" >> /pok/.env
+          echo POSTGRES_HOST=localhost > .env
+          echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> .env
+          echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> .env
+          echo POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" >> .env
+          cp .env ./pok/.env
 
       - name: start db
         run: docker compose up db -d
@@ -52,6 +53,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./pok
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64/v8
           push: false
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
