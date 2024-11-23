@@ -190,9 +190,13 @@ class Game {
   }
 
   async deal(userId, whatsapp) {
-    let holeCards = [...this.deck.splice(-2)];
-    await playerRepo.updatePlayer(this.id, userId, 'holeCards', holeCards);
-    const newCards = await cardsFunctions.getCards(holeCards);
+    let holeCards = [...this.deck.splice(0, 2)];
+
+    const [newCards] = await Promise.all([
+      cardsFunctions.getCards(holeCards),
+      this.set('deck', this.deck),
+      playerRepo.updatePlayer(this.id, userId, 'holeCards', holeCards),
+    ]);
 
     whatsapp.sendMessage(`${userId}@c.us`, newCards, {
       caption: `*${this.groupName}*`,
