@@ -4,7 +4,7 @@ use postgres_array::Array;
 use std::sync::Arc;
 use std::{future::poll_fn, time::Duration};
 use tokio_postgres::{AsyncMessage::Notification, Client, Error};
-use tracing::info;
+use tracing::{info, error};
 
 mod db;
 mod image;
@@ -99,7 +99,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tokio::spawn(async move {
         if let Err(e) = query_connection.await {
-            eprintln!("connection error: {}", e);
+            error!("connection error: {}", e);
+            std::process::exit(1);
         }
     });
 
@@ -122,7 +123,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     });
                 }
                 Some(Err(err)) => {
-                    println!("Error while reading messages: {:?}", err);
+                    error!("Error while reading messages: {:?}", err);
+                    std::process::exit(1);
                 }
                 _ => {
                     break;
