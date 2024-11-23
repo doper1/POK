@@ -1,8 +1,8 @@
 use dotenv::dotenv;
 use std::{env, time::Duration};
-use tokio_postgres::{tls::NoTlsStream, Client, Connection, NoTls, Socket};
 use tokio::time::sleep;
-use tracing::{info, error};
+use tokio_postgres::{tls::NoTlsStream, Client, Connection, NoTls, Socket};
+use tracing::{error, info};
 
 async fn try_connect() -> Result<(Client, Connection<Socket, NoTlsStream>), String> {
     dotenv().ok();
@@ -26,10 +26,9 @@ async fn try_connect() -> Result<(Client, Connection<Socket, NoTlsStream>), Stri
             return Ok((client, connection));
         }
         Err(e) => {
-            return Err(format!("{}",e));
+            return Err(format!("{}", e));
         }
     }
-
 }
 
 pub async fn connect() -> Result<(Client, Connection<Socket, NoTlsStream>), String> {
@@ -43,8 +42,7 @@ pub async fn connect() -> Result<(Client, Connection<Socket, NoTlsStream>), Stri
             }
             Err(err) => error!(
                 "Failed to connect to the database (attempt {}): {}",
-                try_count,
-                err
+                try_count, err
             ),
         };
 

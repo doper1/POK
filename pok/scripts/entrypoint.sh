@@ -1,5 +1,10 @@
 #!/bin/sh
 
+chown pok /app/newCards
+chmod 770 /app/newCards
+
+su - pok
+
 crond -c /var/spool/cron/crontabs
 
 node /app/src/app.js

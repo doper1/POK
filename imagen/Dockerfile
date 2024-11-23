@@ -28,7 +28,7 @@ RUN addgroup pok && \
 
 RUN mkdir -p ./newCards && \
     chown -R pok:pok ./newCards && \
-    chmod -R 755 ./newCards
+    chmod -R 770 ./newCards
 
 RUN apk update && apk upgrade && apk add --no-cache \
     imagemagick \

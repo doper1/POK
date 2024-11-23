@@ -4,7 +4,7 @@ use postgres_array::Array;
 use std::sync::Arc;
 use std::{future::poll_fn, time::Duration};
 use tokio_postgres::{AsyncMessage::Notification, Client, Error};
-use tracing::{info, error};
+use tracing::{error, info};
 
 mod db;
 mod image;
@@ -106,20 +106,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tokio::spawn(async move {
         loop {
+            println!("Waiting for notifications...");
             // Act upon received events
             match poll_fn(|cx| listener_connection.poll_message(cx)).await {
                 Some(Ok(Notification(notice))) => {
-                    let payload: Vec<&str> = notice.payload().split("_").collect(); // Notice format: <event_type>_<game_id>_<first_card_index>
-
-                    let event = payload[0].to_owned();
-                    let game_id = payload[1].to_owned();
-                    let card_index: usize = payload[2].to_owned().parse().unwrap();
                     let query_client = Arc::clone(&query_client);
 
                     tokio::spawn(async move {
-                        route(query_client, &event, &game_id, card_index)
-                            .await
-                            .unwrap();
+                        println!("processing notification");
+                        let payload: Vec<&str> = notice.payload().split("_").collect(); // Notice format: <event_type>_<game_id>_<first_card_index>
+
+                        let event = payload[0].to_owned();
+                        let game_id = payload[1].to_owned();
+                        let card_index: usize = payload[2].to_owned().parse().unwrap();
+
+                        tokio::spawn(async move {
+                            route(query_client, &event, &game_id, card_index)
+                                .await
+                                .unwrap();
+                        });
+                        println!("notification processed");
                     });
                 }
                 Some(Err(err)) => {

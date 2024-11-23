@@ -5,9 +5,6 @@ WORKDIR /app
 RUN addgroup pok && \
     adduser -D -h /app -G pok pok  
     
-RUN mkdir -p ./newCards && \
-    chown -R pok:pok ./newCards && \
-    chmod -R 755 ./newCards
 
 RUN apk update && apk upgrade && apk add --no-cache \
     chromium \
@@ -25,7 +22,7 @@ COPY --chown=pok --chmod=700 ./scripts/cronjobs.sh /var/spool/cron/crontabs/pok
 RUN chown pok:pok  /var/spool/cron/crontabs/pok && \
     dos2unix /var/spool/cron/crontabs/pok
 
-USER pok
+# USER pok
 
 COPY --chown=pok --chmod=700 ./cards ./cards
 
@@ -43,5 +40,8 @@ RUN mkdir auth && \
     chmod 700 auth && \
     chown pok auth
     
+RUN mkdir newCards && \
+    chmod 700 newCards && \
+    chown pok newCards
 
 CMD ["/app/entrypoint.sh"]
