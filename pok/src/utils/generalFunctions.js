@@ -1,6 +1,6 @@
 const Mustache = require('mustache');
 const constants = require('../utils/constants');
-const { connection } = require('../../db/db.ts');
+const http = require('http');
 
 function rand(length) {
   return Math.floor(Math.random() * length);
@@ -76,9 +76,22 @@ function replyError(message, errorMessage) {
  * @param {string} event Name of the event
  * @param {string} gameId Game ID (UUID)
  * @param {int} cardIndex Index of the first card to use
+ * @returns {Promise<void>}
  */
 function notifyImagen(event, gameId, cardIndex) {
-  connection.notify('imagen', `${event}_${gameId}_${cardIndex}`);
+  let request = `http://${process.env.IMAGEN_HOST}:8080/api/${event}?game_id=${gameId}`;
+
+  switch (event) {
+    case 'join':
+      request += `&card_index=${cardIndex}`;
+      break;
+    case 'start':
+      break;
+  }
+
+  const req = http.get(request);
+  req.on('error', () => {});
+  req.end();
 }
 
 module.exports = {

@@ -103,7 +103,7 @@ ${constants.SEPARATOR}
 
     await current.buy(amount, 'pending');
 
-    notifyImagen('mid-join', game.id, 0);
+    notifyImagen('start', game.id);
   } else {
     template += `it will be added at the next hand`;
     await current.buy(amount, 'running');

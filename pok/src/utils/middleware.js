@@ -30,6 +30,22 @@ function validateEnvVariables() {
   if (process.env.ENV === undefined) {
     throw new Error('Please set ENV environment variable');
   }
+
+  if (process.env.REDIS_PASSWORD === undefined) {
+    throw new Error('Please set REDIS_PASSWORD environment variable');
+  }
+
+  if (process.env.REDIS_HOST === undefined) {
+    throw new Error('Please set REDIS_HOST environment variable');
+  }
+
+  if (process.env.GROQ_API_KEY === undefined) {
+    console.warn('GROQ_API_KEY environment variable is not set');
+  }
+
+  if (process.env.IMAGEN_HOST === undefined) {
+    throw new Error('Please set IMAGEN_HOST environment variable');
+  }
 }
 
 function validateEnv(groupName) {

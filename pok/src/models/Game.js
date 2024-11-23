@@ -482,7 +482,7 @@ Action on @{{id}} (\${{money}})`;
 
         await this.initRound(whatsapp, endMessage, newCards);
 
-        notifyImagen('new-hand', this.id, 0);
+        notifyImagen('start', this.id);
     }
   }
 
@@ -607,7 +607,7 @@ Action on @{{id}} (\${{money}})`;
     let { endMessage, newCards } = await gameFunctions.showdown(this);
     await this.initRound(whatsapp, endMessage, newCards);
 
-    notifyImagen('new-hand', this.id, 0);
+    notifyImagen('start', this.id);
   }
 
   async foldsScenario(whatsapp, current, mainPot) {
@@ -622,7 +622,7 @@ Action on @{{id}} (\${{money}})`;
 ${constants.SEPARATOR}`,
     );
 
-    notifyImagen('new-hand', this.id, 0);
+    notifyImagen('start', this.id);
   }
 
   async endGame(whatsapp, lastRoundMessage = '', newCards = false) {
