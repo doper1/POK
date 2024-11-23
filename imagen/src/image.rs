@@ -9,10 +9,10 @@ async fn generate_image(
     bin: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let args_1: [&str; 10] = [
-        "-border", "30", "-resize", "40%", "-filter", "Lanczos", "-quality", "100", "+append", "-",
+        "-border", "30", "-resize", "50%", "-filter", "Lanczos", "-quality", "100", "+append", "-",
     ];
 
-    let args_2: [&str; 5] = ["-", "-border", "10x10", "-strip", target];
+    let args_2: [&str; 5] = ["-", "-border", "15x15", "-strip", target];
 
     let aggregate = Command::new(bin)
         .args(cards)
