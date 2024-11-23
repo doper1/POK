@@ -1,8 +1,9 @@
+use postgres_array::Array;
 use std::io::{self, Error};
 use std::process::{Command, Output, Stdio};
-use tokio;
+use tokio_postgres::Client;
 
-pub async fn generate_image(
+async fn generate_image(
     cards: &Vec<String>,
     target: &str,
     bin: &str,
@@ -42,7 +43,7 @@ pub async fn generate_image(
     Ok(())
 }
 
-pub async fn optimize_image(target: &str) -> Result<Output, Error> {
+async fn optimize_image(target: &str) -> Result<Output, Error> {
     let args: [String; 5] = [
         String::from("-strip"),
         String::from("all"),
@@ -51,7 +52,45 @@ pub async fn optimize_image(target: &str) -> Result<Output, Error> {
         target.to_owned(),
     ];
 
-    tokio::spawn(async move { Command::new("optipng").args(&args).output() })
+    Command::new("optipng").args(&args).output()
+}
+
+pub async fn process(
+    game_id: String,
+    card_index: usize,
+    cards_amount: usize,
+    client: &Client,
+) -> Result<(Vec<String>, String), Box<dyn std::error::Error>> {
+    let bin = if cfg!(windows) { "magick" } else { "convert" };
+
+    let row = &client
+        .query_one(
+            &format!("SELECT {} FROM game WHERE id=$1", &"deck"),
+            &[&game_id],
+        )
+        .await?;
+
+    let cards_raw: Array<String> = row.get(&"deck");
+    let cards_vec: Vec<String> =
+        cards_raw.into_inner()[card_index..cards_amount * 2 + card_index].to_vec();
+
+    let mut cards: Vec<String> = vec![];
+    let mut target = String::from("");
+
+    for card in cards_vec.chunks(2) {
+        target.push_str(&format!("{}{}", &card[0], &card[1]));
+        cards.push(format!("cards/{}{}.png", card[0], card[1]));
+    }
+
+    target = format!("newCards/{}.png", target);
+
+    generate_image(&cards, &target, bin)
         .await
-        .unwrap()
+        .expect("Failed to generate image");
+
+    optimize_image(&target)
+        .await
+        .expect("Failed to optimize image");
+
+    Ok((cards, target))
 }
