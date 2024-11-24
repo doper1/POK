@@ -35,14 +35,13 @@ jobs:
   docker_build:
     if: ${{ !startsWith(github.head_ref, 'release-please') }}
     needs: release
-    runs-on:
-      group: ${{ matrix.group }}
+    runs-on: ${{ matrix.host }}
     strategy:
       matrix:
         include:
-          - group: ubuntu-runners
+          - host: ubuntu-latest
             arch: amd64
-          - group: ubuntu-runners-arm
+          - host: rp-ubuntu-arm
             arch: arm64
     steps:
       - name: Checkout repository
