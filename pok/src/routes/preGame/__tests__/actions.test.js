@@ -1,5 +1,6 @@
 const actions = require('../actions');
 const Game = require('../../../models/Game');
+const generalFunctions = require('../../../utils/generalFunctions');
 
 describe('pok join - preGame', () => {
   beforeEach(async () => {
@@ -40,6 +41,8 @@ describe('pok join - preGame', () => {
     };
 
     amount = 100;
+
+    jest.spyOn(generalFunctions, 'notifyImagen').mockResolvedValue();
   });
 
   test('game is not running (with money)', async () => {

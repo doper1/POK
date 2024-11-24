@@ -1,9 +1,5 @@
 const Mustache = require('mustache');
-const {
-  emote,
-  shuffleArray,
-  notifyImagen,
-} = require('../../utils/generalFunctions');
+const gf = require('../../utils/generalFunctions');
 const User = require('../../models/User');
 const constants = require('../../utils/constants');
 const Pot = require('../../models/Pot');
@@ -14,9 +10,9 @@ async function start(game, message, whatsapp) {
   await game.generateOrder();
   await game.initRound(whatsapp, '🎰 *The game has STARTED!* 🎰', false, true);
 
-  message.react(emote('happy'));
+  message.react(gf.emote('happy'));
 
-  notifyImagen('start', game.id, 0);
+  gf.notifyImagen('start', game.id);
 }
 
 async function join(game, message, chat, amount, players, whatsapp) {
@@ -31,7 +27,7 @@ async function join(game, message, chat, amount, players, whatsapp) {
   if (players.length === 0 || game.deck.length === 0) {
     await game.set(
       'deck',
-      shuffleArray(constants.DECK.map((card) => [...card])),
+      gf.shuffleArray(constants.DECK.map((card) => [...card])),
     );
   }
 
@@ -58,10 +54,10 @@ ${constants.SEPARATOR}
       await game.deal(message.author, whatsapp);
       await player.set('status', 'pending');
 
-      notifyImagen('mid-join', game.id, 0);
+      gf.notifyImagen('start', game.id);
     }
   } else {
-    notifyImagen('join', game.id, players.length * 4);
+    gf.notifyImagen('join', game.id, players.length * 4);
   }
 
   const newMessage = Mustache.render(template, {
@@ -72,7 +68,7 @@ ${constants.SEPARATOR}
       : '',
   });
 
-  message.react(emote('happy'));
+  message.react(gf.emote('happy'));
   await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
 }
 
@@ -99,7 +95,7 @@ async function buy(game, message, chat, amount, player) {
     amount: amount,
   });
 
-  message.react(emote('happy'));
+  message.react(gf.emote('happy'));
   await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
   return true;
 }

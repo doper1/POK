@@ -33,9 +33,11 @@ services:
     environment:
       - POSTGRES_HOST=db
       - REDIS_HOST=cache
+      - IMAGEN_HOST=imagen
+
     volumes:
       - auth_vol:/app/auth
-      - new_cards_vol:/newCards
+      - new_cards_vol:/app/newCards
 
     ports:
       - 3000:3000
@@ -51,7 +53,10 @@ services:
     environment:
       - POSTGRES_HOST=db
     volumes:
-      - new_cards_vol:/newCards
+      - new_cards_vol:/app/newCards
+
+    ports:
+      - 8080:8080
 
 volumes:
   db_vol:

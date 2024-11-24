@@ -42,22 +42,6 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Cache Docker layers for Pok
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache-pok
-          key: ${{ runner.os }}-docker-buildx-pok-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-buildx-pok-
-
-      - name: Cache Docker layers for Imagen
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache-imagen
-          key: ${{ runner.os }}-docker-buildx-imagen-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-buildx-imagen-
-
       - name: Build and push pok image
         uses: docker/build-push-action@v2
         if: ${{ steps.release-please.outputs.pok--release_created }}
@@ -68,8 +52,14 @@ jobs:
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_POK }}:${{ steps.release-please.outputs.pok--major }}.${{ steps.release-please.outputs.pok--minor }}.${{ steps.release-please.outputs.pok--patch }}
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_POK }}:latest
-          cache-from: type=local,src=/tmp/.buildx-cache-pok
-          cache-to: type=local,dest=/tmp/.buildx-cache-pok,mode=max
+
+      - name: Cache Docker layers for Imagen
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache-imagen
+          key: ${{ runner.os }}-docker-buildx-imagen-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-buildx-
 
       - name: Build and push Imagen image
         uses: docker/build-push-action@v6
@@ -81,15 +71,17 @@ jobs:
           tags: |
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_IMAGEN }}:${{ steps.release-please.outputs.imagen--major }}.${{ steps.release-please.outputs.imagen--minor }}.${{ steps.release-please.outputs.imagen--patch }}
             ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME_IMAGEN }}:latest
-          cache-from: type=local,src=/tmp/.buildx-cache-imagen
-          cache-to: type=local,dest=/tmp/.buildx-cache-imagen,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
 
   call-deploy-pok:
+    if: ${{ needs.release.outputs.pok--release_created }}
     needs: release
     uses: ./.github/workflows/deploy_pok.yml
     secrets: inherit
 
   call-deploy-imagen:
+    if: ${{ needs.release.outputs.imagen--release_created }}
     needs: release
     uses: ./.github/workflows/deploy_imagen.yml
     secrets: inherit

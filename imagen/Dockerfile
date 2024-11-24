@@ -21,17 +21,21 @@ FROM alpine:3.19
 
 WORKDIR /app
 
-COPY cards /cards
+COPY cards cards
 
-RUN addgroup imagen && \
-    adduser -D -h /app -G imagen imagen
+RUN addgroup pok && \
+    adduser -D -h /app -G pok pok 
+
+RUN mkdir -p ./newCards && \
+    chown -R pok:pok ./newCards && \
+    chmod -R 770 ./newCards
 
 RUN apk update && apk upgrade && apk add --no-cache \
     imagemagick \
     optipng
 
-COPY --from=builder --chown=imagen --chmod=700 /target/release/imagen /app/imagen
+COPY --from=builder --chown=pok --chmod=700 /target/release/imagen /app/imagen
 
-USER imagen
+USER pok 
 
 ENTRYPOINT ["/app/imagen"]

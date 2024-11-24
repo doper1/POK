@@ -25,11 +25,11 @@ async function generateCards(cards, path) {
       '-filter',
       'Lanczos',
       '-quality',
-      '90',
+      '100',
       '+append',
       '-',
     ];
-    const cmd2Args = ['-', '-border', '30x30', '-strip', path];
+    const cmd2Args = ['-', '-border', '15x15', '-strip', path];
 
     if (os.type().includes('Windows')) {
       bin = 'magick';
