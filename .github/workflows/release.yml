@@ -35,7 +35,8 @@ jobs:
   docker_build:
     if: ${{ !startsWith(github.head_ref, 'release-please') }}
     needs: release
-    runs-on: ${{ matrix.group }}
+    runs-on:
+      group: ${{ matrix.group }}
     strategy:
       matrix:
         include:
