@@ -39,9 +39,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-runners
             arch: amd64
-          - os: ubuntu-22.04-arm
+          - os: ubuntu-runners-arm
             arch: arm64
     steps:
       - name: Checkout repository
