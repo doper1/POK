@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'docker-compose.yml'
-          target: '/pok'
+          target: '/pok/'
 
       - name: Start execution sequence
         uses: appleboy/ssh-action@v1.1.0

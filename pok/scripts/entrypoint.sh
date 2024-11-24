@@ -1,7 +1,7 @@
 #!/bin/sh
 
 chown pok /app/newCards
-chmod 770 /app/newCards
+chmod 777 /app/newCards
 
 su - pok
 
