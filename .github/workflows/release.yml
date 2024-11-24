@@ -41,7 +41,7 @@ jobs:
         include:
           - host: ubuntu-latest
             arch: amd64
-          - host: rp-ubuntu-arm
+          - host: self-hosted
             arch: arm64
     steps:
       - name: Checkout repository
