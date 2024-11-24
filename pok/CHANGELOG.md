@@ -1,5 +1,19 @@
 # Changelog
 
+## [7.3.0](https://github.com/doper1/POK/compare/POK@v7.2.0...POK@v7.3.0) (2024-11-24)
+
+
+### Features
+
+* **pok:** integration with Imagen V2.0 ([4d83307](https://github.com/doper1/POK/commit/4d833073bbdd6f001fa1914d0df9839c245f550d))
+
+
+### Bug Fixes
+
+* image parameters tweak ([0158f7d](https://github.com/doper1/POK/commit/0158f7dacc4a1da4303dbb08c62e56f4085d967c))
+* newCards permissions ([d2c4065](https://github.com/doper1/POK/commit/d2c406519ac17bb1421a057422efced41663e108))
+* **pok:** imagen & pok integration ([2c533f0](https://github.com/doper1/POK/commit/2c533f01ffc1dd8b7d80ab2088581f2917263cbe))
+
 ## [7.2.0](https://github.com/doper1/POK/compare/POK@v7.1.0...POK@v7.2.0) (2024-11-22)
 
 
