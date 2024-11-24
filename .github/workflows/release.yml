@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pok--release_created: ${{ steps.release-please.outputs.pok--release_created}}
-      pok-version: ${{ steps.release-please.outputs.pok--major }}.${{ steps.release-please.outputs.pok--minor }}.${{ steps.release-please.outputs.pok--patch }}
+      pok-version: '${{ steps.release-please.outputs.pok--major }}.${{ steps.release-please.outputs.pok--minor }}.${{ steps.release-please.outputs.pok--patch }}'
       imagen--release_created: ${{ steps.release-please.outputs.imagen--release_created}}
-      imagen-version: ${{ steps.release-please.outputs.imagen--major }}.${{ steps.release-please.outputs.imagen--minor }}.${{ steps.release-please.outputs.imagen--patch }}
+      imagen-version: '${{ steps.release-please.outputs.imagen--major }}.${{ steps.release-please.outputs.imagen--minor }}.${{ steps.release-please.outputs.imagen--patch }}'
     steps:
       - name: Create a semantic release based on new commits
         id: release-please
