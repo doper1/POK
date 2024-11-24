@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.0.0](https://github.com/doper1/POK/compare/imagen@v1.0.0...imagen@v2.0.0) (2024-11-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* **imagen:** Actix Web for better concurrency!
+
+### Features
+
+* **imagen:** Actix Web for better concurrency! ([afe8deb](https://github.com/doper1/POK/commit/afe8deb5c8a7189fbac5377e9219bf1a483fcef5))
+
+
+### Bug Fixes
+
+* image parameters tweak ([0158f7d](https://github.com/doper1/POK/commit/0158f7dacc4a1da4303dbb08c62e56f4085d967c))
+* **imagen:** handle db error gracefully with improved logs ([080679c](https://github.com/doper1/POK/commit/080679c26a6ac4d286528cb3cd8a76185529aed3))
+* newCards permissions ([d2c4065](https://github.com/doper1/POK/commit/d2c406519ac17bb1421a057422efced41663e108))
+* **pok:** imagen & pok integration ([2c533f0](https://github.com/doper1/POK/commit/2c533f01ffc1dd8b7d80ab2088581f2917263cbe))
+
 ## [1.0.0](https://github.com/doper1/POK/compare/imagen-v1.0.0...imagen@v1.0.0) (2024-11-22)
 
 
