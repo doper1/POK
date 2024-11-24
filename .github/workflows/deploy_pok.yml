@@ -17,7 +17,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: '/pok/docker-compose.yml,/pok/drizzle.config.ts,/pok/db,/pok/package.json,pok/src/utils/constants.js'
+          source: 'docker-compose.yml,/pok/drizzle.config.ts,/pok/db,/pok/package.json,pok/src/utils/constants.js'
           target: '/pok'
 
       - name: Start execution sequence
