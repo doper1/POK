@@ -110,8 +110,6 @@ Contributions are welcome! Please fork the repository, create a new branch, and 
 
 Please ensure your commits are clear and are by the [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) standard. Also make sure to write tests using jest and put them in the closet `__tests__` directory.
 
-Because of the DB integration all the tests got invalid so I deleted them all. The can still be found in version 3.1.0 and prior. Their directories still exists
-
 ## License
 
 This project is licensed under the Apache License.
