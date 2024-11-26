@@ -32,18 +32,6 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-  docker_build:
-    if: ${{ !startsWith(github.head_ref, 'release-please') }}
-    needs: release
-    runs-on: ${{ matrix.host }}
-    strategy:
-      matrix:
-        include:
-          - host: ubuntu-latest
-            arch: amd64
-          - host: self-hosted
-            arch: arm64
-    steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -53,70 +41,42 @@ jobs:
           username: ${{ env.DU }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Pok
-        if: ${{ needs.release.outputs.pok--release_created }}
-        run: |
-          docker build -t ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ./pok
-          docker build -t ${{ env.DU }}/${{ env.IP }}:latest ./pok
+      - name: Cache docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: service-${{ runner.os }}-buildx-cache
 
-          docker push ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
-          docker push ${{ env.DU }}/${{ env.IP }}:latest
+      - name: Build and push Pok
+        if: ${{ steps.release-please.outputs.pok--release_created }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./pok
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          tags: |
+            ${{ env.DU }}/${{ env.IP }}:${{ steps.release-please.outputs.pok-version }}
+            ${{ env.DU }}/${{ env.IP }}:latest
+          cache-from: type=gha,scope=pok
+          cache-to: type=gha,scope=pok
 
       - name: Build and push Imagen
-        if: ${{ needs.release.outputs.imagen--release_created }}
-        run: |
-          docker build -t ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ./imagen
-          docker build -t ${{ env.DU }}/${{ env.II }}:latest ./imagen
-
-          docker push ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
-          docker push ${{ env.DU }}/${{ env.II }}:latest
-
-  docker_manifest:
-    needs:
-      - docker_build
-      - release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        if: ${{ steps.release-please.outputs.imagen--release_created }}
+        uses: docker/build-push-action@v6
         with:
-          username: ${{ env.DU }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Create and push manifest Pok
-        if: ${{ needs.release.outputs.pok--release_created }}
-        run: |
-          docker manifest create ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-amd64 ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-arm64
-          docker manifest create ${{ env.DU }}/${{ env.IP }}:latest ${{ env.DU }}/${{ env.IP }}:latest-amd64 ${{ env.DU }}/${{ env.IP }}:latest-arm64
-
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-arm64 --os linux --arch arm64
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:latest ${{ env.DU }}/${{ env.IP }}:latest-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:latest ${{ env.DU }}/${{ env.IP }}:latest-arm64 --os linux --arch arm64
-
-          docker manifest push ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
-          docker manifest push ${{ env.DU }}/${{ env.IP }}:latest
-
-      - name: Create and push manifest Imagen
-        if: ${{ needs.release.outputs.imagen--release_created }}
-        run: |
-          docker manifest create ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-amd64 ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-arm64
-          docker manifest create ${{ env.DU }}/${{ env.II }}:latest ${{ env.DU }}/${{ env.II }}:latest-amd64 ${{ env.DU }}/${{ env.II }}:latest-arm64
-
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-arm64 --os linux --arch arm64
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:latest ${{ env.DU }}/${{ env.II }}:latest-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:latest ${{ env.DU }}/${{ env.II }}:latest-arm64 --os linux --arch arm64
-
-          docker manifest push ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
-          docker manifest push ${{ env.DU }}/${{ env.II }}:latest
+          context: ./Imagen
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          tags: |
+            ${{ env.DU }}/${{ env.II }}:${{ steps.release-please.outputs.imagen-version }}
+            ${{ env.DU }}/${{ env.II }}:latest
+          cache-from: type=gha,scope=imagen
+          cache-to: type=gha,scope=imagen
 
   call-deploy-pok:
     if: ${{ needs.release.outputs.pok--release_created }}
     needs:
       - release
-      - docker_build
-      - docker_manifest
 
     uses: ./.github/workflows/deploy_pok.yml
     secrets: inherit
@@ -125,8 +85,6 @@ jobs:
     if: ${{ needs.release.outputs.imagen--release_created }}
     needs:
       - release
-      - docker_build
-      - docker_manifest
 
     uses: ./.github/workflows/deploy_imagen.yml
     secrets: inherit
