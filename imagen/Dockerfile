@@ -3,11 +3,11 @@ FROM clux/muslrust:stable AS builder
 WORKDIR /app
 
 COPY . .
-RUN rustup target add x86_64-unknown-linux-musl && \
-    cargo install cargo-chef && \
-    cargo chef prepare --recipe-path recipe.json && \
-    cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json && \
-    cargo build --release --target x86_64-unknown-linux-musl --bin imagen 
+RUN rustup target add x86_64-unknown-linux-musl
+RUN cargo install cargo-chef
+RUN cargo chef prepare --recipe-path recipe.json
+RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
+RUN cargo build --release --target x86_64-unknown-linux-musl --bin imagen 
 
 
 FROM alpine:3.19 AS runtime
