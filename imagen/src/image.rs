@@ -22,7 +22,7 @@ async fn generate_image(
 
     let aggregate_output = aggregate
         .stdout
-        .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Failed to aggregate the images"))?;
+        .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Failed to aggregate images"))?;
 
     let add_border = Command::new(bin)
         .args(args_2)
