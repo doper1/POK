@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.1.0](https://github.com/doper1/POK/compare/imagen@v2.0.0...imagen@v2.1.0) (2024-11-27)
+
+
+### Features
+
+* **imagen:** cargo chef implementation ([942c724](https://github.com/doper1/POK/commit/942c724083e298e5de574fbcb90af6a0d9e72624))
+
+
+### Bug Fixes
+
+* **image:** dockerfile ([06bf993](https://github.com/doper1/POK/commit/06bf9931990c96f045502faf9a8bad4b098d1831))
+* **imagen:** docker env fix ([428c629](https://github.com/doper1/POK/commit/428c629892cd42dde5ec252e13b1269787fa576b))
+* **imagen:** docker env mount ([4e5a470](https://github.com/doper1/POK/commit/4e5a4706e457153b674dab989e0717b0e1737415))
+* **imagen:** dockerfile fix ([f28293b](https://github.com/doper1/POK/commit/f28293b2c68744e5fdfd2bf419c64253d2f3b7c8))
+* **imagen:** Read the fucking manual ([f17ef5f](https://github.com/doper1/POK/commit/f17ef5f20fe7ea81afd2604228d01948340a3530))
+* **imagen:** rust target architecture ([7826e55](https://github.com/doper1/POK/commit/7826e55a5f9031af7c7f5e14b2e43d33d84ac4e0))
+* **imagen:** test caching ([d76d13e](https://github.com/doper1/POK/commit/d76d13e8f703174a02ecf5345a0daa0968d17546))
+* **imagen:** workflow secret mount ([9ad4fdd](https://github.com/doper1/POK/commit/9ad4fddb187942633d304004e8dc31ff1047c094))
+* no default build target ([1c78495](https://github.com/doper1/POK/commit/1c78495b1164e540a0801a6dc9f39f676ef87217))
+* target env var ([d2d3725](https://github.com/doper1/POK/commit/d2d3725ddfa520ef401ad79bf913b215b4636a97))
+* workflow docker caching ([cb0bd5a](https://github.com/doper1/POK/commit/cb0bd5ac54a2b524de5cfa9c0869a03a628dd87b))
+
 ## [2.0.0](https://github.com/doper1/POK/compare/imagen@v1.0.0...imagen@v2.0.0) (2024-11-24)
 
 
