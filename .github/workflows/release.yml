@@ -63,8 +63,6 @@ jobs:
             ${{ env.DU }}/${{ env.IP }}:latest
           cache-from: type=gha,scope=pok-${{ matrix.target }}
           cache-to: type=gha,scope=pok-${{ matrix.target }},mode=max
-          secrets: |
-            "target=${{ matrix.target }}"
 
       - name: Docker build and push Imagen
         if: ${{ needs.release.outputs.imagen--release_created }}

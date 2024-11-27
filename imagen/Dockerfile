@@ -3,6 +3,7 @@ FROM clux/muslrust:stable AS builder
 WORKDIR /app
 
 ARG target=x86_64
+RUN --mount=type=secret,id=target,env=target
 
 RUN rustup target add ${target}-unknown-linux-musl && \
     cargo install cargo-chef
@@ -18,6 +19,7 @@ RUN cargo build --release --target ${target}-unknown-linux-musl --bin imagen
 FROM alpine:3.19 AS runtime
 
 ARG target=x86_64
+RUN --mount=type=secret,id=target,env=target
 
 COPY cards cards
 
