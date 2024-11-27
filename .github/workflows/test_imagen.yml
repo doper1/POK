@@ -70,5 +70,5 @@ jobs:
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
           cache-from: type=gha,scope=imagen-${{ matrix.target }}
           cache-to: type=gha,scope=imagen-${{ matrix.target }},mode=max
-          secrets: |
-            "target=${{ matrix.target }}"
+          build-args: |
+            TARGET=${{ matrix.target }}

@@ -76,8 +76,8 @@ jobs:
             ${{ env.DU }}/${{ env.II }}:latest
           cache-from: type=gha,scope=imagen-${{ matrix.target }}
           cache-to: type=gha,scope=imagen-${{ matrix.target }},mode=max
-          secrets: |
-            "target=${{ matrix.target }}"
+          build-args: |
+            TARGET=${{ matrix.target }}
 
   call-deploy-pok:
     if: ${{ needs.release.outputs.pok--release_created }}
