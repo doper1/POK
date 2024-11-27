@@ -80,7 +80,7 @@ whatsapp.on('message_create', async (msg) => {
   await middleware.unlockGame(game);
 });
 
-// Reject calls
+// Reject phone calls
 whatsapp.on('call', async (call) => {
   await call.reject();
 });
