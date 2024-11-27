@@ -5,15 +5,15 @@ WORKDIR /app
 # ARG target=x86_64
 RUN --mount=type=secret,id=target,env=target
 
-RUN rustup target add ${target}-unknown-linux-musl && \
+RUN rustup target add $target-unknown-linux-musl && \
     cargo install cargo-chef
 
 COPY . .
 
 RUN cargo chef prepare --recipe-path recipe.json && \
-    cargo chef cook --release --target ${target}-unknown-linux-musl --recipe-path recipe.json
+    cargo chef cook --release --target $target-unknown-linux-musl --recipe-path recipe.json
 
-RUN cargo build --release --target ${target}-unknown-linux-musl --bin imagen 
+RUN cargo build --release --target $target-unknown-linux-musl --bin imagen 
 
 
 FROM alpine:3.19 AS runtime
