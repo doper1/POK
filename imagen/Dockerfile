@@ -2,15 +2,22 @@ FROM clux/muslrust:stable AS builder
 
 WORKDIR /app
 
+ARG target=x86_64
+
+RUN rustup target add ${target}-unknown-linux-musl && \
+    cargo install cargo-chef
+
 COPY . .
-RUN rustup target add aarch64-unknown-linux-musl
-RUN cargo install cargo-chef
-RUN cargo chef prepare --recipe-path recipe.json
-RUN cargo chef cook --release --target aarch64-unknown-linux-musl --recipe-path recipe.json
-RUN cargo build --release --target aarch64-unknown-linux-musl --bin imagen 
+
+RUN cargo chef prepare --recipe-path recipe.json && \
+    cargo chef cook --release --target ${target}-unknown-linux-musl --recipe-path recipe.json
+
+RUN cargo build --release --target ${target}-unknown-linux-musl --bin imagen 
 
 
 FROM alpine:3.19 AS runtime
+
+ARG target=x86_64
 
 COPY cards cards
 
@@ -22,7 +29,7 @@ RUN addgroup -S pok && \
     imagemagick \
     optipng 
 
-COPY --from=builder /app/target/aarch64-unknown-linux-musl/release/imagen /app/imagen
+COPY --from=builder /app/target/${target}-unknown-linux-musl/release/imagen /app/imagen
 
 USER pok 
 

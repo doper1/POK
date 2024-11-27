@@ -44,6 +44,18 @@ jobs:
           npm run lint
           npm run test
 
+  build-test:
+    runs-on: ${{ matrix.host }}
+    strategy:
+      matrix:
+        include:
+          - host: ubuntu-latest
+            platform: linux/amd64
+            target: x86_64
+          - host: self-hosted
+            platform: linux/arm64/v8
+            target: aarch64
+    steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -54,8 +66,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./pok
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: ${{ matrix.platform }}
           push: false
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
-          cache-from: type=gha,scope=pok
-          cache-to: type=gha,scope=pok
+          cache-from: type=gha,scope=pok-${{ matrix.target }}
+          cache-to: type=gha,scope=pok-${{ matrix.target }}
+          secrets: |
+            "target=${{ matrix.target }}"
