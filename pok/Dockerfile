@@ -22,8 +22,6 @@ COPY --chown=pok --chmod=700 ./scripts/cronjobs.sh /var/spool/cron/crontabs/pok
 RUN chown pok:pok  /var/spool/cron/crontabs/pok && \
     dos2unix /var/spool/cron/crontabs/pok
 
-# USER pok
-
 COPY --chown=pok --chmod=700 ./cards ./cards
 
 COPY --chown=pok package*.json ./
