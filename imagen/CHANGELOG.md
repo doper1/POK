@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/doper1/POK/compare/imagen@v2.1.0...imagen@v2.2.0) (2024-11-27)
+
+
+### Features
+
+* upload latest versions ([0e415eb](https://github.com/doper1/POK/commit/0e415ebc5a6b7624d13c7d8570f507e531801ac6))
+
 ## [2.1.0](https://github.com/doper1/POK/compare/imagen@v2.0.0...imagen@v2.1.0) (2024-11-27)
 
 
