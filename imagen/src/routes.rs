@@ -19,7 +19,7 @@ struct JoinRequest {
 #[get("/join")]
 pub async fn join(req: web::Query<JoinRequest>, state: web::Data<State>) -> impl Responder {
     info!(
-        "GET /join: game_id={}, card_index={}",
+        "GET - /join: game_id={}, card_index={}",
         req.game_id, req.card_index
     );
 
@@ -37,7 +37,7 @@ struct StartRequest {
 
 #[get("/start")]
 pub async fn start(req: web::Query<StartRequest>, state: web::Data<State>) -> impl Responder {
-    info!("GET /start: game_id={}", req.game_id);
+    info!("GET - /start: game_id={}", req.game_id);
     let amounts: [usize; 3] = [3, 4, 5];
     let mut tasks = Vec::new();
 

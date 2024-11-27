@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: 'pok'
 
 jobs:
-  test:
+  unit-tests:
     if: ${{ !startsWith(github.head_ref, 'release-please') }}
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +44,21 @@ jobs:
           npm run lint
           npm run test
 
+  build-test:
+    runs-on: ${{ matrix.host }}
+    strategy:
+      matrix:
+        include:
+          - host: ubuntu-latest
+            platform: linux/amd64
+            target: x86_64
+          - host: self-hosted
+            platform: linux/arm64/v8
+            target: aarch64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -54,6 +69,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./pok
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: ${{ matrix.platform }}
           push: false
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
+          cache-from: type=gha,scope=pok-${{ matrix.target }}
+          cache-to: type=gha,scope=pok-${{ matrix.target }},mode=max

@@ -32,91 +32,58 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-  docker_build:
-    if: ${{ !startsWith(github.head_ref, 'release-please') }}
-    needs: release
+  build-and-push:
     runs-on: ${{ matrix.host }}
+    needs: release
     strategy:
       matrix:
         include:
           - host: ubuntu-latest
-            arch: amd64
+            platform: linux/amd64
+            target: x86_64
           - host: self-hosted
-            arch: arm64
+            platform: linux/arm64/v8
+            target: aarch64
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DU }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Pok
+      - name: Docker build and push Pok
         if: ${{ needs.release.outputs.pok--release_created }}
-        run: |
-          docker build -t ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ./pok
-          docker build -t ${{ env.DU }}/${{ env.IP }}:latest ./pok
-
-          docker push ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
-          docker push ${{ env.DU }}/${{ env.IP }}:latest
-
-      - name: Build and push Imagen
-        if: ${{ needs.release.outputs.imagen--release_created }}
-        run: |
-          docker build -t ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ./imagen
-          docker build -t ${{ env.DU }}/${{ env.II }}:latest ./imagen
-
-          docker push ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
-          docker push ${{ env.DU }}/${{ env.II }}:latest
-
-  docker_manifest:
-    needs:
-      - docker_build
-      - release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/build-push-action@v6
         with:
-          username: ${{ env.DU }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          context: ./pok
+          platforms: ${{ matrix.platform }}
+          push: false
+          tags: |
+            ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
+            ${{ env.DU }}/${{ env.IP }}:latest
+          cache-from: type=gha,scope=pok-${{ matrix.target }}
+          cache-to: type=gha,scope=pok-${{ matrix.target }},mode=max
 
-      - name: Create and push manifest Pok
-        if: ${{ needs.release.outputs.pok--release_created }}
-        run: |
-          docker manifest create ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-amd64 ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-arm64
-          docker manifest create ${{ env.DU }}/${{ env.IP }}:latest ${{ env.DU }}/${{ env.IP }}:latest-amd64 ${{ env.DU }}/${{ env.IP }}:latest-arm64
-
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-arm64 --os linux --arch arm64
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:latest ${{ env.DU }}/${{ env.IP }}:latest-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.IP }}:latest ${{ env.DU }}/${{ env.IP }}:latest-arm64 --os linux --arch arm64
-
-          docker manifest push ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
-          docker manifest push ${{ env.DU }}/${{ env.IP }}:latest
-
-      - name: Create and push manifest Imagen
+      - name: Docker build and push Imagen
         if: ${{ needs.release.outputs.imagen--release_created }}
-        run: |
-          docker manifest create ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-amd64 ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-arm64
-          docker manifest create ${{ env.DU }}/${{ env.II }}:latest ${{ env.DU }}/${{ env.II }}:latest-amd64 ${{ env.DU }}/${{ env.II }}:latest-arm64
-
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-arm64 --os linux --arch arm64
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:latest ${{ env.DU }}/${{ env.II }}:latest-amd64 --os linux --arch amd64
-          docker manifest annotate ${{ env.DU }}/${{ env.II }}:latest ${{ env.DU }}/${{ env.II }}:latest-arm64 --os linux --arch arm64
-
-          docker manifest push ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
-          docker manifest push ${{ env.DU }}/${{ env.II }}:latest
+        uses: docker/build-push-action@v6
+        with:
+          context: ./imagen
+          platforms: ${{ matrix.platform }}
+          push: false
+          tags: |
+            ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
+            ${{ env.DU }}/${{ env.II }}:latest
+          cache-from: type=gha,scope=imagen-${{ matrix.target }}
+          cache-to: type=gha,scope=imagen-${{ matrix.target }},mode=max
+          build-args: |
+            TARGET=${{ matrix.target }}
 
   call-deploy-pok:
     if: ${{ needs.release.outputs.pok--release_created }}
     needs:
       - release
-      - docker_build
-      - docker_manifest
+      - build-and-push
 
     uses: ./.github/workflows/deploy_pok.yml
     secrets: inherit
@@ -125,8 +92,7 @@ jobs:
     if: ${{ needs.release.outputs.imagen--release_created }}
     needs:
       - release
-      - docker_build
-      - docker_manifest
+      - build-and-push
 
     uses: ./.github/workflows/deploy_imagen.yml
     secrets: inherit
