@@ -62,7 +62,7 @@ jobs:
             ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
             ${{ env.DU }}/${{ env.IP }}:latest
           cache-from: type=gha,scope=pok-${{ matrix.target }}
-          cache-to: type=gha,scope=pok-${{ matrix.target }}
+          cache-to: type=gha,scope=pok-${{ matrix.target }},mode=max
           secrets: |
             "target=${{ matrix.target }}"
 
@@ -77,7 +77,7 @@ jobs:
             ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
             ${{ env.DU }}/${{ env.II }}:latest
           cache-from: type=gha,scope=imagen-${{ matrix.target }}
-          cache-to: type=gha,scope=imagen-${{ matrix.target }}
+          cache-to: type=gha,scope=imagen-${{ matrix.target }},mode=max
           secrets: |
             "target=${{ matrix.target }}"
 
