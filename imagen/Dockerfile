@@ -2,7 +2,7 @@ FROM clux/muslrust:stable AS builder
 
 WORKDIR /app
 
-ARG target=x86_64
+# ARG target=x86_64
 RUN --mount=type=secret,id=target,env=target
 
 RUN rustup target add ${target}-unknown-linux-musl && \
