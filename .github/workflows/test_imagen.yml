@@ -42,8 +42,6 @@ jobs:
 
   build-test:
     runs-on: ${{ matrix.host }}
-    needs:
-      - unit-tests
     strategy:
       matrix:
         include:
@@ -54,6 +52,9 @@ jobs:
             platform: linux/arm64/v8
             target: aarch64
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
