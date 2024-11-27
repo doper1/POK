@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: 'pok'
 
 jobs:
-  test:
+  unit-tests:
     if: ${{ !startsWith(github.head_ref, 'release-please') }}
     runs-on: ubuntu-latest
     steps:
@@ -46,6 +46,8 @@ jobs:
 
   build-test:
     runs-on: ${{ matrix.host }}
+    needs:
+      - unit-tests
     strategy:
       matrix:
         include:
