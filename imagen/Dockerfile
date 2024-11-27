@@ -2,10 +2,10 @@ FROM clux/muslrust:stable AS builder
 
 WORKDIR /app
 
-# ARG target=x86_64
-RUN --mount=type=secret,id=target,env=target
+ARG TARGET=x86_64
+ARG --mount=type=secret,id=target,env=TARGET TARGET=${TARGET}
 
-RUN rustup target add $target-unknown-linux-musl && \
+RUN rustup target add ${TARGET}-unknown-linux-musl && \
     cargo install cargo-chef
 
 COPY . .
@@ -18,8 +18,8 @@ RUN cargo build --release --target $target-unknown-linux-musl --bin imagen
 
 FROM alpine:3.19 AS runtime
 
-ARG target=x86_64
-RUN --mount=type=secret,id=target,env=target
+ARG TARGET=x86_64
+ARG --mount=type=secret,id=target,env=TARGET TARGET=${TARGET}
 
 COPY cards cards
 
@@ -31,7 +31,7 @@ RUN addgroup -S pok && \
     imagemagick \
     optipng 
 
-COPY --from=builder /app/target/${target}-unknown-linux-musl/release/imagen /app/imagen
+COPY --from=builder /app/target/${TARGET}-unknown-linux-musl/release/imagen /app/imagen
 
 USER pok 
 
