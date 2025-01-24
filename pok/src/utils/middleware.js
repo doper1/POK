@@ -23,10 +23,6 @@ function validateEnvVariables() {
     throw new Error('Please set POSTGRES_PASSWORD environment variable');
   }
 
-  if (process.env.OPENAI_API_KEY === undefined) {
-    throw new Error('Please set OPENAI_API_KEY environment variable');
-  }
-
   if (process.env.ENV === undefined) {
     throw new Error('Please set ENV environment variable');
   }
@@ -39,12 +35,20 @@ function validateEnvVariables() {
     throw new Error('Please set REDIS_HOST environment variable');
   }
 
-  if (process.env.GROQ_API_KEY === undefined) {
-    console.warn('GROQ_API_KEY environment variable is not set');
+  if (process.env.IMAGEN_HOST === undefined) {
+    console.warn('Please set IMAGEN_HOST environment variable');
   }
 
-  if (process.env.IMAGEN_HOST === undefined) {
-    throw new Error('Please set IMAGEN_HOST environment variable');
+  if (process.env.GROQ_API_KEY === undefined) {
+    console.warn(
+      'GROQ_API_KEY environment variable is not set\nprocesses will fail if no *_API_KEY is set',
+    );
+  }
+
+  if (process.env.OPENAI_API_KEY === undefined) {
+    console.warn(
+      'OPENAI_API_KEY environment variable is not set\nprocesses will fail if no *_API_KEY is set',
+    );
   }
 }
 
@@ -55,10 +59,10 @@ function validateEnv(groupName) {
   );
 }
 
-function validateMessage(msg, chat) {
+function validateMessage(msg) {
   return (
     currentTime() - msg.timestamp < constants.MESSAGE_MAX_AGE &&
-    (chat.isGroup || msg.from.length > 22 || msg.to.length > 22)
+    (msg.from.length > 22 || msg.to.length > 22)
   );
 }
 
@@ -79,7 +83,7 @@ function logMessage(message, chatName, messageLevel) {
   const values = {
     chatName,
     author: message.author,
-    body: message.body.join(' '),
+    body: message,
   };
   const newMessage = Mustache.render(template, values);
 
@@ -138,39 +142,43 @@ const glhf = new OpenAI({
   baseURL: 'https://glhf.chat/api/openai/v1',
 });
 
-async function translate(body) {
+async function translate(body, systemMessage) {
   try {
-    return await groq.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: constants.LLM_SYSTEM_MESSAGE,
-        },
-        {
-          role: 'user',
-          content: `${body} `,
-        },
-      ],
+    return (
+      await groq.chat.completions.create({
+        model: `${constants.MODEL_GROQ}`,
+        messages: [
+          {
+            role: 'system',
+            content: systemMessage,
+          },
+          {
+            role: 'user',
+            content: `${body}`,
+          },
+        ],
+        temperature: 0.7,
+      })
+    ).choices[0]?.message?.content;
+  } catch (e) {
+    console.log('Groq Failed ---', e);
+    return (
+      await glhf.chat.completions.create({
+        model: `${constants.MODEL_GLHF}`,
+        messages: [
+          {
+            role: 'system',
+            content: systemMessage,
+          },
+          {
+            role: 'user',
+            content: `${body}`,
+          },
+        ],
 
-      model: `${constants.MODEL_GROQ}`,
-      temperature: 0.7,
-    });
-  } catch {
-    return await glhf.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: constants.LLM_SYSTEM_MESSAGE,
-        },
-        {
-          role: 'user',
-          content: `${body} `,
-        },
-      ],
-
-      model: `${constants.MODEL_GLHF}`,
-      temperature: 0.7,
-    });
+        temperature: 0.7,
+      })
+    ).choices[0]?.message?.content;
   }
 }
 
@@ -196,11 +204,13 @@ async function messageToCommand(body) {
     }
   }
 
-  const output = await translate(body.join(' '));
-  const newBody = output.choices[0]?.message?.content;
+  const output = await translate(
+    body.join(' '),
+    constants.TRANSLATE_SYSTEM_MESSAGE,
+  );
 
   if (isCacheValid) {
-    await redis.set(cacheKey, newBody);
+    await redis.set(cacheKey, output);
     await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
 
     const cacheSize = await redis.zcard(constants.DATE_CACHE_NAME);
@@ -210,7 +220,7 @@ async function messageToCommand(body) {
     }
   }
 
-  return processOutput(newBody);
+  return processOutput(output);
 }
 
 async function trimCache() {

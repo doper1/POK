@@ -9,10 +9,10 @@ async fn generate_image(
     bin: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let args_1: [&str; 10] = [
-        "-border", "30", "-resize", "50%", "-filter", "Lanczos", "-quality", "100", "+append", "-",
+        "-border", "300", "-resize", "50%", "-filter", "Lanczos", "-quality", "1", "+append", "-",
     ];
 
-    let args_2: [&str; 5] = ["-", "-border", "15x15", "-strip", target];
+    let args_2: [&str; 5] = ["-", "-border", "150x150", "-strip", target];
 
     let aggregate = Command::new(bin)
         .args(cards)
@@ -44,11 +44,10 @@ async fn generate_image(
 }
 
 async fn optimize_image(target: &str) -> Result<Output, Error> {
-    let args: [String; 5] = [
+    let args: [String; 4] = [
         String::from("-strip"),
         String::from("all"),
-        String::from("-o7"),
-        String::from("-zm1-9"),
+        String::from("-o4"),
         target.to_owned(),
     ];
 

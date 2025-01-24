@@ -27,15 +27,6 @@ async function start(game, chat, message) {
 }
 
 async function join(game, message, amount, current, players) {
-  if (current) {
-    let newMessage = 'You have already joined!';
-
-    if (!Number.isNaN(amount)) {
-      newMessage += `\nUse 'pok buy ${amount}' instead`;
-    }
-
-    return replyError(message, newMessage);
-  }
   if (players.length === constants.MAX_PLAYERS) {
     return replyError(message, 'I am sorry, This game is full');
   }

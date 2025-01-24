@@ -33,6 +33,10 @@ If not using docker:
 
 For development:
 
+Create inside /pok and /imagen folder called 'newImages'
+
+Download:
+
 - [Rust](https://www.rust-lang.org/) for the imagen container
 - [ImageMagick](https://imagemagick.org/) for the imagen container
 - [Optipng](https://optipng.sourceforge.net/) for the imagen container
