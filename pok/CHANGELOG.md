@@ -1,5 +1,18 @@
 # Changelog
 
+## [7.5.0](https://github.com/doper1/POK/compare/POK@v7.4.0...POK@v7.5.0) (2025-01-24)
+
+
+### Features
+
+* dm general answers ([389a0d9](https://github.com/doper1/POK/commit/389a0d95ac0f6b7dc977b0cb4958a849e3662ace))
+
+
+### Bug Fixes
+
+* hand reconization ([87b13ac](https://github.com/doper1/POK/commit/87b13ac1a91aade34b0f29173299a1cca840f3cb))
+* join and money limit ([958744c](https://github.com/doper1/POK/commit/958744cb8b240daac5046693976423b207edea20))
+
 ## [7.4.0](https://github.com/doper1/POK/compare/POK@v7.3.1...POK@v7.4.0) (2024-11-27)
 
 
