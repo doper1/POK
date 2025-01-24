@@ -133,6 +133,7 @@ function isFlush(cards) {
  */
 function isStraight(cards) {
   if (cards == false) return false;
+
   let Count = 1;
   let straight = [cards[0]];
   for (let i = 0; i < cards.length - 1; i++) {
@@ -170,7 +171,7 @@ function isFullHouse(cards) {
   for (let key in count)
     if (count[key].length == 3)
       for (let k in count)
-        if (count[k].length == 2)
+        if (count[k].length >= 2 && k != key)
           return [
             count[key][0],
             count[key][1],
@@ -250,7 +251,10 @@ function getHand(game, player) {
     tempCards[i] = parseCardNumber(tempCards[i]);
   }
 
+  if (tempCards.some((card) => card[1] === 14)) tempCards.push(['none', 1]);
+
   tempCards = sortCards(tempCards);
+  console.log(tempCards);
   let score = getHandStrength(tempCards);
 
   for (let i = 0; i < tempCards.length && score.cards.length < 5; i++) {
@@ -262,8 +266,10 @@ function getHand(game, player) {
   }
 
   //if cards > 5 removes weakest (Could be the case in High card hands)
-  while (score.cards.length > 5) {
-    score.cards.pop();
+  if (score.strength === 9) {
+    while (score.cards.length > 5) {
+      score.cards.pop();
+    }
   }
 
   // Reverses back to card symbol (11 -> J, 14||1 -> A)

@@ -44,11 +44,10 @@ async fn generate_image(
 }
 
 async fn optimize_image(target: &str) -> Result<Output, Error> {
-    let args: [String; 5] = [
+    let args: [String; 4] = [
         String::from("-strip"),
         String::from("all"),
-        String::from("-o7"),
-        String::from("-zm1-9"),
+        String::from("-o4"),
         target.to_owned(),
     ];
 

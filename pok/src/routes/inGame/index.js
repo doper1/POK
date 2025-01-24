@@ -15,7 +15,7 @@ async function inGameRoute({ whatsapp, message, chat, game, current }) {
     case 'call':
       let pot = await Pot.get(game.mainPot);
 
-      if (pot.value - current.currentBet >= current.gameMoney) {
+      if (game.currentBet >= current.gameMoney) {
         if (validators.allIn(game, message))
           await actions.allIn(game, whatsapp, current);
       } else if (validators.call(game, message, current, pot))
