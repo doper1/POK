@@ -17,7 +17,7 @@ async function start(game, chat, message) {
     await chat.sendMessage(
       `Not enough player has sufficient money in their stack\n
     ${await game.getPlayersPretty()}\n
-    Use 'pok buy [amount]' to buy some chips`,
+    Now it is time to buy some Chips`,
       { mentions: await game.getMentions() },
     );
     return false;
@@ -26,7 +26,14 @@ async function start(game, chat, message) {
   return true;
 }
 
-async function join(game, message, amount, current, players) {
+async function join(game, message, amount, players) {
+  if (players.some((player) => player.userId === message.author)) {
+    let new_message = 'You have already joined the game';
+
+    if (!Number.isNaN(amount)) new_message += '\nBuy some chips instead';
+
+    return replyError(message, new_message);
+  }
   if (players.length === constants.MAX_PLAYERS) {
     return replyError(message, 'I am sorry, This game is full');
   }
@@ -35,10 +42,6 @@ async function join(game, message, amount, current, players) {
     return replyError(
       'There is no point in joining now, the game is about to end',
     );
-  }
-
-  if (!Number.isNaN(amount)) {
-    return await buy(game, message, amount, current, false);
   }
 
   return true;
@@ -62,14 +65,11 @@ async function exit(message, current) {
 
 async function buy(game, message, amount, current, joinFlag = true) {
   if (joinFlag && current === undefined) {
-    return replyError(message, 'You need to join the game first (pok join)');
+    return replyError(message, 'You need to join the game first');
   }
 
   if (Number.isNaN(amount)) {
-    return replyError(
-      message,
-      "Please specify a numerical amount (e.g. 'pok buy 30')",
-    );
+    return replyError(message, 'Please specify a numerical amount (e.g. 30)');
   }
 
   if (!Number.isInteger(amount)) {
@@ -85,8 +85,14 @@ async function buy(game, message, amount, current, joinFlag = true) {
 
   let user = await User.get(message.author);
 
-  if (joinFlag && user.money < amount) {
-    return replyError(message, `You only have $${user.money} behind...`);
+  if (user === undefined) {
+    current_amount = 1000;
+  } else {
+    current_amount = user.money;
+  }
+
+  if (current_amount < amount) {
+    return replyError(message, `You only have $${current_amount} behind...`);
   }
 
   if (game.status === 'to end') {

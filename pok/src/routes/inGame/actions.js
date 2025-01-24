@@ -132,7 +132,7 @@ async function join(game, message, chat, amount) {
   await game.addPlayerMidGame(player.userId);
 
   if (Number.isNaN(amount)) {
-    template += `\n\nBuy some Chips with 'pok buy [amount]'
+    template += `\n\nNow it is time to buy some Chips'
 before the next hand starts`;
   } else {
     template += `\n\nYou bought \${{amount}}
@@ -170,7 +170,7 @@ async function show(game, chat) {
 }
 
 async function exit(game, message, chat, current, whatsapp) {
-  const newMessage = `Goodbye @${current.userId}!`;
+  const newMessage = `Goodbye @${current.userId} !`;
 
   // If there are 2 players before the exit, also end the game
   if ((await game.getPlayers()).length == 2) {

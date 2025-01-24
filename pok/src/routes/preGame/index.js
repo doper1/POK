@@ -9,8 +9,14 @@ async function preGameRoute({ whatsapp, message, chat, game, current }) {
     case 'join':
       const players = await game.getPlayers();
 
-      if (await validators.join(game, message, amount, current, players))
-        await actions.join(game, message, chat, amount, players, whatsapp);
+      if (await validators.join(game, message, amount, players)) {
+        if (!Number.isNaN(amount)) {
+          if (await validators.buy(game, message, amount, current, false))
+            await actions.join(game, message, chat, amount, players, whatsapp);
+        } else {
+          await actions.join(game, message, chat, amount, players, whatsapp);
+        }
+      }
       break;
     case 'show':
       if (await validators.show(game, message)) await actions.show(game, chat);
