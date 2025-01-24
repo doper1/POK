@@ -28,11 +28,11 @@ async function start(game, chat, message) {
 
 async function join(game, message, amount, players) {
   if (players.some((player) => player.userId === message.author)) {
-    let new_message = 'You have already joined the game';
+    let newMessage = 'You have already joined the game';
 
-    if (!Number.isNaN(amount)) new_message += '\nBuy some chips instead';
+    if (!Number.isNaN(amount)) newMessage += '\nBuy some chips instead';
 
-    return replyError(message, new_message);
+    return replyError(message, newMessage);
   }
   if (players.length === constants.MAX_PLAYERS) {
     return replyError(message, 'I am sorry, This game is full');
@@ -86,13 +86,13 @@ async function buy(game, message, amount, current, joinFlag = true) {
   let user = await User.get(message.author);
 
   if (user === undefined) {
-    current_amount = 1000;
+    currentAmount = 1000;
   } else {
-    current_amount = user.money;
+    currentAmount = user.money;
   }
 
-  if (current_amount < amount) {
-    return replyError(message, `You only have $${current_amount} behind...`);
+  if (currentAmount < amount) {
+    return replyError(message, `You only have $${currentAmount} behind...`);
   }
 
   if (game.status === 'to end') {
