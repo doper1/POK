@@ -63,7 +63,7 @@ jobs:
         with:
           context: ./pok
           platforms: ${{ matrix.platform }}
-          push: false
+          push: true
           tags: |
             ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
             ${{ env.DU }}/${{ env.IP }}:latest
@@ -76,7 +76,7 @@ jobs:
         with:
           context: ./${{ env.II }}
           platforms: ${{ matrix.platform }}
-          push: false
+          push: true
           tags: |
             ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
             ${{ env.DU }}/${{ env.II }}:latest
