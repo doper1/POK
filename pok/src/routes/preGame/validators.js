@@ -16,8 +16,7 @@ async function start(game, chat, message) {
   if (players.filter((player) => player.gameMoney > 0).length <= 1) {
     await chat.sendMessage(
       `Not enough player has sufficient money in their stack\n
-    ${await game.getPlayersPretty()}\n
-    Now it is time to buy some Chips`,
+    ${await game.getPlayersPretty()}`,
       { mentions: await game.getMentions() },
     );
     return false;
@@ -105,4 +104,64 @@ async function buy(game, message, amount, current, joinFlag = true) {
   return true;
 }
 
-module.exports = { start, join, show, exit, buy };
+async function small(game, message, amount) {
+  if (amount >= game.bigBlind) {
+    return replyError(
+      message,
+      '_Small blind_ should be less than the _big blind_',
+    );
+  }
+
+  if (amount === game.smallBlind) {
+    return replyError(message, `_Small blind_ is already $${amount}`);
+  }
+
+  if (Number.isNaN(amount)) {
+    return replyError(message, 'Please specify a numerical amount (e.g. 30)');
+  }
+
+  if (!Number.isInteger(amount)) {
+    return replyError(
+      message,
+      'Please enter a whole number (e.g. 4) and not a decimal (e.g. 4.5).',
+    );
+  }
+
+  if (amount < 1) {
+    return replyError(message, 'Please specify a positive amount');
+  }
+
+  return true;
+}
+
+async function big(game, message, amount) {
+  if (amount <= game.smallBlind) {
+    return replyError(
+      message,
+      '_Big blind_ should be more than the _small blind_',
+    );
+  }
+
+  if (amount === game.bigBlind) {
+    return replyError(message, `_Big blind_ is already $${amount}`);
+  }
+
+  if (Number.isNaN(amount)) {
+    return replyError(message, 'Please specify a numerical amount (e.g. 30)');
+  }
+
+  if (!Number.isInteger(amount)) {
+    return replyError(
+      message,
+      'Please enter a whole number (e.g. 4) and not a decimal (e.g. 4.5).',
+    );
+  }
+
+  if (amount < 1) {
+    return replyError(message, 'Please specify a positive amount');
+  }
+
+  return true;
+}
+
+module.exports = { start, join, show, exit, buy, small, big };

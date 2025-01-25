@@ -96,7 +96,7 @@ whatsapp.on('message', async (msg) => {
     if (process.env.env === 'dev') {
       console.log(`DEV translated message: ${output}`);
     } else {
-      message.reply(output);
+      msg.reply(output);
     }
 
     return;

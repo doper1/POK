@@ -78,7 +78,7 @@ describe('pok join - preGame', () => {
 
     expect(newGame.addPlayerMidGame).not.toHaveBeenCalled();
     expect(chat.sendMessage).toHaveBeenCalledWith(
-      expect.stringContaining('Buy'),
+      expect.stringContaining('buy'),
       expect.anything(),
     );
   });
@@ -113,7 +113,7 @@ describe('pok join - preGame', () => {
 
     expect(newGame.addPlayerMidGame).toHaveBeenCalled();
     expect(chat.sendMessage).toHaveBeenCalledWith(
-      expect.stringContaining('Buy'),
+      expect.stringContaining('buy'),
       expect.anything(),
     );
   });

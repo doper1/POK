@@ -104,6 +104,14 @@ async function exit(game, message) {
   return await preGameValidators.exit(game, message);
 }
 
+async function small(game, message, amount) {
+  return await preGameValidators.small(game, message, amount);
+}
+
+async function big(game, message, amount) {
+  return await preGameValidators.big(game, message, amount);
+}
+
 module.exports = {
   end,
   check,
@@ -115,4 +123,6 @@ module.exports = {
   join,
   show,
   exit,
+  small,
+  big,
 };

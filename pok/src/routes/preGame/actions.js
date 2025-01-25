@@ -32,7 +32,7 @@ async function join(game, message, chat, amount, players, whatsapp) {
   }
 
   if (!Number.isInteger(amount)) {
-    template += `\n\nBuy some Chips with 'pok buy [amount]'`;
+    template += `\n\nyou may buy some Chips`;
   } else {
     template += `\n\nYou bought \${{amount}}`;
     await player.buy(amount, 'pending');
@@ -42,8 +42,7 @@ async function join(game, message, chat, amount, players, whatsapp) {
     await game.addPlayerMidGame(player.userId);
 
     if (
-      constants.BIG_BLIND + constants.SMALL_BLIND ===
-        (await Pot.get(game.mainPot)).value &&
+      game.smallBlind + game.bigBlind === (await Pot.get(game.mainPot)).value &&
       Number.isInteger(amount) &&
       player.holeCards.length === 0
     ) {
@@ -100,10 +99,44 @@ async function buy(game, message, chat, amount, player) {
   return true;
 }
 
+async function small(game, message, chat, amount) {
+  const template = `Small blind is now \${{amount}}
+and the big blind is \${{bigBlind}}`;
+
+  await game.setBlind(amount, 'small');
+
+  const newMessage = Mustache.render(template, {
+    amount: amount,
+    bigBlind: game.bigBlind,
+  });
+
+  message.react(gf.emote('happy'));
+  await chat.sendMessage(newMessage);
+  return true;
+}
+
+async function big(game, message, chat, amount) {
+  const template = `Big blind is now \${{amount}}
+and the small blind is \${{smallBlind}}`;
+
+  await game.setBlind(amount, 'big');
+
+  const newMessage = Mustache.render(template, {
+    amount: amount,
+    smallBlind: game.smallBlind,
+  });
+
+  message.react(gf.emote('happy'));
+  await chat.sendMessage(newMessage);
+  return true;
+}
+
 module.exports = {
   start,
   join,
   show,
   exit,
   buy,
+  small,
+  big,
 };

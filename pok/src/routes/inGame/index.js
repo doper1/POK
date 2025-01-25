@@ -5,7 +5,20 @@ const { emote } = require('../../utils/generalFunctions');
 const Pot = require('../../models/Pot.js');
 
 async function inGameRoute({ whatsapp, message, chat, game, current }) {
-  const amount = Number(message.body[2]);
+  let amount;
+  let pot = await Pot.get(game.mainPot);
+
+  if (
+    message.body[2] !== undefined &&
+    constants.RAISE_SIZES.includes(message.body[2].toLowerCase())
+  ) {
+    amount = Math.floor(
+      pot.value /
+        (constants.RAISE_SIZES.indexOf(message.body[2].toLowerCase()) + 1),
+    );
+  } else {
+    amount = Number(message.body[2]);
+  }
 
   switch (message.body[1]) {
     case 'check':
@@ -13,8 +26,6 @@ async function inGameRoute({ whatsapp, message, chat, game, current }) {
         await actions.check(game, whatsapp, current);
       break;
     case 'call':
-      let pot = await Pot.get(game.mainPot);
-
       if (game.currentBet >= current.gameMoney) {
         if (validators.allIn(game, message))
           await actions.allIn(game, whatsapp, current);
@@ -61,6 +72,14 @@ async function inGameRoute({ whatsapp, message, chat, game, current }) {
     case 'start':
       message.react(emote('mistake'));
       message.reply('There is a game in progress');
+      break;
+    case 'small':
+      if (await validators.small(game, message, amount))
+        await actions.small(game, message, chat, amount);
+      break;
+    case 'big':
+      if (await validators.big(game, message, amount))
+        await actions.big(game, message, chat, amount);
       break;
     default:
       message.reply(constants.HELP_IN_GAME);

@@ -88,10 +88,7 @@ async function buy(game, message, chat, amount, whatsapp) {
   const current = await game.getPlayer(message.author);
   let template = `Nice! @{{name}} bought \${{amount}} `;
 
-  if (
-    constants.BIG_BLIND + constants.SMALL_BLIND ===
-    (await Pot.get(game.mainPot)).value
-  ) {
+  if (game.smallBlind + game.bigBlind === (await Pot.get(game.mainPot)).value) {
     if (current.holeCards.length === 0) {
       template += `\n\nCheck your DM for your cards 🤫
 ${constants.SEPARATOR}
@@ -192,6 +189,38 @@ async function exit(game, message, chat, current, whatsapp) {
   message.react('👋');
 }
 
+async function small(game, message, chat, amount) {
+  const template = `Small blind is now \${{amount}}
+and the big blind is \${{bigBlind}}`;
+
+  await game.setBlind(amount, 'small');
+
+  const newMessage = Mustache.render(template, {
+    amount: amount,
+    bigBlind: game.bigBlind,
+  });
+
+  message.react(emote('happy'));
+  await chat.sendMessage(newMessage);
+  return true;
+}
+
+async function big(game, message, chat, amount) {
+  const template = `Big blind is now \${{amount}}
+and the small blind is \${{smallBlind}}`;
+
+  await game.setBlind(amount, 'big');
+
+  const newMessage = Mustache.render(template, {
+    amount: amount,
+    smallBlind: game.smallBlind,
+  });
+
+  message.react(emote('happy'));
+  await chat.sendMessage(newMessage);
+  return true;
+}
+
 module.exports = {
   end,
   check,
@@ -203,4 +232,6 @@ module.exports = {
   join,
   show,
   exit,
+  small,
+  big,
 };
