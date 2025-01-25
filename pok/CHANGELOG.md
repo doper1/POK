@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.6.1](https://github.com/doper1/POK/compare/POK@v7.6.0...POK@v7.6.1) (2025-01-25)
+
+
+### Bug Fixes
+
+* **pok:** show blinds in messages ([1154621](https://github.com/doper1/POK/commit/11546219b5344fb5bc1fe16c06ce12039def0f99))
+
 ## [7.6.0](https://github.com/doper1/POK/compare/POK@v7.5.0...POK@v7.6.0) (2025-01-25)
 
 
