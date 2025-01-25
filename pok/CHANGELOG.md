@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.6.0](https://github.com/doper1/POK/compare/POK@v7.5.0...POK@v7.6.0) (2025-01-25)
+
+
+### Features
+
+* set blinds ([9cd7f30](https://github.com/doper1/POK/commit/9cd7f30667d2d3965ecdd9a08887a0828d8bd683))
+
 ## [7.5.0](https://github.com/doper1/POK/compare/POK@v7.4.0...POK@v7.5.0) (2025-01-24)
 
 
