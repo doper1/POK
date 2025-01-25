@@ -30,6 +30,8 @@ const game = pgTable('game', {
   mainPot: uuid('main_pot').references(() => pot.id),
   lastRoundPot: integer('last_round_pot'),
   lock: bigint('lock', { mode: 'bigint' }),
+  smallBlind: integer('small_blind').default(constants.SMALL_BLIND),
+  bigBlind: integer('big_blind').default(constants.BIG_BLIND),
 });
 
 // TABLE: user

@@ -1,5 +1,5 @@
 module.exports.MODEL_GLHF = 'hf:meta-llama/Meta-Llama-3.1-405B-Instruct';
-module.exports.MODEL_GROQ = 'llama-3.1-70b-versatile';
+module.exports.MODEL_GROQ = 'llama-3.3-70b-versatile';
 module.exports.MODEL_AIML - 'deepseek/deepseek-r1';
 module.exports.GAME_TYPES = ['nlh'];
 module.exports.GAME_STATUSES = ['pending', 'running', 'to end'];
@@ -11,16 +11,16 @@ module.exports.PLAYER_STATUSES = [
   'no money',
 ];
 module.exports.MESSAGE_MAX_AGE = 30;
-module.exports.LOCK_MAX_AGE = 20;
+module.exports.LOCK_MAX_AGE = 22;
 module.exports.MAX_PLAYERS = 23;
 module.exports.BASE_MONEY = 1000;
 module.exports.GAME_MONEY = 100;
 module.exports.SEPARATOR = '___________________';
 module.exports.STRENGTH_DICT = {
-  0: '*ROYAL FLUSH*',
-  1: '*STRAIGHT FLUSH*',
-  2: '*QUADS*',
-  3: '*FULL HOUSE*',
+  0: '👑*ROYAL FLUSH*👑',
+  1: '🚀*STRAIGHT FLUSH*🚀',
+  2: '💰*QUADS*💰',
+  3: '💵*FULL HOUSE*💵',
   4: 'Flush',
   5: 'Straight',
   6: 'Three of a Kind',
@@ -30,26 +30,30 @@ module.exports.STRENGTH_DICT = {
 };
 module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
-module.exports.HELP_PRE_GAME = `Message your action or message one of the following commands:
-♠️ pok help 
-♥️ pok join [amount]
-♣️ pok show
-♦️ pok exit
-♠️ pok start
-♥️ pok buy [amount]`;
+module.exports.HELP_PRE_GAME = `Message your action. You can do the following:
+♠️ help 
+♥️ join [amount]
+♣️ show
+♦️ exit
+♠️ start
+♥️ buy [amount]
+♣️ small blind [amount]
+♦️ big blind [amount]`;
 
-module.exports.HELP_IN_GAME = `Message your action or message one of the following commands:
-♠️ pok check
-♥️ pok call
-♣️ pok raise [amount]
-♦️ pok all (in)
-♠️ pok fold
-♥️ pok buy [amount] 
-♣️ pok help 
-♦️ pok join [amount]
-♠️ pok show
-♥️ pok exit
-♣️ pok end`;
+module.exports.HELP_IN_GAME = `Message your action. You can do the following:
+♠️ check
+♥️ call
+♣️ raise [amount]
+♦️ all in
+♠️ fold
+♥️ buy [amount] 
+♣️ help 
+♦️ join [amount]
+♠️ show
+♥️ exit
+♣️ end
+♦️ small blind [amount]
+♠️ big blind [amount]`;
 
 module.exports.SHAPES = ['️️️♠️', '♥️', '♣️', '♦️'];
 
@@ -125,7 +129,7 @@ The possible commands are:
 pok check - checks the actions and move the turn to the next player.
 pok call - calls the current bet
 pok all (in) - puts all your chips in the pot
-pok raise [amount] - raises the specified amount
+pok raise [amount] - raises the specified amount (numeric or 'pot', 'half', 'third', 'quarter')
 pok fold - folds the hand
 pok buy [amount] - buys more chips to the table
 pok help - Shows the available commands
@@ -134,9 +138,11 @@ pok join [amount] - adds you to the game. If you also specified an amount, it wi
 pok show - Shows the pot value, the players, the players order, the players statues, the players bets and the current player
 pok exit - remove you from the game
 pok end - ends the game for everyone
+pok small [amount] - sets the small blind
+pok big [amount] - sets the big blind
 
 Answer either:
-1.  A command from the command list exactly as it's written
+1. A command from the command list exactly as it's written
 2. Only 'not related'
 
 Don't include any extra data in your answer
@@ -169,3 +175,5 @@ Italic - _text_
 module.exports.MAX_CACHE_SIZE = 10000;
 
 module.exports.DATE_CACHE_NAME = 'date_cache';
+
+module.exports.RAISE_SIZES = ['pot', 'half', 'third', 'quarter'];

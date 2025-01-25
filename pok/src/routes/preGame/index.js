@@ -33,6 +33,14 @@ async function preGameRoute({ whatsapp, message, chat, game, current }) {
       if (await validators.buy(game, message, amount, current))
         await actions.buy(game, message, chat, amount, current);
       break;
+    case 'small':
+      if (await validators.small(game, message, amount))
+        await actions.small(game, message, chat, amount);
+      break;
+    case 'big':
+      if (await validators.big(game, message, amount))
+        await actions.big(game, message, chat, amount);
+      break;
     default:
       message.reply(constants.HELP_PRE_GAME);
       break;

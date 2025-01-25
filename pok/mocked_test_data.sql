@@ -41,8 +41,11 @@ CREATE TABLE public.game (
     community_cards character varying(16)[] DEFAULT '{}'::character varying[],
     main_pot uuid,
     last_round_pot integer,
-    lock bigint
+    lock bigint,
+    small_blind integer DEFAULT 1,
+    big_blind integer DEFAULT 2
 );
+
 ALTER TABLE public.game OWNER TO user_1;
 CREATE TABLE public.participant (
     pot_id uuid NOT NULL,

@@ -27,6 +27,8 @@ class Game {
     this.mainPot = game.mainPot;
     this.lastRoundPot = game.lastRoundPot;
     this.lock = game.lock;
+    this.smallBlind = game.smallBlind;
+    this.bigBlind = game.bigBlind;
   }
 
   static async create(chatId, groupName) {
@@ -85,6 +87,14 @@ class Game {
 
     await Promise.all(promises);
     await gameRepo.deletePots(this.id);
+  }
+
+  async setBlind(amount, blindType) {
+    if (blindType === 'small') {
+      await this.set('smallBlind', amount);
+    } else {
+      await this.set('bigBlind', amount);
+    }
   }
 
   async getUsers() {
@@ -391,12 +401,12 @@ Action on @{{id}} (\${{money}})`;
   }
 
   async putBlinds(current) {
-    let smallBlind = await this.putBlind(current, constants.SMALL_BLIND);
+    let smallBlind = await this.putBlind(current, this.smallBlind);
 
     // Skips [small/big] blind candidate players until there is a player with in-game money
     current = await this.getNextPlayer(smallBlind);
 
-    let bigBlind = await this.putBlind(current, constants.BIG_BLIND);
+    let bigBlind = await this.putBlind(current, this.bigBlind);
 
     return bigBlind;
   }
