@@ -121,8 +121,14 @@ class Game {
       money: player.money,
     }));
 
-    let template = `*Players  |  Stack  |   Money*{{#players}}\n{{index}}. @{{name}}I \${{stack}} I \${{money}}{{/players}}`;
-    return Mustache.render(template, { players });
+    let template = `*Players  |  Stack  |   Money*
+{{#players}}{{index}}. @{{name}}I \${{stack}} I \${{money}}\n{{/players}}Small Blind: \${{smallBlind}}
+Big Blind: \${{bigBlind}}`;
+    return Mustache.render(template, {
+      players,
+      smallBlind: this.smallBlind,
+      bigBlind: this.bigBlind,
+    });
   }
 
   async getOrderPretty() {
@@ -172,13 +178,17 @@ class Game {
     } while (current.userId != firstPlayerId);
 
     let template = `*Pot:* \${{mainPot}}\n
-*Playing Order  |  Bet  |  Stack* {{orderString}}`;
+*Playing Order  |  Bet  |  Stack* {{orderString}}\n
+Small Blind: \${{smallBlind}}
+Big Blind: \${{bigBlind}}`;
 
     return [
       await cardsFunctions.getCards(this.communityCards),
       Mustache.render(template, {
         mainPot: (await Pot.get(this.mainPot)).value,
         orderString: orderString,
+        smallBlind: this.smallBlind,
+        bigBlind: this.bigBlind,
       }),
     ];
   }
