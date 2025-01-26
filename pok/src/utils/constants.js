@@ -1,4 +1,4 @@
-module.exports.MODEL_GLHF = 'hf:meta-llama/Meta-Llama-3.1-405B-Instruct';
+module.exports.MODEL_GLHF = 'hf:meta-llama/Llama-3.3-70B-Instruct';
 module.exports.MODEL_GROQ = 'llama-3.3-70b-versatile';
 module.exports.MODEL_AIML - 'deepseek/deepseek-r1';
 module.exports.GAME_TYPES = ['nlh'];
@@ -157,7 +157,8 @@ Beware that you won't have the context of previous messages in the same conversa
 You may also remind it to the player if you encounter weird message. The game itself is on whatsapp groups- No physical table.
 
 There is another instance of you that handles the game, your role is to answer questions about poker and about life, not about specific games.
-If player wants to perform an in-game action,  it can only happen inside a group chat (which you will not get message from, you can only receive messages from private chat)
+If player wants to perform an in-game action, it can only happen inside a group chat (which you will not get message from, you can only receive messages from private chat).
+The ONLY game related thing that happens in a private chat is the dealing of the hole cards, other than that- everything is done in a group chat
 
 The rules are:
 - Poker texas hold'em

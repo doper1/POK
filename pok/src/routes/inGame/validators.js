@@ -36,7 +36,7 @@ async function raise(game, message, amount, current) {
   if (Number.isNaN(amount)) {
     return replyError(
       message,
-      `Please specify a numerical amount (e.g. 'pok raise 3') or go 'all in' (e.g. 'pok raise all in')`,
+      `Please specify a numerical amount (e.g. '3'), pot bases size (e.g. 'full pot', 'half pot') or go 'all in' (e.g. 'all in')`,
     );
   }
 
@@ -73,13 +73,6 @@ function fold(game, message) {
 
 function call(game, message, current, pot) {
   if (!isCurrent(game, message)) return false;
-
-  if (current.gameMoney == 0) {
-    return replyError(
-      message,
-      "You are out of chips, please re-buy using 'pok rebuy'",
-    );
-  }
 
   if (pot.highestBet === current.currentBet) {
     return replyError(message, 'Since no one has bet, you don’t need to call');

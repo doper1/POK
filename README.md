@@ -72,7 +72,7 @@ npm start
 
 1. **Setup the Bot:** Once the bot is running, a QR code will appear on the terminal. Scan the QR code with your whatsapp app this will enable the bot to communicate through you whatsapp account
 
-2. **Start a Game:** At least 2 players need to join the game using `pok join`. They then need to buy chips using `pok buy` or just `pok join [chip amount]` right away
+2. **Start a Game:** At least 2 players need to join the game using `join`. They then need to buy chips using `buy` or just `join [chip amount]` right away
 
 _IMPORTANT_ - Each players get $1000 (in-game) when they first join. The ONLY way to earn more is buy playing. If you lost all of your 1000 - you cannot play anymore. The initial $1000 are consists between whatsapp group and are not individual to each group.
 
@@ -82,25 +82,29 @@ The bot can understand natural language, but at the end every message is transla
 
 ### Pre-Game Commands
 
-- `pok help` - Display help information.
-- `pok join` - Join the game.
-- `pok show` - Show the list of players who have joined.
-- `pok exit` - Exit the game.
-- `pok start` - Start the poker game.
+- `help` - Display help information.
+- `join` - Join the game.
+- `show` - Show the list of players who have joined.
+- `exit` - Exit the game.
+- `start` - Start the poker game.
+- `small blind` - set small blind
+- `big blind` - set big blind
 
 ### In-Game Commands
 
-- `pok check` - Check (pass the action to the next player).
-- `pok call` - Call (match the current highest bet).
-- `pok raise [amount]` - Raise the bet by a specified amount.
-- `pok all (in)` - Raise all in
-- `pok fold` - Fold your hand.
-- `pok buy [amount]` - buy more chips with your money
-- `pok help` - Display help information.
-- `pok join [amount]` - Join the game (if not already joined). You can also buy while joining
-- `pok show` - Show the list of players in the game.
-- `pok exit` - Exit the game.
-- `pok end` - End the current poker game.
+- `check` - Check (pass the action to the next player).
+- `call` - Call (match the current highest bet).
+- `raise [amount]` - Raise the bet by a specified amount.
+- `all in` - Raise all in
+- `fold` - Fold your hand.
+- `buy [amount]` - buy more chips with your money
+- `help` - Display help information.
+- `join [amount]` - Join the game (if not already joined). You can also buy while joining
+- `show` - Show the list of players in the game.
+- `exit` - Exit the game.
+- `end` - End the current poker game.
+- `small blind` - set small blind
+- `big blind` - set big blind
 
 ## Contributing
 
@@ -113,8 +117,6 @@ Contributions are welcome! Please fork the repository, create a new branch, and 
 5. Open a pull request.
 
 Please ensure your commits are clear and are by the [Conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) standard. Also make sure to write tests using jest and put them in the closet `__tests__` directory.
-
-Because of the DB integration all the tests got invalid so I deleted them all. The can still be found in version 3.1.0 and prior. Their directories still exists
 
 ## License
 

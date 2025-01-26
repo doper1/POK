@@ -86,7 +86,7 @@ ${constants.SEPARATOR}`;
     if (player[1] === 0) continue;
     if (message.length > 0) message += '\n';
 
-    newCards = await cardsFunctions.getCards(player.cards);
+    newCards = await cardsFunctions.getCards(winners[0].cards);
 
     const winnerData = {
       winner: player.userId,
