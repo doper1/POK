@@ -15,7 +15,7 @@ async function router({ whatsapp, message, chat, game, current }) {
         pot.value / (constants.PARTIAL_RAISE_SIZES.indexOf(amount) + 1),
       );
     } else if (constants.FULL_RAISE_SIZES.includes(amount)) {
-      amount = pot.value * constants.FULL_RAISE_SIZES.indexOf(amount) + 1;
+      amount = pot.value * (constants.FULL_RAISE_SIZES.indexOf(amount) + 1);
     } else {
       amount = Number(message.body[2]);
     }
@@ -26,7 +26,7 @@ async function router({ whatsapp, message, chat, game, current }) {
       const players = await game.getPlayers();
 
       if (await validators.join(game, message, amount, players)) {
-        if (!Number.isNaN(amount)) {
+        if (amount !== undefined) {
           if (await validators.buy(game, message, amount, current, false))
             await actions.join(game, message, chat, amount, players, whatsapp);
         } else {
@@ -39,7 +39,7 @@ async function router({ whatsapp, message, chat, game, current }) {
       break;
     case 'exit':
       if (await validators.exit(message, current))
-        await actions.exit(game, message);
+        await actions.exit(game, message, current, whatsapp);
       break;
     case 'start':
       if (await validators.start(game, chat, message))
@@ -69,11 +69,13 @@ async function router({ whatsapp, message, chat, game, current }) {
         await actions.check(game, whatsapp, current);
       break;
     case 'call':
-      if (game.currentBet >= current.gameMoney) {
-        if (validators.allIn(game, message))
+      if (validators.call(game, message, current, pot)) {
+        if (game.currentBet - current.currentBet >= current.gameMoney) {
           await actions.allIn(game, whatsapp, current);
-      } else if (validators.call(game, message, current, pot))
-        await actions.call(game, whatsapp, current, pot);
+        } else {
+          await actions.call(game, whatsapp, current, pot);
+        }
+      }
       break;
     case 'raise':
       if (await validators.raise(game, message, amount, current)) {

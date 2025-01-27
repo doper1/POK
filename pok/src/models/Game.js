@@ -78,6 +78,7 @@ class Game {
 
   async deletePots() {
     await this.set('mainPot', null);
+
     let pots = await this.getPots();
     let promises = [];
 
@@ -349,11 +350,7 @@ Action on @{{id}} (\${{money}})`;
   async getNextPlayer(current) {
     let nextPlayer = await this.getPlayer(current.nextPlayer);
 
-    while (
-      nextPlayer.status === 'all in' ||
-      nextPlayer.status === 'folded' ||
-      nextPlayer.status === 'no money'
-    ) {
+    while (!constants.STILL_PLAYING_STATUSES.includes(nextPlayer.status)) {
       nextPlayer = await this.getPlayer(nextPlayer.nextPlayer);
     }
 
@@ -570,11 +567,8 @@ Action on @{{id}} (\${{money}})`;
       this.resetPlayersStatus(false),
     ]);
 
-    let current = await this.getFirstPlayer();
+    let current = await this.getNextPlayer(await this.getFirstPlayer());
 
-    while (current.status == 'all in' || current.status == 'folded') {
-      current = await this.getPlayer(current.nextPlayer);
-    }
     await this.set('currentPlayer', current.userId);
 
     let template = `*Pot*: \${{pot}}\n\n`;

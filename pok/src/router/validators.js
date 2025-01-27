@@ -9,6 +9,10 @@ const User = require('../models/User');
 const Pot = require('../models/Pot.js');
 
 async function start(game, chat, message) {
+  if (constants.GAME_RUNNING_STATUSES.includes(game.status)) {
+    return replyError(message, 'There is a game in progress');
+  }
+
   let players = await game.getPlayers();
 
   if (
@@ -37,6 +41,10 @@ async function start(game, chat, message) {
 function end(game, message) {
   if (game.status === 'pending') {
     return replyError(message, 'No game in progress');
+  }
+
+  if (game.status === 'to end') {
+    return replyError(message, 'The game is already about to end');
   }
 
   return true;

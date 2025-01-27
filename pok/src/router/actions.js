@@ -55,8 +55,7 @@ async function join(game, message, chat, amount, players, whatsapp) {
 
     if (
       game.smallBlind + game.bigBlind === (await Pot.get(game.mainPot)).value &&
-      Number.isInteger(amount) &&
-      player.holeCards.length === 0
+      Number.isInteger(amount)
     ) {
       template += `\n\nCheck your DM for your cards 🤫
 ${constants.SEPARATOR}
@@ -84,28 +83,94 @@ ${constants.SEPARATOR}
 }
 
 async function show(game, chat) {
-  await chat.sendMessage(await game.getPlayersPretty(), {
-    mentions: await game.getMentions(),
-  });
+  if (constants.GAME_RUNNING_STATUSES.includes(game.status)) {
+    let order = await game.getOrderPretty();
+    const newCards = order[0];
+    const newMessage = order[1];
+
+    if (!newCards) {
+      return await chat.sendMessage(newMessage, {
+        mentions: await game.getMentions(),
+      });
+    } else {
+      return await chat.sendMessage(newCards, {
+        caption: newMessage,
+        mentions: await game.getMentions(),
+      });
+    }
+  } else {
+    await chat.sendMessage(await game.getPlayersPretty(), {
+      mentions: await game.getMentions(),
+    });
+  }
 }
 
-async function exit(game, message) {
+async function exit(game, message, current, whatsapp) {
+  if (constants.GAME_RUNNING_STATUSES.includes(game.status)) {
+    // If there are 2 players before the exit, also end the game
+    if ((await game.getPlayers()).length == 2) {
+      // When only one player left it should get all the money that remained in the pot
+      if (game.currentPlayer == current.userId) {
+        current = await game.getPlayer(current.nextPlayer);
+      }
+      await current.set(
+        'gameMoney',
+        current.gameMoney + (await Pot.get(game.mainPot)).value,
+      );
+
+      await game.endGame(whatsapp, `Goodbye!\n${constants.SEPARATOR}`);
+    } else {
+      await message.react('👋');
+      await message.reply(`Goodbye!`);
+    }
+  } else {
+    await message.react('👋');
+    await message.reply(`Goodbye!`);
+  }
   await game.removePlayer(message.author);
-
-  await message.react('👋');
-  await message.reply(`Goodbye!`);
 }
 
-async function buy(game, message, chat, amount, player) {
-  const template = `Nice! @{{name}} bought \${{amount}}`;
+async function buy(game, message, chat, amount, current) {
+  let template = `Nice! @{{name}} bought \${{amount}}`;
+  let newMessage;
 
-  await player.buy(amount, 'pending');
+  if (!constants.GAME_RUNNING_STATUSES.includes(game.status)) {
+    await current.buy(amount, 'pending');
 
-  const newMessage = Mustache.render(template, {
-    name: player.userId,
-    amount: amount,
-  });
+    newMessage = Mustache.render(template, {
+      name: current.userId,
+      amount: amount,
+    });
+  } else {
+    if (
+      game.smallBlind + game.bigBlind ===
+      (await Pot.get(game.mainPot)).value
+    ) {
+      if (current.holeCards.length === 0) {
+        template += `\n\nCheck your DM for your cards 🤫
+${constants.SEPARATOR}
+{{orderMessage}}`;
 
+        await game.deal(message.author, whatsapp);
+        await current.set('status', 'pending');
+      }
+
+      await current.buy(amount, 'pending');
+
+      notifyImagen('start', game.id);
+    } else {
+      template += `\nit will be added at the next hand`;
+      await current.buy(amount, 'running');
+    }
+
+    newMessage = Mustache.render(template, {
+      name: current.userId,
+      amount: amount,
+      orderMessage: template.includes('orderMessage')
+        ? (await game.getOrderPretty())[1]
+        : '',
+    });
+  }
   message.react(emote('happy'));
   await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
   return true;

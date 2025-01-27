@@ -3,13 +3,18 @@ module.exports.MODEL_GROQ = 'llama-3.3-70b-versatile';
 module.exports.MODEL_AIML - 'deepseek/deepseek-r1';
 module.exports.GAME_TYPES = ['nlh'];
 module.exports.GAME_STATUSES = ['pending', 'running', 'to end'];
+module.exports.GAME_RUNNING_STATUSES = ['running', 'to end'];
 module.exports.PLAYER_STATUSES = [
   'pending',
   'played',
   'folded',
   'all in',
   'no money',
+  'middle join',
 ];
+
+module.exports.STILL_PLAYING_STATUSES = ['pending', 'played'];
+module.exports.IN_THE_GAME_STATUSES = ['pending', 'played', 'all in'];
 module.exports.MESSAGE_MAX_AGE = 30;
 module.exports.LOCK_MAX_AGE = 22;
 module.exports.MAX_PLAYERS = 23;

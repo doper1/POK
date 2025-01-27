@@ -139,7 +139,11 @@ function isStraight(cards) {
   for (let i = 0; i < cards.length - 1; i++) {
     if (cards[i][1] - 1 == cards[i + 1][1]) {
       Count++;
-      straight.push(cards[i + 1]);
+      if (cards[i + 1][1] === 1) {
+        straight.push(cards[0]); // Add ace when the straight is a wheel
+      } else {
+        straight.push(cards[i + 1]);
+      }
     } else {
       Count = 1;
       straight = [];
