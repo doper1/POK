@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.6.2](https://github.com/doper1/POK/compare/POK@v7.6.1...POK@v7.6.2) (2025-01-27)
+
+
+### Bug Fixes
+
+* **pok:** small fixes ([713dcf8](https://github.com/doper1/POK/commit/713dcf86899d39685ba8b8f3905e0d55b6697b24))
+
 ## [7.6.1](https://github.com/doper1/POK/compare/POK@v7.6.0...POK@v7.6.1) (2025-01-25)
 
 
