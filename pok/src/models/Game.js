@@ -122,7 +122,7 @@ class Game {
     }));
 
     let template = `*Players  |  Stack  |   Money*
-{{#players}}{{index}}. @{{name}}I \${{stack}} I \${{money}}\n{{/players}}
+{{#players}}{{index}}. @{{name}}I \${{stack}} I \${{money}}\n{{/players}}\n
 Small Blind: \${{smallBlind}}
 Big Blind: \${{bigBlind}}`;
     return Mustache.render(template, {

@@ -157,7 +157,7 @@ async function translate(body, systemMessage) {
             content: `${body}`,
           },
         ],
-        temperature: 0.7,
+        temperature: 0.9,
       })
     ).choices[0]?.message?.content;
   } catch (e) {
@@ -176,7 +176,7 @@ async function translate(body, systemMessage) {
           },
         ],
 
-        temperature: 0.7,
+        temperature: 0.9,
       })
     ).choices[0]?.message?.content;
   }

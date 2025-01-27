@@ -1,6 +1,6 @@
 const actions = require('../actions');
-const Game = require('../../../models/Game');
-const generalFunctions = require('../../../utils/generalFunctions');
+const Game = require('../../models/Game');
+const generalFunctions = require('../../utils/generalFunctions');
 
 describe('pok join - preGame', () => {
   beforeEach(async () => {

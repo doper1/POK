@@ -129,7 +129,11 @@ The possible commands are:
 pok check - checks the actions and move the turn to the next player.
 pok call - calls the current bet
 pok all (in) - puts all your chips in the pot
-pok raise [amount] - raises the specified amount (numeric or 'pot', 'half', 'third', 'quarter')
+pok raise [amount] - raises the specified amount. Can be:
+-  Some Numeric value
+- 'pot', 'double', 'triple', 'quadruple', 'half', 'third', 'quarter'
+- X pots -> a fitting word. For example: 2 pots -> 'double', 3 pots -> 'triple', 4 pots -> 'quadruple'
+
 pok fold - folds the hand
 pok buy [amount] - buys more chips to the table
 pok help - Shows the available commands
@@ -177,4 +181,12 @@ module.exports.MAX_CACHE_SIZE = 10000;
 
 module.exports.DATE_CACHE_NAME = 'date_cache';
 
-module.exports.RAISE_SIZES = ['pot', 'half', 'third', 'quarter'];
+module.exports.PARTIAL_RAISE_SIZES = [
+  'pot',
+  'half',
+  'third',
+  'quarter',
+  'fifth',
+];
+
+module.exports.FULL_RAISE_SIZES = ['pot', 'double', 'triple', 'quadruple'];

@@ -1,8 +1,13 @@
 const Mustache = require('mustache');
-const gf = require('../../utils/generalFunctions');
-const User = require('../../models/User');
-const constants = require('../../utils/constants');
-const Pot = require('../../models/Pot');
+const constants = require('../utils/constants');
+const {
+  emote,
+  notifyImagen,
+  shuffleArray,
+} = require('../utils/generalFunctions');
+const User = require('../models/User');
+const gameFunctions = require('../utils/gameFunctions');
+const Pot = require('../models/Pot');
 
 async function start(game, message, whatsapp) {
   await game.set('status', 'running');
@@ -10,9 +15,16 @@ async function start(game, message, whatsapp) {
   await game.generateOrder();
   await game.initRound(whatsapp, '🎰 *The game has STARTED!* 🎰', false, true);
 
-  message.react(gf.emote('happy'));
+  message.react(emote('happy'));
 
-  gf.notifyImagen('start', game.id);
+  notifyImagen('start', game.id);
+}
+
+async function end(game, message, chat) {
+  await game.set('status', 'to end');
+
+  message.react(emote('sad'));
+  await chat.sendMessage('⚠️  Game ending after this hand ⚠️ ');
 }
 
 async function join(game, message, chat, amount, players, whatsapp) {
@@ -27,7 +39,7 @@ async function join(game, message, chat, amount, players, whatsapp) {
   if (players.length === 0 || game.deck.length === 0) {
     await game.set(
       'deck',
-      gf.shuffleArray(constants.DECK.map((card) => [...card])),
+      shuffleArray(constants.DECK.map((card) => [...card])),
     );
   }
 
@@ -53,10 +65,10 @@ ${constants.SEPARATOR}
       await game.deal(message.author, whatsapp);
       await player.set('status', 'pending');
 
-      gf.notifyImagen('start', game.id);
+      notifyImagen('start', game.id);
     }
   } else {
-    gf.notifyImagen('join', game.id, players.length * 4);
+    notifyImagen('join', game.id, players.length * 4);
   }
 
   const newMessage = Mustache.render(template, {
@@ -67,7 +79,7 @@ ${constants.SEPARATOR}
       : '',
   });
 
-  message.react(gf.emote('happy'));
+  message.react(emote('happy'));
   await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
 }
 
@@ -94,7 +106,7 @@ async function buy(game, message, chat, amount, player) {
     amount: amount,
   });
 
-  message.react(gf.emote('happy'));
+  message.react(emote('happy'));
   await chat.sendMessage(newMessage, { mentions: await game.getMentions() });
   return true;
 }
@@ -110,7 +122,7 @@ and the big blind is \${{bigBlind}}`;
     bigBlind: game.bigBlind,
   });
 
-  message.react(gf.emote('happy'));
+  message.react(emote('happy'));
   await chat.sendMessage(newMessage);
   return true;
 }
@@ -126,17 +138,97 @@ and the small blind is \${{smallBlind}}`;
     smallBlind: game.smallBlind,
   });
 
-  message.react(gf.emote('happy'));
+  message.react(emote('happy'));
   await chat.sendMessage(newMessage);
   return true;
 }
 
+async function check(game, whatsapp, current) {
+  await current.set('status', 'played');
+
+  const template = `@{{name}} checked`;
+  const player = {
+    name: current.userId,
+  };
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
+}
+
+async function raise(game, amount, whatsapp, current) {
+  await current.set('status', 'played');
+
+  await gameFunctions.qualifyToAllInsPots(game, amount, current);
+  await current.bet(amount, game.mainPot);
+
+  const template = `@{{name}} raised $${amount}`;
+  const player = {
+    name: current.userId,
+  };
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
+}
+
+async function allIn(game, whatsapp, current) {
+  await current.set('status', 'all in');
+  const amount = current.gameMoney;
+
+  await gameFunctions.qualifyToAllInsPots(game, amount, current);
+  await current.bet(amount, game.mainPot);
+
+  await game.addAllInPot(current.currentBet);
+
+  const template = `Wow! @{{name}} is *ALL IN* for \${{amount}} more (total \${{totalBet}})`;
+  const player = {
+    name: current.userId,
+    amount: amount,
+    totalBet: current.currentBet,
+  };
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
+}
+
+async function call(game, whatsapp, current, pot) {
+  await current.set('status', 'played');
+  const amount = pot.highestBet - current.currentBet;
+
+  await gameFunctions.qualifyToAllInsPots(game, amount, current);
+  await current.bet(amount, pot.id);
+
+  const template = `Nice! @{{name}} calls \${{amount}}`;
+  const player = {
+    name: current.userId,
+    amount: amount,
+  };
+  const newMessage = Mustache.render(template, player);
+  await game.updateRound(whatsapp, newMessage);
+}
+
+async function fold(game, message, whatsapp, current) {
+  const template = `@{{name}} folded`;
+
+  await current.set('status', 'folded');
+
+  const player = {
+    name: current.userId,
+  };
+
+  const newMessage = Mustache.render(template, player);
+  message.react(emote('fold'));
+  await game.updateRound(whatsapp, newMessage);
+}
+
 module.exports = {
   start,
+  end,
   join,
   show,
   exit,
   buy,
   small,
   big,
+  check,
+  raise,
+  allIn,
+  fold,
+  call,
 };
