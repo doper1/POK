@@ -36,6 +36,7 @@ function rakeToWinners(players, amount, winners, potWinners) {
 // Checking for ties and returning the right winner(s) accordingly
 function getWinners(players) {
   let winners = [players[0]];
+
   for (let i = 1; i < players.length; i++) {
     const currentPlayer = players[i];
     const comparisonResult = compareHands(
@@ -86,7 +87,7 @@ ${constants.SEPARATOR}`;
     if (player[1] === 0) continue;
     if (message.length > 0) message += '\n';
 
-    newCards = await cardsFunctions.getCards(player.cards);
+    newCards = await cardsFunctions.getCards(Object.values(winners)[0].cards);
 
     const winnerData = {
       winner: player.userId,
@@ -147,7 +148,11 @@ async function calcWinners(game, pots) {
     let potWinners = [];
 
     // Loop on each players strength level (e.g. 6: [player, player], 8: [player])
-    for (const strengthLevel of Object.values(handsStrengthList)) {
+    for (let strengthLevel of Object.values(handsStrengthList)) {
+      strengthLevel = strengthLevel.filter((player) =>
+        constants.IN_THE_GAME_STATUSES.includes(player.status),
+      );
+
       let possibleWinners = getWinners(strengthLevel);
 
       // Loops on each player inside the same strength level

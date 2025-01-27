@@ -1,11 +1,24 @@
-const { replyError } = require('../../utils/generalFunctions');
-const constants = require('../../utils/constants');
-const User = require('../../models/User');
+const {
+  isCurrent,
+  isPlaying,
+  isGameRunning,
+  replyError,
+} = require('../utils/generalFunctions');
+const constants = require('../utils/constants');
+const User = require('../models/User');
+const Pot = require('../models/Pot.js');
 
 async function start(game, chat, message) {
+  if (constants.GAME_RUNNING_STATUSES.includes(game.status)) {
+    return replyError(message, 'There is a game in progress');
+  }
+
   let players = await game.getPlayers();
 
-  if (!players.some((player) => player.userId === message.author)) {
+  if (
+    players.length > 0 &&
+    !players.some((player) => player.userId === message.author)
+  ) {
     return replyError(message, 'You need to join the game first');
   }
 
@@ -20,6 +33,18 @@ async function start(game, chat, message) {
       { mentions: await game.getMentions() },
     );
     return false;
+  }
+
+  return true;
+}
+
+function end(game, message) {
+  if (game.status === 'pending') {
+    return replyError(message, 'No game in progress');
+  }
+
+  if (game.status === 'to end') {
+    return replyError(message, 'The game is already about to end');
   }
 
   return true;
@@ -104,7 +129,11 @@ async function buy(game, message, amount, current, joinFlag = true) {
   return true;
 }
 
-async function small(game, message, amount) {
+async function small(game, message, amount, current) {
+  if (current === undefined) {
+    return replyError(message, 'You need to join the game first');
+  }
+
   if (amount >= game.bigBlind) {
     return replyError(
       message,
@@ -134,7 +163,11 @@ async function small(game, message, amount) {
   return true;
 }
 
-async function big(game, message, amount) {
+async function big(game, message, amount, current) {
+  if (current === undefined) {
+    return replyError(message, 'You need to join the game first');
+  }
+
   if (amount <= game.smallBlind) {
     return replyError(
       message,
@@ -164,4 +197,103 @@ async function big(game, message, amount) {
   return true;
 }
 
-module.exports = { start, join, show, exit, buy, small, big };
+async function check(game, message, current) {
+  if (!isGameRunning(game.status, message)) return false;
+  if (!isPlaying(current, message)) return false;
+  if (!isCurrent(game, message)) return false;
+
+  let pot = await Pot.get(game.mainPot);
+
+  if (pot.highestBet != current.currentBet) {
+    let callAmount = pot.highestBet - current.currentBet;
+
+    return replyError(
+      message,
+      `You can call ($${callAmount} more), raise or fold`,
+    );
+  }
+
+  return true;
+}
+
+function allIn(game, message, current) {
+  if (!isGameRunning(game.status, message)) return false;
+  if (!isPlaying(current, message)) return false;
+  if (!isCurrent(game, message)) return false;
+  return true;
+}
+
+async function raise(game, message, amount, current) {
+  if (!isGameRunning(game.status, message)) return false;
+  if (!isPlaying(current, message)) return false;
+  if (!isCurrent(game, message)) return false;
+
+  if (Number.isNaN(amount)) {
+    return replyError(
+      message,
+      `Please specify a numerical amount (e.g. '3'), pot bases size (e.g. 'full pot', 'half pot') or go 'all in' (e.g. 'all in')`,
+    );
+  }
+
+  if (!Number.isInteger(amount)) {
+    return replyError(
+      message,
+      'Please specify a whole number (e.g. 4) and not a decimal (e.g. 4.5)',
+    );
+  }
+
+  if (amount < 1) {
+    return replyError(message, 'Please raise a positive amount');
+  }
+  let mainPot = await Pot.get(game.mainPot);
+
+  if (mainPot.highestBet > amount + current.currentBet) {
+    return replyError(
+      message,
+      `You need to call, raise at least $${
+        mainPot.highestBet - current.currentBet
+      } more, or fold`,
+    );
+  }
+
+  if (current.gameMoney < amount) {
+    return replyError(message, `You only have $${current.gameMoney}...`);
+  }
+
+  return true;
+}
+
+function fold(game, message, current) {
+  if (!isGameRunning(game.status, message)) return false;
+  if (!isPlaying(current, message)) return false;
+  if (!isCurrent(game, message)) return false;
+  return true;
+}
+
+function call(game, message, current, pot) {
+  if (!isGameRunning(game.status, message)) return false;
+  if (!isPlaying(current, message)) return false;
+  if (!isCurrent(game, message)) return false;
+
+  if (pot.highestBet === current.currentBet) {
+    return replyError(message, 'Since no one has bet, you don’t need to call');
+  }
+
+  return true;
+}
+
+module.exports = {
+  start,
+  end,
+  join,
+  show,
+  exit,
+  buy,
+  small,
+  big,
+  check,
+  raise,
+  allIn,
+  fold,
+  call,
+};

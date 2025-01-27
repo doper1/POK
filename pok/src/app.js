@@ -2,8 +2,7 @@ require('dotenv').config();
 const qrCode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const middleware = require('./utils/middleware.js');
-const preGameRoute = require('./routes/preGame/index.js');
-const inGameRoute = require('./routes/inGame/index.js');
+const router = require('./router/index.js');
 const constants = require('./utils/constants');
 
 middleware.validateEnvVariables();
@@ -73,11 +72,7 @@ whatsapp.on('message_create', async (msg) => {
     current,
   };
 
-  if (!current || game.status === 'pending') {
-    await preGameRoute(params);
-  } else {
-    await inGameRoute(params);
-  }
+  await router(params);
 
   await middleware.unlockGame(game);
 });

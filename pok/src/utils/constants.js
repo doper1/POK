@@ -1,15 +1,20 @@
-module.exports.MODEL_GLHF = 'hf:meta-llama/Meta-Llama-3.1-405B-Instruct';
+module.exports.MODEL_GLHF = 'hf:meta-llama/Llama-3.3-70B-Instruct';
 module.exports.MODEL_GROQ = 'llama-3.3-70b-versatile';
 module.exports.MODEL_AIML - 'deepseek/deepseek-r1';
 module.exports.GAME_TYPES = ['nlh'];
 module.exports.GAME_STATUSES = ['pending', 'running', 'to end'];
+module.exports.GAME_RUNNING_STATUSES = ['running', 'to end'];
 module.exports.PLAYER_STATUSES = [
   'pending',
   'played',
   'folded',
   'all in',
   'no money',
+  'middle join',
 ];
+
+module.exports.STILL_PLAYING_STATUSES = ['pending', 'played'];
+module.exports.IN_THE_GAME_STATUSES = ['pending', 'played', 'all in'];
 module.exports.MESSAGE_MAX_AGE = 30;
 module.exports.LOCK_MAX_AGE = 22;
 module.exports.MAX_PLAYERS = 23;
@@ -129,7 +134,11 @@ The possible commands are:
 pok check - checks the actions and move the turn to the next player.
 pok call - calls the current bet
 pok all (in) - puts all your chips in the pot
-pok raise [amount] - raises the specified amount (numeric or 'pot', 'half', 'third', 'quarter')
+pok raise [amount] - raises the specified amount. Can be:
+-  Some Numeric value
+- 'pot', 'double', 'triple', 'quadruple', 'half', 'third', 'quarter'
+- X pots -> a fitting word. For example: 2 pots -> 'double', 3 pots -> 'triple', 4 pots -> 'quadruple'
+
 pok fold - folds the hand
 pok buy [amount] - buys more chips to the table
 pok help - Shows the available commands
@@ -157,7 +166,8 @@ Beware that you won't have the context of previous messages in the same conversa
 You may also remind it to the player if you encounter weird message. The game itself is on whatsapp groups- No physical table.
 
 There is another instance of you that handles the game, your role is to answer questions about poker and about life, not about specific games.
-If player wants to perform an in-game action,  it can only happen inside a group chat (which you will not get message from, you can only receive messages from private chat)
+If player wants to perform an in-game action, it can only happen inside a group chat (which you will not get message from, you can only receive messages from private chat).
+The ONLY game related thing that happens in a private chat is the dealing of the hole cards, other than that- everything is done in a group chat
 
 The rules are:
 - Poker texas hold'em
@@ -176,4 +186,12 @@ module.exports.MAX_CACHE_SIZE = 10000;
 
 module.exports.DATE_CACHE_NAME = 'date_cache';
 
-module.exports.RAISE_SIZES = ['pot', 'half', 'third', 'quarter'];
+module.exports.PARTIAL_RAISE_SIZES = [
+  'pot',
+  'half',
+  'third',
+  'quarter',
+  'fifth',
+];
+
+module.exports.FULL_RAISE_SIZES = ['pot', 'double', 'triple', 'quadruple'];

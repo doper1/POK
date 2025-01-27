@@ -41,11 +41,20 @@ function emote(emojiType) {
 }
 
 function isCurrent(game, message) {
-  if (game.currentPlayer != message.author) {
-    message.react(emote('mistake'));
-    message.reply("It's not your turn");
-    return false;
-  }
+  if (game.currentPlayer != message.author)
+    return replyError(message, "It's not your turn");
+  return true;
+}
+
+function isPlaying(currentPlayer, message) {
+  if (!currentPlayer)
+    return replyError(message, 'You need to join the game first');
+  return true;
+}
+
+function isGameRunning(gameStatus, message) {
+  if (gameStatus === 'pending')
+    return replyError(message, 'No game is running');
   return true;
 }
 
@@ -104,4 +113,6 @@ module.exports = {
   getProperties,
   replyError,
   notifyImagen,
+  isPlaying,
+  isGameRunning,
 };

@@ -75,7 +75,7 @@ async function addPlayerMidGame(gameId, userId) {
   await db.transaction(async (tx) => {
     await tx
       .update(player)
-      .set({ status: 'no money' })
+      .set({ status: 'just joined' })
       .where(and(eq(player.gameId, gameId), eq(player.userId, userId)));
 
     let currentPlayer = (
