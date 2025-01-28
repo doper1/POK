@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
 
     tokio::spawn(async move {
         if let Err(e) = connection.await {
-            error!("Connection error: {}", e);
+            error!("Connection Error: {}", e);
             std::process::exit(1);
         }
     });
