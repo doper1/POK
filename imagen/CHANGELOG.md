@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/doper1/POK/compare/imagen@v2.3.1...imagen@v2.3.2) (2025-01-28)
+
+
+### Bug Fixes
+
+* **pok,imagen:** release pipeline revert ([fadb9c9](https://github.com/doper1/POK/commit/fadb9c92a7fc6ee5563db477eeb31cbc16baecc1))
+
 ## [2.3.1](https://github.com/doper1/POK/compare/imagen@v2.3.0...imagen@v2.3.1) (2025-01-28)
 
 
