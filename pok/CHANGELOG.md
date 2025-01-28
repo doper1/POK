@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.6.5](https://github.com/doper1/POK/compare/POK@v7.6.4...POK@v7.6.5) (2025-01-28)
+
+
+### Bug Fixes
+
+* **pok,imagen:** release pipeline revert ([fadb9c9](https://github.com/doper1/POK/commit/fadb9c92a7fc6ee5563db477eeb31cbc16baecc1))
+
 ## [7.6.4](https://github.com/doper1/POK/compare/POK@v7.6.3...POK@v7.6.4) (2025-01-28)
 
 
