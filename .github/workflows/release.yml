@@ -44,6 +44,9 @@ jobs:
           - host: self-hosted
             platform: linux/arm64/v8
             target: aarch64
+    outputs:
+      pok-digest: ${{ steps.pok-build.outputs.digest }}
+      imagen-digest: ${{ steps.imagen-build.outputs.digest }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -58,16 +61,18 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and export Pok
+        id: pok-build
         if: ${{ needs.release.outputs.pok--release_created }}
         uses: docker/build-push-action@v6
         with:
-          context: ./${{ env.IP }}
+          context: ./pok
           platforms: ${{ matrix.platform }}
           outputs: type=image,name=${{ env.DU }}/${{ env.IP }},push-by-digest=true
           cache-from: type=registry,ref=${{ env.DU }}/${{ env.IP }}:buildcache-${{ matrix.target }}
           cache-to: type=registry,ref=${{ env.DU }}/${{ env.IP }}:buildcache-${{ matrix.target }},mode=max
 
       - name: Build and export Imagen
+        id: imagen-build
         if: ${{ needs.release.outputs.imagen--release_created }}
         uses: docker/build-push-action@v6
         with:
@@ -92,25 +97,19 @@ jobs:
 
       - name: Create and push manifest for Pok
         if: ${{ needs.release.outputs.pok--release_created }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ env.IP }}
-          platforms: linux/amd64,linux/arm64/v8
-          tags: |
-            ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
-            ${{ env.DU }}/${{ env.IP }}:latest
-          push: true
+        run: |
+          docker buildx imagetools create -t ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }} \
+            $(jq -r '.builds[].digests.sha256' <<< '${{ toJSON(needs.build.outputs.pok-digest) }}' | sed "s/^/${{ env.DU }}\/${{ env.IP }}@sha256:/")
+          docker buildx imagetools create -t ${{ env.DU }}/${{ env.IP }}:latest \
+            $(jq -r '.builds[].digests.sha256' <<< '${{ toJSON(needs.build.outputs.pok-digest) }}' | sed "s/^/${{ env.DU }}\/${{ env.IP }}@sha256:/")
 
       - name: Create and push manifest for Imagen
         if: ${{ needs.release.outputs.imagen--release_created }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ env.II }}
-          platforms: linux/amd64,linux/arm64/v8
-          tags: |
-            ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
-            ${{ env.DU }}/${{ env.II }}:latest
-          push: true
+        run: |
+          docker buildx imagetools create -t ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }} \
+            $(jq -r '.builds[].digests.sha256' <<< '${{ toJSON(needs.build.outputs.imagen-digest) }}' | sed "s/^/${{ env.DU }}\/${{ env.II }}@sha256:/")
+          docker buildx imagetools create -t ${{ env.DU }}/${{ env.II }}:latest \
+            $(jq -r '.builds[].digests.sha256' <<< '${{ toJSON(needs.build.outputs.imagen-digest) }}' | sed "s/^/${{ env.DU }}\/${{ env.II }}@sha256:/")
 
   call-deploy-pok:
     if: ${{ needs.release.outputs.pok--release_created }}
