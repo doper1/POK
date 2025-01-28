@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.6.3](https://github.com/doper1/POK/compare/POK@v7.6.2...POK@v7.6.3) (2025-01-28)
+
+
+### Bug Fixes
+
+* **pok:** post refactor fix ([1113deb](https://github.com/doper1/POK/commit/1113debd3a6eade6b1e89d5beb2fb7b9a2813c7b))
+
 ## [7.6.2](https://github.com/doper1/POK/compare/POK@v7.6.1...POK@v7.6.2) (2025-01-27)
 
 
