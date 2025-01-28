@@ -67,7 +67,7 @@ ${constants.SEPARATOR}
       notifyImagen('start', game.id);
     }
   } else {
-    notifyImagen('join', game.id, players.length * 4);
+    await player.set('status', 'middle join');
   }
 
   const newMessage = Mustache.render(template, {

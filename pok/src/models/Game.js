@@ -275,9 +275,7 @@ Action on @{{id}} (\${{money}})`;
     await this.putBlinds(smallBlind);
     let firstPlayer = await this.getFirstPlayer();
 
-    while (firstPlayer.status === 'no money') {
-      firstPlayer = await this.getNextPlayer(firstPlayer);
-    }
+    firstPlayer = await this.getNextPlayer(firstPlayer);
 
     const [mainPot] = await Promise.all([
       Pot.get(this.mainPot),
@@ -567,7 +565,11 @@ Action on @{{id}} (\${{money}})`;
       this.resetPlayersStatus(false),
     ]);
 
-    let current = await this.getNextPlayer(await this.getFirstPlayer());
+    let current = await this.getFirstPlayer();
+
+    while (!constants.STILL_PLAYING_STATUSES.includes(current.status)) {
+      current = await this.getPlayer(current.nextPlayer);
+    }
 
     await this.set('currentPlayer', current.userId);
 
