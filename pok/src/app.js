@@ -89,7 +89,7 @@ whatsapp.on('message', async (msg) => {
     middleware.logMessage(msg.body, chat.name, 'success');
 
     if (process.env.env === 'dev') {
-      console.log(`DEV translated message: ${output}`);
+      console.log(`DEV translate message: ${output}`);
     } else {
       msg.reply(output);
     }
