@@ -74,6 +74,6 @@ jobs:
           context: ./pok
           platforms: ${{ matrix.platform }}
           push: false
-          tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test
+          tags: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:test-${{ matrix.target }}
           cache-from: type=registry,ref=${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache-${{ matrix.target }}
           cache-to: type=registry,ref=${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache-${{ matrix.target }},mode=max
