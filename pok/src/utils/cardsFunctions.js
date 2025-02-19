@@ -156,6 +156,7 @@ function isStraight(cards) {
   }
   return false;
 }
+
 function isStraightFlush(cards) {
   let flushCards = isFlush(cards);
   if (flushCards == false) return false;

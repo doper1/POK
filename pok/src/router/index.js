@@ -97,7 +97,7 @@ async function router({ whatsapp, message, chat, game, current }) {
         await actions.fold(game, message, whatsapp, current);
       break;
     default:
-      message.reply(constants.HELP_PRE_GAME);
+      message.reply(constants.HELP);
       break;
   }
 }

@@ -78,7 +78,8 @@ async function showdown(game) {
   let message = '';
 
   const template = `Congrats! @{{winner}} Won \${{winnings}}
-with {{holeCards}} - {{handStrength}}
+with {{holeCards}}:
+{{handStrength}}
 ${constants.SEPARATOR}`;
 
   for (const index in winners) {
