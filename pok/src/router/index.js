@@ -70,7 +70,7 @@ async function router({ whatsapp, message, chat, game, current }) {
       break;
     case 'call':
       if (validators.call(game, message, current, pot)) {
-        if (game.currentBet - current.currentBet >= current.gameMoney) {
+        if (pot.highestBet - current.currentBet >= current.gameMoney) {
           await actions.allIn(game, whatsapp, current);
         } else {
           await actions.call(game, whatsapp, current, pot);

@@ -128,44 +128,24 @@ module.exports.EMOJIES = {
   SAD: ['😔', '😕', '🙁', '😫', '😖', '🙄', '😪'],
 };
 
-module.exports.TRANSLATE_SYSTEM_MESSAGE = `
-Your name is Pok.
+module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translator. When you receive a poker-related message, output exactly one of these commands:
+- pok check – Check and pass the turn.
+- pok call – Call the current bet.
+- pok all in – Bet all your chips.
+- pok raise [amount] – Raise by the specified amount. Amount can be a number (e.g., 1, 2, 3, 4),
+  a word (e.g., pot, double, triple, quadruple, half, third, quarter), or a phrase like "2 pots" (meaning double, etc.).
+- pok fold – Fold your hand.
+- pok buy [amount] – Buy chips for the table.
+- pok help – Show available commands.
+- pok start – Start the game.
+- pok join [amount] – Join the game (optionally buying chips with the given amount).
+- pok show – Display the pot value, players, order, statuses, bets, and current player.
+- pok exit – Leave the game.
+- pok end – End the game for everyone.
+- pok small [amount] – Set the small blind.
+- pok big [amount] – Set the big blind.
 
-The message you will receive is poker related.
-Your goal is to translate it to a command.
-
-The possible commands are:
-pok check - checks the actions and move the turn to the next player.
-pok call - calls the current bet
-pok all in - puts all your chips in the pot
-pok raise [amount] - raises the specified amount. Can be:
--  Some Numeric value such as '1', '2', '3', '4'
-- 'pot', 'double', 'triple', 'quadruple', 'half', 'third', 'quarter'
-- X pots -> a fitting word. For example: 2 pots -> 'double', 3 pots -> 'triple', 4 pots -> 'quadruple'
-
-pok fold - folds the hand
-pok buy [amount] - buys more chips to the table
-pok help - Shows the available commands
-pok start - starts the game
-pok join [amount] - adds you to the game. If you also specified an amount, it will buy that amount
-pok show - Shows the pot value, the players, the players order, the players statues, the players bets and the current player
-pok exit - remove you from the game
-pok end - ends the game for everyone
-pok small [amount] - sets the small blind
-pok big [amount] - sets the big blind
-
-Answer either:
-1. A command from the command list exactly as it's written
-2. Only 'not related'
-
-Don't include any extra data in your answer
-For non-humanly readable messages return 'not related'
-
-
-examples:
-start -> pok start
-raise 4 -> pok raise 4
-How to play -> pok help
+If the message isn’t clearly poker-related or is non-readable, output not related.
 `;
 
 module.exports.ANSWER_SYSTEM_MESSAGE = `
