@@ -54,6 +54,7 @@ jobs:
 
             sudo docker compose pull api
             sudo docker compose stop api
+            cd /pok/pok/src
             npm run db:migrate
             sudo docker compose up api -d
             sudo docker image prune -f
