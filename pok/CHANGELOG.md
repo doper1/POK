@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.6.7](https://github.com/doper1/POK/compare/POK@v7.6.6...POK@v7.6.7) (2025-02-20)
+
+
+### Bug Fixes
+
+* **pok:** call to all in ([727fcd1](https://github.com/doper1/POK/commit/727fcd138293da547ad376ceefbe633c2420c415))
+* **pok:** system prompt optimization ([87635dd](https://github.com/doper1/POK/commit/87635ddd20619d5ce9c799b9eb2df3993c37f1a3))
+
 ## [7.6.6](https://github.com/doper1/POK/compare/POK@v7.6.5...POK@v7.6.6) (2025-02-20)
 
 
