@@ -48,6 +48,7 @@ jobs:
             echo REDIS_HOST=localhost >> /pok/.env
             echo REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}" >> /pok/.env
             echo IMAGEN_HOST=127.0.0.1 >> /pok/.env
+            echo PLATFORM=aarch64 >> /pok/.env
 
             history -c
             history -w
