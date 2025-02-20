@@ -10,15 +10,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Copy files
+      - name: Copy docker compose
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'docker-compose.yml,/pok/drizzle.config.ts,/pok/db,/pok/package.json,pok/src/utils/constants.js'
+          source: 'docker-compose.yml'
           target: '/pok'
+
+      - name: Copy pok
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: '/pok/drizzle.config.ts,/pok/db,/pok/package.json,pok/src/utils/constants.js'
+          target: '/pok/pok'
 
       - name: Start execution sequence
         uses: appleboy/ssh-action@v1.1.0
@@ -36,7 +46,10 @@ jobs:
 
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
             nvm install 20
-            npm update drizzle-kit
+
+            cd /pok/pok
+            npm install drizzle-kit
+            cd /pok
 
             echo ENV=prod > /pok/.env
             echo POSTGRES_HOST=localhost >> /pok/.env
@@ -50,13 +63,18 @@ jobs:
             echo IMAGEN_HOST=127.0.0.1 >> /pok/.env
             echo PLATFORM=aarch64 >> /pok/.env
 
+            cp /pok/.env /pok/pok/.env
+
             history -c
             history -w
 
             sudo docker compose pull api
             sudo docker compose stop api
-            cd /pok/pok/src
+
+            cd /pok/pok
             npm run db:migrate
+            cd /pok
+
             sudo docker compose up api -d
             sudo docker image prune -f
 
