@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.6.6](https://github.com/doper1/POK/compare/POK@v7.6.5...POK@v7.6.6) (2025-02-20)
+
+
+### Bug Fixes
+
+* **pok:** bug fixes ([7f78fae](https://github.com/doper1/POK/commit/7f78faecff45edf21a6e9fbb6b7b5f30f793387f))
+* **pok:** db safety while testing ([99b5aed](https://github.com/doper1/POK/commit/99b5aed82b974eb6522a6ceed1f67a9a81a19324))
+
 ## [7.6.5](https://github.com/doper1/POK/compare/POK@v7.6.4...POK@v7.6.5) (2025-01-28)
 
 
