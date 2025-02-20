@@ -28,6 +28,8 @@ async function generateCards(cards, path, title = undefined) {
       cmd1Args.push(`cards/${card[0]}${card[1]}.png`);
     }
     cmd1Args.push(
+      '-gravity',
+      'South',
       '-border',
       '30',
       '-resize',
@@ -40,7 +42,7 @@ async function generateCards(cards, path, title = undefined) {
       '-',
     );
 
-    let cmd2Args = ['-', '-border', '40x20', '-strip'];
+    let cmd2Args = ['-', '-border', '20x40', '-strip'];
 
     if (title) {
       cmd2Args.push(
