@@ -1,6 +1,5 @@
 module.exports.MODEL_GLHF = 'hf:meta-llama/Llama-3.3-70B-Instruct';
 module.exports.MODEL_GROQ = 'llama-3.3-70b-versatile';
-module.exports.MODEL_AIML - 'deepseek/deepseek-r1';
 module.exports.GAME_TYPES = ['nlh'];
 module.exports.GAME_STATUSES = ['pending', 'running', 'to end'];
 module.exports.GAME_RUNNING_STATUSES = ['running', 'to end'];
@@ -13,52 +12,57 @@ module.exports.PLAYER_STATUSES = [
   'middle join',
 ];
 
-module.exports.STILL_PLAYING_STATUSES = ['pending', 'played'];
-module.exports.IN_THE_GAME_STATUSES = ['pending', 'played', 'all in'];
+module.exports.PLAYER_STILL_PLAYING_STATUSES = ['pending', 'played'];
+module.exports.PLAYER_IN_THE_GAME_STATUSES = ['pending', 'played', 'all in'];
+module.exports.PLAYER_NOT_AT_THE_TABLE_STATUSES = ['no money', 'middle join'];
 module.exports.MESSAGE_MAX_AGE = 30;
 module.exports.LOCK_MAX_AGE = 22;
 module.exports.MAX_PLAYERS = 23;
 module.exports.BASE_MONEY = 1000;
-module.exports.GAME_MONEY = 100;
 module.exports.SEPARATOR = '___________________';
 module.exports.STRENGTH_DICT = {
-  0: '👑*ROYAL FLUSH*👑',
-  1: '🚀*STRAIGHT FLUSH*🚀',
-  2: '💰*QUADS*💰',
-  3: '💵*FULL HOUSE*💵',
-  4: 'Flush',
-  5: 'Straight',
-  6: 'Three of a Kind',
-  7: 'Two Pair',
-  8: 'Pair',
-  9: 'High Card',
+  0: '👑👑👑 *ROYAL FLUSH* 👑👑👑',
+  1: '🚀🚀🚀 *STRAIGHT FLUSH* 🚀🚀🚀',
+  2: '💰💰💰 *QUADS* 💰💰💰',
+  3: '💵💵💵 *FULL HOUSE* 💵💵💵',
+  4: '🚽 *Flush* 🚽',
+  5: '➖➖ *Straight* ➖➖',
+  6: '🙈🙉🙊 *Three of a Kind* 🙈🙉🙊',
+  7: '🧦🧦 *Two Pair* 🧦🧦',
+  8: '🧦 *Pair* 🧦',
+  9: '🍺 *High Card* 🍺',
 };
 module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
-module.exports.HELP_PRE_GAME = `Message your action. You can do the following:
-♠️ help 
-♥️ join [amount]
-♣️ show
-♦️ exit
-♠️ start
-♥️ buy [amount]
-♣️ small blind [amount]
-♦️ big blind [amount]`;
+module.exports.HELP = `🃏 *How to Play Poker on WhatsApp* 🃏  
 
-module.exports.HELP_IN_GAME = `Message your action. You can do the following:
-♠️ check
-♥️ call
-♣️ raise [amount]
-♦️ all in
-♠️ fold
-♥️ buy [amount] 
-♣️ help 
-♦️ join [amount]
-♠️ show
-♥️ exit
-♣️ end
-♦️ small blind [amount]
-♠️ big blind [amount]`;
+Use the following commands in your *WhatsApp group* to play:
+
+♠ *Game Actions:*  
+- *join [amount]* – Join the game (optional: buy-in with an amount).  
+- *start* – Starts the game.  
+- *exit* – Leave the game.  
+- *end* – Ends the game for everyone.  
+- *buy [amount]* – Buy more chips.
+
+️♥ *Betting:*  
+- *fold* – Fold your hand.  
+- *check* – Check (if no bet has been made).  
+- *call* – Call the current bet.  
+- *raise [amount]* – Raise the bet by the specified amount.
+
+♣ *Blinds:*  
+- *small [amount]* – Set the small blind.  
+- *big [amount]* – Set the big blind.
+
+♦ *Game Info:*  
+- *show* – Show the pot, players, bets, and current turn.  
+- *help* – Show this list of commands.
+
+💰 You start with $1000, and your money is shared across all WhatsApp groups!  
+
+📌 Remember: All actions must be done in a group chat! (But you can always ask questions in my private chat)
+🌍 Feel free to use any language and even natural language for your actions– just make sure to follow the basic format!`;
 
 module.exports.SHAPES = ['️️️♠️', '♥️', '♣️', '♦️'];
 
@@ -133,9 +137,9 @@ Your goal is to translate it to a command.
 The possible commands are:
 pok check - checks the actions and move the turn to the next player.
 pok call - calls the current bet
-pok all (in) - puts all your chips in the pot
+pok all in - puts all your chips in the pot
 pok raise [amount] - raises the specified amount. Can be:
--  Some Numeric value
+-  Some Numeric value such as '1', '2', '3', '4'
 - 'pot', 'double', 'triple', 'quadruple', 'half', 'third', 'quarter'
 - X pots -> a fitting word. For example: 2 pots -> 'double', 3 pots -> 'triple', 4 pots -> 'quadruple'
 
@@ -156,6 +160,12 @@ Answer either:
 
 Don't include any extra data in your answer
 For non-humanly readable messages return 'not related'
+
+
+examples:
+start -> pok start
+raise 4 -> pok raise 4
+How to play -> pok help
 `;
 
 module.exports.ANSWER_SYSTEM_MESSAGE = `
@@ -180,6 +190,9 @@ It's highly recommended to create new whatsapp group for playing
 For the answer use whatsapp text formatting:
 Bold - *text*
 Italic - _text_
+Do not use TOO much formatting
+
+Answer in the same language as the question.
 `;
 
 module.exports.MAX_CACHE_SIZE = 10000;

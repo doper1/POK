@@ -65,8 +65,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: |
-            ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}
-            ${{ env.DU }}/${{ env.IP }}:latest
+            ${{ env.DU }}/${{ env.IP }}:${{ needs.release.outputs.pok-version }}-${{ matrix.target }}
+            ${{ env.DU }}/${{ env.IP }}:latest-${{ matrix.target }}
           cache-from: type=registry,ref=${{ env.DU }}/${{ env.IP }}:buildcache-${{ matrix.target }}
           cache-to: type=registry,ref=${{ env.DU }}/${{ env.IP }}:buildcache-${{ matrix.target }},mode=max
 
@@ -78,8 +78,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: |
-            ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}
-            ${{ env.DU }}/${{ env.II }}:latest
+            ${{ env.DU }}/${{ env.II }}:${{ needs.release.outputs.imagen-version }}-${{ matrix.target }}
+            ${{ env.DU }}/${{ env.II }}:latest-${{ matrix.target }}
           cache-from: type=registry,ref=${{ env.DU }}/${{ env.II }}:buildcache-${{ matrix.target }}
           cache-to: type=registry,ref=${{ env.DU }}/${{ env.II }}:buildcache-${{ matrix.target }},mode=max
           build-args: |

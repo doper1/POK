@@ -78,7 +78,8 @@ async function showdown(game) {
   let message = '';
 
   const template = `Congrats! @{{winner}} Won \${{winnings}}
-with {{holeCards}} - {{handStrength}}
+with {{holeCards}}:
+{{handStrength}}
 ${constants.SEPARATOR}`;
 
   for (const index in winners) {
@@ -87,7 +88,10 @@ ${constants.SEPARATOR}`;
     if (player[1] === 0) continue;
     if (message.length > 0) message += '\n';
 
-    newCards = await cardsFunctions.getCards(Object.values(winners)[0].cards);
+    newCards = await cardsFunctions.getCards(
+      Object.values(winners)[0].cards,
+      'Winning Hand',
+    );
 
     const winnerData = {
       winner: player.userId,
@@ -150,7 +154,7 @@ async function calcWinners(game, pots) {
     // Loop on each players strength level (e.g. 6: [player, player], 8: [player])
     for (let strengthLevel of Object.values(handsStrengthList)) {
       strengthLevel = strengthLevel.filter((player) =>
-        constants.IN_THE_GAME_STATUSES.includes(player.status),
+        constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status),
       );
 
       let possibleWinners = getWinners(strengthLevel);
@@ -211,15 +215,15 @@ async function qualifyToAllInsPots(game, amount, current) {
 }
 
 async function getLastPlayers(game) {
-  let mainPot = await Pot.get(game.mainPot);
-  return (await game.getPlayers()).filter(
-    (player) =>
-      !(
-        player.status === 'folded' ||
-        (player.status === 'all in' &&
-          (player.currentBet == 0 || player.currentBet < mainPot.highestBet))
-      ),
+  // let mainPot = await Pot.get(game.mainPot);
+  return (await game.getPlayers()).filter((player) =>
+    constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status),
   );
+  // !(
+  //   player.status === 'folded' ||
+  //   (player.status === 'all in' &&
+  //     (player.currentBet == 0 || player.currentBet < mainPot.highestBet))
+  // ),
 }
 
 module.exports = {

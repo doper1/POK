@@ -28,9 +28,9 @@ async function router({ whatsapp, message, chat, game, current }) {
       if (await validators.join(game, message, amount, players)) {
         if (amount !== undefined) {
           if (await validators.buy(game, message, amount, current, false))
-            await actions.join(game, message, chat, amount, players, whatsapp);
+            await actions.join(game, message, chat, amount, players);
         } else {
-          await actions.join(game, message, chat, amount, players, whatsapp);
+          await actions.join(game, message, chat, amount, players);
         }
       }
       break;
@@ -97,7 +97,7 @@ async function router({ whatsapp, message, chat, game, current }) {
         await actions.fold(game, message, whatsapp, current);
       break;
     default:
-      message.reply(constants.HELP_PRE_GAME);
+      message.reply(constants.HELP);
       break;
   }
 }

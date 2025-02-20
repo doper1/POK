@@ -1,0 +1,33 @@
+K8s cluster for the microservice and dedicated server for the Database
+
+K8s:
+
+                  /- --------- Pok + Imagen ----\
+Controller --Cache-- --------- Pok + Imagen ------------------ Shared session volume (Can sit on the controller)
+                  \- --------- Pok + Imagen ----/
+                              |
+                              |
+                              |
+                              |
+                              |
+                              |
+Dedicated DB:                 DB
+
+
+Total hardware needed:
+----------------------
+- 6 Servers:
+    1. Database
+    2. K8s Controller + shared session volume 
+    3. App server 1
+    4. App server 2
+    5. App server 3
+    6. Centralized Cache
+
+- 6 Ethernet sockets (1 switch)
+- 6 Ethernet cables
+- 6 Power sockets (1 distributer)
+- 6 Power suppliers (Come with the servers)
+
+
+

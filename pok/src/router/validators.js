@@ -51,10 +51,14 @@ function end(game, message) {
 }
 
 async function join(game, message, amount, players) {
-  if (players.some((player) => player.userId === message.author)) {
+  const player = players.find((player) => player.userId === message.author);
+
+  if (player) {
     let newMessage = 'You have already joined the game';
 
-    if (!Number.isNaN(amount)) newMessage += '\nBuy some chips instead';
+    if (!Number.isNaN(amount) && player.gameMoney === 0) {
+      newMessage += '\nBuy some chips instead';
+    }
 
     return replyError(message, newMessage);
   }

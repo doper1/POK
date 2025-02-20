@@ -14,10 +14,20 @@ function printCards(cards) {
   })*`;
 }
 
-async function generateCards(cards, path) {
+async function generateCards(cards, path, title = undefined) {
   return new Promise((resolve) => {
     let bin;
-    let cmd1Args = [
+    if (os.type().includes('Windows')) {
+      bin = 'magick';
+    } else {
+      bin = 'convert';
+    }
+
+    let cmd1Args = [];
+    for (const card of cards) {
+      cmd1Args.push(`cards/${card[0]}${card[1]}.png`);
+    }
+    cmd1Args.push(
       '-border',
       '30',
       '-resize',
@@ -28,18 +38,23 @@ async function generateCards(cards, path) {
       '100',
       '+append',
       '-',
-    ];
-    const cmd2Args = ['-', '-border', '15x15', '-strip', path];
+    );
 
-    if (os.type().includes('Windows')) {
-      bin = 'magick';
-    } else {
-      bin = 'convert';
+    let cmd2Args = ['-', '-border', '40x20', '-strip'];
+
+    if (title) {
+      cmd2Args.push(
+        '-gravity',
+        'North',
+        '-pointsize',
+        '48',
+        '-annotate',
+        '0',
+        title,
+      );
     }
 
-    for (const card of cards) {
-      cmd1Args.unshift(`cards/${card[0]}${card[1]}.png`);
-    }
+    cmd2Args.push(path);
 
     let cmd1 = spawn(bin, cmd1Args);
     let cmd2 = spawn(bin, cmd2Args);
@@ -52,7 +67,7 @@ async function generateCards(cards, path) {
   });
 }
 
-async function getCards(cards) {
+async function getCards(cards, title = undefined) {
   if (!cards.length) {
     return new Promise((resolve) => resolve(''));
   }
@@ -63,7 +78,7 @@ async function getCards(cards) {
     if (fs.existsSync(path)) {
       resolve(MessageMedia.fromFilePath(path));
     } else {
-      resolve(await generateCards(cards, path));
+      resolve(await generateCards(cards, path, title));
     }
   });
 }
@@ -156,6 +171,7 @@ function isStraight(cards) {
   }
   return false;
 }
+
 function isStraightFlush(cards) {
   let flushCards = isFlush(cards);
   if (flushCards == false) return false;
