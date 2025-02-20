@@ -12,8 +12,9 @@ module.exports.PLAYER_STATUSES = [
   'middle join',
 ];
 
-module.exports.STILL_PLAYING_STATUSES = ['pending', 'played'];
-module.exports.IN_THE_GAME_STATUSES = ['pending', 'played', 'all in'];
+module.exports.PLAYER_STILL_PLAYING_STATUSES = ['pending', 'played'];
+module.exports.PLAYER_IN_THE_GAME_STATUSES = ['pending', 'played', 'all in'];
+module.exports.PLAYER_NOT_AT_THE_TABLE_STATUSES = ['no money', 'middle join'];
 module.exports.MESSAGE_MAX_AGE = 30;
 module.exports.LOCK_MAX_AGE = 22;
 module.exports.MAX_PLAYERS = 23;
@@ -136,9 +137,9 @@ Your goal is to translate it to a command.
 The possible commands are:
 pok check - checks the actions and move the turn to the next player.
 pok call - calls the current bet
-pok all (in) - puts all your chips in the pot
+pok all in - puts all your chips in the pot
 pok raise [amount] - raises the specified amount. Can be:
--  Some Numeric value
+-  Some Numeric value such as '1', '2', '3', '4'
 - 'pot', 'double', 'triple', 'quadruple', 'half', 'third', 'quarter'
 - X pots -> a fitting word. For example: 2 pots -> 'double', 3 pots -> 'triple', 4 pots -> 'quadruple'
 
@@ -159,6 +160,12 @@ Answer either:
 
 Don't include any extra data in your answer
 For non-humanly readable messages return 'not related'
+
+
+examples:
+start -> pok start
+raise 4 -> pok raise 4
+How to play -> pok help
 `;
 
 module.exports.ANSWER_SYSTEM_MESSAGE = `

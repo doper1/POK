@@ -124,8 +124,8 @@ class Game {
 
     let template = `*Players  |  Stack  |   Money*
 {{#players}}{{index}}. @{{name}}I \${{stack}} I \${{money}}\n{{/players}}\n
-Small Blind: \${{smallBlind}}
-Big Blind: \${{bigBlind}}`;
+🔵 Small Blind: \${{smallBlind}}
+🟡 Big Blind: \${{bigBlind}}`;
     return Mustache.render(template, {
       players,
       smallBlind: this.smallBlind,
@@ -146,7 +146,7 @@ Big Blind: \${{bigBlind}}`;
     let i = 1;
 
     do {
-      if (current.status === 'no money') {
+      if (constants.PLAYER_NOT_AT_THE_TABLE_STATUSES.includes(current.status)) {
         current = players[current.nextPlayer];
         continue;
       }
@@ -155,7 +155,9 @@ Big Blind: \${{bigBlind}}`;
 
       if (current.userId === this.currentPlayer) {
         orderString += `_*`;
-      } else if (current.status === 'folded') {
+      } else if (
+        !constants.PLAYER_IN_THE_GAME_STATUSES.includes(current.status)
+      ) {
         orderString += `~`;
       }
 
@@ -172,7 +174,9 @@ Big Blind: \${{bigBlind}}`;
 
       if (current.userId === this.currentPlayer) {
         orderString += `*_`;
-      } else if (current.status === 'folded') {
+      } else if (
+        constants.PLAYER_NOT_AT_THE_TABLE_STATUSES.includes(current.status)
+      ) {
         orderString += `~`;
       }
 
@@ -181,8 +185,8 @@ Big Blind: \${{bigBlind}}`;
 
     let template = `*Pot:* \${{mainPot}}\n
 *Playing Order  |  Bet  |  Stack* {{orderString}}\n
-Small Blind: \${{smallBlind}}
-Big Blind: \${{bigBlind}}`;
+🔵 Small Blind: \${{smallBlind}}
+🟡 Big Blind: \${{bigBlind}}`;
 
     return [
       await cardsFunctions.getCards(this.communityCards),
@@ -227,7 +231,8 @@ Big Blind: \${{bigBlind}}`;
 
   async dealCards(whatsapp, players) {
     for (const player of players) {
-      if (player.status === 'no money') continue;
+      if (!constants.PLAYER_STILL_PLAYING_STATUSES.includes(player.status))
+        continue;
 
       await this.deal(player.userId, whatsapp);
     }
@@ -254,14 +259,14 @@ Big Blind: \${{bigBlind}}`;
       return;
     }
 
-    // Initiate new hand
+    // ---- Initiate new hand ----
     let template = `{{lastRoundMessage}}\n
 {{order}}\n
 Check your DM for your cards 🤫\n
 Action on @{{id}} (\${{money}})`;
 
-    let playersCount = players.filter(
-      (player) => player.status !== 'no money',
+    let playersCount = players.filter((player) =>
+      constants.PLAYER_STILL_PLAYING_STATUSES.includes(player.status),
     ).length;
 
     // Move button and set SB
@@ -275,7 +280,9 @@ Action on @{{id}} (\${{money}})`;
     await this.putBlinds(smallBlind);
     let firstPlayer = await this.getFirstPlayer();
 
-    firstPlayer = await this.getNextPlayer(firstPlayer);
+    if (!constants.PLAYER_STILL_PLAYING_STATUSES.includes(firstPlayer.status)) {
+      firstPlayer = await this.getNextPlayer(firstPlayer);
+    }
 
     const [mainPot] = await Promise.all([
       Pot.get(this.mainPot),
@@ -348,7 +355,9 @@ Action on @{{id}} (\${{money}})`;
   async getNextPlayer(current) {
     let nextPlayer = await this.getPlayer(current.nextPlayer);
 
-    while (!constants.STILL_PLAYING_STATUSES.includes(nextPlayer.status)) {
+    while (
+      !constants.PLAYER_STILL_PLAYING_STATUSES.includes(nextPlayer.status)
+    ) {
       nextPlayer = await this.getPlayer(nextPlayer.nextPlayer);
     }
 
@@ -427,7 +436,7 @@ Action on @{{id}} (\${{money}})`;
     const next = await this.getPlayer(current.nextPlayer);
     let playerCount = players.reduce(
       (count, player) => {
-        if (player.status === 'folded' || player.status === 'no money') {
+        if (!constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status)) {
           count.outs += 1;
           return count;
         }
@@ -533,6 +542,7 @@ Action on @{{id}} (\${{money}})`;
   }
 
   async resetPlayersStatus(isNewHand = false) {
+    // TODO improve efficiency, maybe separate to different functions
     let players = await gameRepo.getPlayers(this.id);
 
     for (let player of players) {
@@ -567,7 +577,7 @@ Action on @{{id}} (\${{money}})`;
 
     let current = await this.getFirstPlayer();
 
-    while (!constants.STILL_PLAYING_STATUSES.includes(current.status)) {
+    while (!constants.PLAYER_STILL_PLAYING_STATUSES.includes(current.status)) {
       current = await this.getPlayer(current.nextPlayer);
     }
 
@@ -599,7 +609,7 @@ Action on @{{id}} (\${{money}})`;
     let newMessage = `*Pot:* $${mainPot.value}\n\n${actionMessage}\n\n`;
 
     players.forEach((player) => {
-      if (player.status !== 'folded') {
+      if (constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status)) {
         newMessage += `${cardsFunctions.formatHand(
           player.userId,
           player.holeCards,

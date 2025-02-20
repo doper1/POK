@@ -27,7 +27,7 @@ async function end(game, message, chat) {
   await chat.sendMessage('⚠️  Game ending after this hand ⚠️ ');
 }
 
-async function join(game, message, chat, amount, players, whatsapp) {
+async function join(game, message, chat, amount, players) {
   let template = `Hi @{{name}}, welcome to the game!`;
 
   if (!(await User.get(message.author))) {
@@ -44,30 +44,32 @@ async function join(game, message, chat, amount, players, whatsapp) {
   }
 
   if (!Number.isInteger(amount)) {
-    template += `\n\nyou may buy some Chips`;
+    template += `\nyou may buy some Chips`;
   } else {
-    template += `\n\nYou bought \${{amount}}`;
+    template += `\nYou bought \${{amount}}`;
     await player.buy(amount, 'pending');
   }
 
   if (game.status === 'running') {
+    template +=
+      '\n\nYou joined in the middle of a hand, wait for the next one to start!';
     await game.addPlayerMidGame(player.userId);
 
-    if (
-      game.smallBlind + game.bigBlind === (await Pot.get(game.mainPot)).value &&
-      Number.isInteger(amount)
-    ) {
-      template += `\n\nCheck your DM for your cards 🤫
-${constants.SEPARATOR}
-{{orderMessage}}`;
+    // if (
+    //   game.smallBlind + game.bigBlind === (await Pot.get(game.mainPot)).value &&
+    //   Number.isInteger(amount)
+    // ) {
+    //   template += `\n\nCheck your DM for your cards 🤫
+    // ${constants.SEPARATOR}
+    // {{orderMessage}}`;
 
-      await game.deal(message.author, whatsapp);
-      await player.set('status', 'pending');
+    //   await game.deal(message.author, whatsapp);
+    //   await player.set('status', 'pending');
 
-      notifyImagen('start', game.id);
-    }
-  } else {
-    await player.set('status', 'middle join');
+    //   notifyImagen('start', game.id);
+    // } else {
+    //   await player.set('status', 'middle join');
+    // }
   }
 
   const newMessage = Mustache.render(template, {
@@ -142,26 +144,29 @@ async function buy(game, message, chat, amount, current) {
       amount: amount,
     });
   } else {
-    if (
-      game.smallBlind + game.bigBlind ===
-      (await Pot.get(game.mainPot)).value
-    ) {
-      if (current.holeCards.length === 0) {
-        template += `\n\nCheck your DM for your cards 🤫
-${constants.SEPARATOR}
-{{orderMessage}}`;
+    //     if (
+    //       game.smallBlind + game.bigBlind ===
+    //       (await Pot.get(game.mainPot)).value
+    //     ) {
+    //       if (current.holeCards.length === 0) {
+    //         template += `\n\nCheck your DM for your cards 🤫
+    // ${constants.SEPARATOR}
+    // {{orderMessage}}`;
 
-        await game.deal(message.author, whatsapp);
-        await current.set('status', 'pending');
-      }
+    //         await game.deal(message.author, whatsapp);
+    //         await current.set('status', 'pending');
+    //       }
 
-      await current.buy(amount, 'pending');
+    //       await current.buy(amount, 'pending');
 
-      notifyImagen('start', game.id);
-    } else {
-      template += `\nit will be added at the next hand`;
-      await current.buy(amount, 'running');
-    }
+    //       notifyImagen('start', game.id);
+    //     } else {
+    //       template += `\nit will be added on the next hand`;
+    //       await current.buy(amount, 'running');
+    //     }
+
+    template += `\nit will be added on the next hand`;
+    await current.buy(amount, 'running');
 
     newMessage = Mustache.render(template, {
       name: current.userId,
