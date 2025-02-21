@@ -199,6 +199,7 @@ async function messageToCommand(body) {
     const cachedResult = await redis.get(cacheKey);
 
     if (cachedResult) {
+      console.log(`Cached result found for ${cachedResult}:`, cachedResult);
       await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
       return processOutput(cachedResult);
     }

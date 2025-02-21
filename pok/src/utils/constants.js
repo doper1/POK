@@ -136,7 +136,7 @@ module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translat
   a word (e.g., pot, double, triple, quadruple, half, third, quarter), or a phrase like "2 pots" (meaning double, etc.).
 - pok fold – Fold your hand.
 - pok buy [amount] – Buy chips for the table.
-- pok help – Show available commands.
+- pok help – Explains how to play.
 - pok start – Start the game.
 - pok join [amount] – Join the game (optionally buying chips with the given amount).
 - pok show – Display the pot value, players, order, statuses, bets, and current player.
@@ -145,7 +145,7 @@ module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translat
 - pok small [amount] – Set the small blind.
 - pok big [amount] – Set the big blind.
 
-If the message isn’t clearly poker-related or is non-readable, output not related.
+If the message isn’t clearly poker-related or is non-readable, output 'not related'.
 `;
 
 module.exports.ANSWER_SYSTEM_MESSAGE = `
