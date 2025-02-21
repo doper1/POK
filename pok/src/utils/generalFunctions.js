@@ -58,6 +58,17 @@ function isGameRunning(gameStatus, message) {
   return true;
 }
 
+/**
+ * Delays the execution of the next promise in the chain by the specified amount of milliseconds.
+ *
+ * @function delay
+ * @param {number} ms - The number of milliseconds to delay.
+ * @returns {Promise} A promise that resolves after the specified delay.
+ *
+ * @example
+ * delay(1000)
+ *   .then(() => console.log('1 second has passed'));
+ */
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

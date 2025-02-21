@@ -1,5 +1,5 @@
 const constants = require('./constants');
-const { getProperties, currentTime } = require('./generalFunctions');
+const { getProperties, currentTime, delay } = require('./generalFunctions');
 const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
@@ -54,8 +54,10 @@ function validateEnvVariables() {
 
 function validateEnv(groupName) {
   return (
-    (process.env.ENV === 'dev' && groupName.startsWith('POKDEV')) ||
-    (process.env.ENV === 'prod' && !groupName.startsWith('POKDEV'))
+    (process.env.ENV.toLowerCase().startsWith('dev') &&
+      groupName.startsWith('POKDEV')) ||
+    (process.env.ENV.toLowerCase().startsWith('prod') &&
+      !groupName.startsWith('POKDEV'))
   );
 }
 
@@ -73,9 +75,13 @@ async function validateLock(game) {
     // For cases where a game still has a lock because of an external error
     await unlockGame(game);
     return true;
-  } else {
-    return false;
   }
+
+  // Wait for other request to process and remove the lock
+  await delay(500);
+
+  // Check the state of the lock again
+  await validateLock(game);
 }
 
 function logMessage(message, chatName, messageLevel) {
