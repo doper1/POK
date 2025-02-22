@@ -69,13 +69,13 @@ jobs:
             history -w
 
             sudo docker compose pull api
-            sudo docker compose stop api
+            sudo docker compose stop api cache
 
             cd /pok/pok
             npm run db:migrate
             cd /pok
 
-            sudo docker compose up api -d
+            sudo docker compose up api cache -d
             sudo docker image prune -f
 
             mkdir -p /pok/backups

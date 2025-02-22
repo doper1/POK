@@ -175,7 +175,7 @@ class Game {
       if (current.userId === this.currentPlayer) {
         orderString += `*_`;
       } else if (
-        constants.PLAYER_NOT_AT_THE_TABLE_STATUSES.includes(current.status)
+        !constants.PLAYER_IN_THE_GAME_STATUSES.includes(current.status)
       ) {
         orderString += `~`;
       }
@@ -262,7 +262,7 @@ class Game {
     // ---- Initiate new hand ----
     let template = `{{lastRoundMessage}}\n
 {{order}}\n
-Check your DM for your cards 🤫\n
+I sent you your cards 🤫\n
 Action on @{{id}} (\${{money}})`;
 
     let playersCount = players.filter((player) =>
@@ -468,11 +468,7 @@ Action on @{{id}} (\${{money}})`;
     }
 
     // Next player is all-in, folded, or joined mid round (there for action should be passed to the next player)
-    if (
-      next.status === 'all in' ||
-      next.status === 'folded' ||
-      next.status === 'no money'
-    ) {
+    if (!constants.PLAYER_STILL_PLAYING_STATUSES.includes(next.status)) {
       await this.set('currentPlayer', next.userId);
       await this.updateRound(whatsapp, actionMessage);
       return;

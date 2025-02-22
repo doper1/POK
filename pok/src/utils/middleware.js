@@ -163,7 +163,7 @@ async function translate(body, systemMessage) {
             content: `${body}`,
           },
         ],
-        temperature: 0.9,
+        temperature: 1,
       })
     ).choices[0]?.message?.content;
   } catch (e) {
@@ -181,8 +181,7 @@ async function translate(body, systemMessage) {
             content: `${body}`,
           },
         ],
-
-        temperature: 0.9,
+        temperature: 1,
       })
     ).choices[0]?.message?.content;
   }
@@ -192,22 +191,40 @@ function processOutput(body) {
   return body.split(' ').filter((word) => word != '' && word !== '\n');
 }
 
+// Initialize Redis with automatic reconnection support
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   password: process.env.REDIS_PASSWORD,
+  retryStrategy: (times) => Math.min(times * 50, 2000),
+  reconnectOnError: () => true,
+});
+
+// Listen for Redis events
+redis.on('error', (err) => {
+  console.error('Redis error:', err);
+});
+
+redis.on('connect', () => {
+  console.log('Redis connected');
+});
+
+redis.on('end', () => {
+  console.warn('Redis connection ended');
 });
 
 async function messageToCommand(body) {
   const cacheKey = body.join('_').toLowerCase();
   const isCacheValid = body.length <= 6 && body.join('').length <= 40;
 
-  if (isCacheValid) {
-    const cachedResult = await redis.get(cacheKey);
-
-    if (cachedResult) {
-      console.log(`Cached result found for ${cachedResult}:`, cachedResult);
-      await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
-      return processOutput(cachedResult);
+  if (isCacheValid && redis.status === 'ready') {
+    try {
+      const cachedResult = await redis.get(cacheKey);
+      if (cachedResult) {
+        await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
+        return processOutput(cachedResult);
+      }
+    } catch (err) {
+      console.error('Redis get error:', err);
     }
   }
 
@@ -216,14 +233,17 @@ async function messageToCommand(body) {
     constants.TRANSLATE_SYSTEM_MESSAGE,
   );
 
-  if (isCacheValid) {
-    await redis.set(cacheKey, output);
-    await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
+  if (isCacheValid && redis.status === 'ready') {
+    try {
+      await redis.set(cacheKey, output);
+      await redis.zadd(constants.DATE_CACHE_NAME, Date.now(), cacheKey);
 
-    const cacheSize = await redis.zcard(constants.DATE_CACHE_NAME);
-
-    if (cacheSize > constants.MAX_CACHE_ENTRIES) {
-      await trimCache();
+      const cacheSize = await redis.zcard(constants.DATE_CACHE_NAME);
+      if (cacheSize > constants.MAX_CACHE_ENTRIES) {
+        await trimCache();
+      }
+    } catch (err) {
+      console.error('Redis set error:', err);
     }
   }
 
@@ -231,17 +251,20 @@ async function messageToCommand(body) {
 }
 
 async function trimCache() {
-  const keysToRemove = constants.MAX_CACHE_ENTRIES / 5; // Remove 5% of max cache size
+  try {
+    const keysToRemove = Math.floor(constants.MAX_CACHE_ENTRIES / 5); // Remove 5% of max cache size
+    const oldestKeys = await redis.zrange(
+      constants.DATE_CACHE_NAME,
+      0,
+      keysToRemove - 1,
+    );
 
-  const oldestKeys = await redis.zrange(
-    constants.DATE_CACHE_NAME,
-    0,
-    keysToRemove - 1,
-  );
-
-  if (oldestKeys.length > 0) {
-    await redis.del(...oldestKeys);
-    await redis.zrem(constants.DATE_CACHE_NAME, ...oldestKeys);
+    if (oldestKeys.length > 0) {
+      await redis.del(...oldestKeys);
+      await redis.zrem(constants.DATE_CACHE_NAME, ...oldestKeys);
+    }
+  } catch (err) {
+    console.error('Redis trim cache error:', err);
   }
 }
 
