@@ -1,0 +1,1 @@
+ALTER TABLE "player" ALTER COLUMN "current_bet" SET DEFAULT 0;
