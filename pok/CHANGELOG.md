@@ -1,5 +1,19 @@
 # Changelog
 
+## [7.7.0](https://github.com/doper1/POK/compare/POK@v7.6.7...POK@v7.7.0) (2025-02-23)
+
+
+### Features
+
+* **pok:** special events handlers ([ba20801](https://github.com/doper1/POK/commit/ba20801ef54b9dd9cd892c658fad221a045dfe09))
+
+
+### Bug Fixes
+
+* **pok:** re-check lock ([3d6f5cb](https://github.com/doper1/POK/commit/3d6f5cbc3aa56518c8e6ab194bed1ac9a56d080f))
+* **pok:** system message optimization ([cbb9762](https://github.com/doper1/POK/commit/cbb9762f8ab230545c412f303b30da9be3afd290))
+* **pok:** system propt and redis intergation ([7955c9d](https://github.com/doper1/POK/commit/7955c9dbcdbddecb4e059b29211e2a3dce452fcb))
+
 ## [7.6.7](https://github.com/doper1/POK/compare/POK@v7.6.6...POK@v7.6.7) (2025-02-20)
 
 
