@@ -82,39 +82,10 @@ function randomWinnerKey(possibleWinners) {
   return possibleWinners[rand(possibleWinners.length)];
 }
 
-async function showdown(game) {
-  let pots = await reorgPots(game);
-  let winners = await calcWinners(game, pots);
-  let newCards;
-  let message = '';
-
-  const template = `Congrats! @{{winner}} Won \${{winnings}}
-with {{holeCards}}:
-{{handStrength}}
-${constants.SEPARATOR}`;
-
-  for (const index in winners) {
-    let player = winners[index];
-
-    if (player.winnings === 0) continue;
-    if (message.length > 0) message += '\n';
-
-    newCards = await cardsFunctions.getCards(
-      Object.values(winners)[0].cards,
-      'Winning Hand',
-    );
-
-    const winnerData = {
-      winner: player.userId,
-      winnings: player.winnings,
-      holeCards: cardsFunctions.printCards(player.holeCards),
-      handStrength: constants.STRENGTH_DICT[player.strength],
-    };
-
-    message += Mustache.render(template, winnerData);
-  }
-
-  return { endMessage: message, newCards };
+async function getLastPlayers(game) {
+  return (await game.getPlayers()).filter((player) =>
+    constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status),
+  );
 }
 
 async function reorgPots(game) {
@@ -225,16 +196,39 @@ async function qualifyToAllInsPots(game, amount, current) {
   await Promise.all(promises);
 }
 
-async function getLastPlayers(game) {
-  // let mainPot = await Pot.get(game.mainPot);
-  return (await game.getPlayers()).filter((player) =>
-    constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status),
-  );
-  // !(
-  //   player.status === 'folded' ||
-  //   (player.status === 'all in' &&
-  //     (player.currentBet == 0 || player.currentBet < mainPot.highestBet))
-  // ),
+async function showdown(game) {
+  let pots = await reorgPots(game);
+  let winners = await calcWinners(game, pots);
+  let newCards;
+  let message = '';
+
+  const template = `Congrats! @{{winner}} Won \${{winnings}}
+with {{holeCards}}:
+{{handStrength}}
+${constants.SEPARATOR}`;
+
+  for (const index in winners) {
+    let player = winners[index];
+
+    if (player.winnings === 0) continue;
+    if (message.length > 0) message += '\n';
+
+    newCards = await cardsFunctions.getCards(
+      Object.values(winners)[0].cards,
+      'Winning Hand',
+    );
+
+    const winnerData = {
+      winner: player.userId,
+      winnings: player.winnings,
+      holeCards: cardsFunctions.printCards(player.holeCards),
+      handStrength: constants.STRENGTH_DICT[player.strength],
+    };
+
+    message += Mustache.render(template, winnerData);
+  }
+
+  return { endMessage: message, newCards };
 }
 
 module.exports = {

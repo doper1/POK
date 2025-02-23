@@ -136,10 +136,7 @@ async function unlockGame(game) {
 
 async function getGame(chatId, chatName = '') {
   let game = await Game.get(chatId);
-  if (!game) {
-    game = await Game.create(chatId, chatName);
-  }
-
+  if (!game) game = await Game.create(chatId, chatName);
   return game;
 }
 

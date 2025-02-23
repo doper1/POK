@@ -105,7 +105,7 @@ whatsapp.on('message', async (msg) => {
 
     middleware.logMessage(msg.body, msg.from, chat.name, 'success');
 
-    if (process.env.env === 'dev') {
+    if (process.env.ENV.toLocaleLowerCase().startsWith('dev')) {
       console.log(`DEV translated message: ${output}`);
     } else {
       msg.reply(output);
@@ -122,6 +122,11 @@ whatsapp.on('group_join', async (event) => {
   const chatId = event.chatId.split('@')[0];
   const playerId = event.id.participant.split('@')[0];
   const chatName = (await whatsapp.getChatById(event.chatId)).name;
+
+  if (!middleware.validateEnv(chatName)) {
+    return;
+  }
+
   const game = await middleware.getGame(chatId, chatName);
 
   try {
@@ -147,11 +152,15 @@ whatsapp.on('group_leave', async (event) => {
   const playerId = event.id.participant.split('@')[0];
   const game = await middleware.getGame(chatId);
   const groupName = game.groupName;
-  const current = await game.getPlayer(playerId);
-  const players = await game.getPlayers();
+
+  if (!middleware.validateEnv(groupName)) {
+    return;
+  }
 
   if (event.id.participant.startsWith(process.env.PHONE_NUMBER)) {
     try {
+      const players = await game.getPlayers();
+
       // Refund all players by "exiting" them.
       for (const player of players) {
         await actions.exit(game, player, whatsapp, true);
@@ -184,6 +193,8 @@ whatsapp.on('group_leave', async (event) => {
   }
 
   try {
+    const current = await game.getPlayer(playerId);
+
     if (current !== undefined) {
       await actions.exit(game, current, whatsapp, false);
     }
@@ -201,12 +212,17 @@ whatsapp.on('group_leave', async (event) => {
 
 // Update the name of a group on name change
 whatsapp.on('group_update', async (event) => {
+  const chatId = event.chatId.split('@')[0];
+  const chatName = (await whatsapp.getChatById(event.chatId)).name;
+  const game = await middleware.getGame(chatId, chatName);
+  const oldName = game.groupName;
+
+  if (!middleware.validateEnv(oldName)) {
+    return;
+  }
+
   switch (event.type) {
     case 'subject': {
-      const chatId = event.chatId.split('@')[0];
-      const game = await middleware.getGame(chatId);
-      const oldName = game.groupName;
-
       try {
         await game.set('groupName', event.body);
         middleware.logMessage(
