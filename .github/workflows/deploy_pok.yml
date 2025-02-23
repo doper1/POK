@@ -52,6 +52,7 @@ jobs:
             cd /pok
 
             echo ENV=prod > /pok/.env
+            echo PHONE_NUMBER="${{ secrets.PHONE_NUMBER }}" >> /pok/.env
             echo POSTGRES_HOST=localhost >> /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env
@@ -69,13 +70,13 @@ jobs:
             history -w
 
             sudo docker compose pull api
-            sudo docker compose stop api
+            sudo docker compose stop api cache
 
             cd /pok/pok
             npm run db:migrate
             cd /pok
 
-            sudo docker compose up api -d
+            sudo docker compose up api cache -d
             sudo docker image prune -f
 
             mkdir -p /pok/backups

@@ -44,7 +44,9 @@ const user = pgTable('user', {
 const player = pgTable(
   'player',
   {
-    gameId: varchar('game_id', { length: 256 }).references(() => game.id),
+    gameId: varchar('game_id', { length: 256 }).references(() => game.id, {
+      onDelete: 'cascade',
+    }),
     userId: varchar('user_id', { length: 12 }).references(() => user.id),
     gameMoney: integer('game_money').default(0),
     currentBet: integer('current_bet').default(0),
@@ -69,7 +71,9 @@ const player = pgTable(
 // TABLE: pot
 const pot = pgTable('pot', {
   id: uuid('id').defaultRandom().primaryKey(),
-  gameId: varchar('game_id', { length: 256 }).references(() => game.id),
+  gameId: varchar('game_id', { length: 256 }).references(() => game.id, {
+    onDelete: 'cascade',
+  }),
   value: integer('value'),
   highestBet: integer('highest_bet'),
 });
@@ -78,7 +82,7 @@ const pot = pgTable('pot', {
 const participant = pgTable(
   'participant',
   {
-    potId: uuid('pot_id').references(() => pot.id),
+    potId: uuid('pot_id').references(() => pot.id, { onDelete: 'cascade' }),
     userId: varchar('user_id', { length: 12 }).references(() => user.id),
   },
   (table) => {
@@ -141,7 +145,6 @@ const potRelations = relations(pot, ({ one, many }) => ({
     references: [game.id],
     relationName: 'gameId',
   }),
-  // game: one(game, { relationName: 'mainPotId' }),
 }));
 
 const participantRelations = relations(participant, ({ one }) => ({

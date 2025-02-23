@@ -5,9 +5,18 @@ const Pot = require('../models/Pot.js');
 const participantRepo = require('../repositories/participantRepo.js');
 const { rand } = require('./generalFunctions.js');
 
+/**
+ * Checks if a player is a valid winner by verifying their presence in the list of participants.
+ *
+ * @param {Object} player - The player object to check.
+ * @param {Object[]} participants - An array of participant objects.
+ * @param {string} player.userId - The unique identifier of the player.
+ * @param {string} participant.userId - The unique identifier of each participant.
+ * @returns {boolean} Returns true if the player is found in the participants list, false otherwise.
+ */
 function isValidWinner(player, participants) {
   return participants.some(
-    (participant) => participant.userId == player.userId,
+    (participant) => participant.userId === player.userId,
   );
 }
 
@@ -35,6 +44,8 @@ function rakeToWinners(players, amount, winners, potWinners) {
 
 // Checking for ties and returning the right winner(s) accordingly
 function getWinners(players) {
+  if (!players || players.length === 0) return [];
+
   let winners = [players[0]];
 
   for (let i = 1; i < players.length; i++) {
@@ -85,7 +96,7 @@ ${constants.SEPARATOR}`;
   for (const index in winners) {
     let player = winners[index];
 
-    if (player[1] === 0) continue;
+    if (player.winnings === 0) continue;
     if (message.length > 0) message += '\n';
 
     newCards = await cardsFunctions.getCards(
@@ -124,7 +135,7 @@ async function reorgPots(game) {
   }
   pots.sort((a, b) => a.value - b.value);
 
-  // Reduce from each pot the amount cardsAof the pot before it to prevent handling players more then the pot is worth
+  // Reduce from each pot the amount of the pot before it to prevent handling players more then the pot is worth
   let lastRoundPot;
   for (const index in pots) {
     let pot = pots[index];

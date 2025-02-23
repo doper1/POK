@@ -6,8 +6,8 @@ module.exports.GAME_RUNNING_STATUSES = ['running', 'to end'];
 module.exports.PLAYER_STATUSES = [
   'pending',
   'played',
-  'folded',
   'all in',
+  'folded',
   'no money',
   'middle join',
 ];
@@ -16,7 +16,7 @@ module.exports.PLAYER_STILL_PLAYING_STATUSES = ['pending', 'played'];
 module.exports.PLAYER_IN_THE_GAME_STATUSES = ['pending', 'played', 'all in'];
 module.exports.PLAYER_NOT_AT_THE_TABLE_STATUSES = ['no money', 'middle join'];
 module.exports.MESSAGE_MAX_AGE = 30;
-module.exports.LOCK_MAX_AGE = 22;
+module.exports.LOCK_MAX_AGE = 16;
 module.exports.MAX_PLAYERS = 23;
 module.exports.BASE_MONEY = 1000;
 module.exports.SEPARATOR = '___________________';
@@ -34,7 +34,7 @@ module.exports.STRENGTH_DICT = {
 };
 module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
-module.exports.HELP = `🃏 *How to Play Poker on WhatsApp* 🃏  
+module.exports.HELP_MESSAGE = `🃏 *How to Play Poker on WhatsApp* 🃏  
 
 Use the following commands in your *WhatsApp group* to play:
 
@@ -136,7 +136,7 @@ module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translat
   a word (e.g., pot, double, triple, quadruple, half, third, quarter), or a phrase like "2 pots" (meaning double, etc.).
 - pok fold – Fold your hand.
 - pok buy [amount] – Buy chips for the table.
-- pok help – Show available commands.
+- pok help – Explains how to play.
 - pok start – Start the game.
 - pok join [amount] – Join the game (optionally buying chips with the given amount).
 - pok show – Display the pot value, players, order, statuses, bets, and current player.
@@ -145,8 +145,9 @@ module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translat
 - pok small [amount] – Set the small blind.
 - pok big [amount] – Set the big blind.
 
-If the message isn’t clearly poker-related or is non-readable, output not related.
-`;
+If the message isn’t clearly poker-related or is non-readable, output 'not related'.
+Translate messages to English before responding - But return only clean command.
+Differ between people talking to each other (not related) and commands`;
 
 module.exports.ANSWER_SYSTEM_MESSAGE = `
 You are a poker dealer on whatsapp that was designed to help people play poker comfortably on whatsapp.
