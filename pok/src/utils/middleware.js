@@ -134,12 +134,9 @@ async function unlockGame(game) {
   await game.set('lock', null);
 }
 
-async function getGame(chatId, chatName = '') {
+async function getGame(chatId, chatName) {
   let game = await Game.get(chatId);
-  if (!game) {
-    game = await Game.create(chatId, chatName);
-  }
-
+  if (!game) game = await Game.create(chatId, chatName);
   return game;
 }
 
