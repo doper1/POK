@@ -7,49 +7,36 @@ const Groq = require('groq-sdk');
 const Redis = require('ioredis');
 
 function validateEnvVariables() {
-  if (process.env.POSTGRES_HOST === undefined) {
-    throw new Error('Please set POSTGRES_HOST environment variable');
-  }
+  const requiredVars = [
+    'POSTGRES_HOST',
+    'POSTGRES_DB',
+    'POSTGRES_USER',
+    'POSTGRES_PASSWORD',
+    'ENV',
+    'PHONE_NUMBER',
+    'REDIS_PASSWORD',
+    'REDIS_HOST',
+  ];
 
-  if (process.env.POSTGRES_DB === undefined) {
-    throw new Error('Please set POSTGRES_DB environment variable');
-  }
+  requiredVars.forEach((key) => {
+    if (!process.env[key]) {
+      throw new Error(`Please set ${key} environment variable`);
+    }
+  });
 
-  if (process.env.POSTGRES_USER === undefined) {
-    throw new Error('Please set POSTGRES_USER environment variable');
-  }
-
-  if (process.env.POSTGRES_PASSWORD === undefined) {
-    throw new Error('Please set POSTGRES_PASSWORD environment variable');
-  }
-
-  if (process.env.ENV === undefined) {
-    throw new Error('Please set ENV environment variable');
-  }
-
-  if (process.env.REDIS_PASSWORD === undefined) {
-    throw new Error('Please set REDIS_PASSWORD environment variable');
-  }
-
-  if (process.env.REDIS_HOST === undefined) {
-    throw new Error('Please set REDIS_HOST environment variable');
-  }
-
-  if (process.env.IMAGEN_HOST === undefined) {
-    console.warn('Please set IMAGEN_HOST environment variable');
-  }
-
-  if (process.env.GROQ_API_KEY === undefined) {
-    console.warn(
+  const optionalWarnings = {
+    IMAGEN_HOST: 'Please set IMAGEN_HOST environment variable',
+    GROQ_API_KEY:
       'GROQ_API_KEY environment variable is not set\nprocesses will fail if no *_API_KEY is set',
-    );
-  }
-
-  if (process.env.OPENAI_API_KEY === undefined) {
-    console.warn(
+    OPENAI_API_KEY:
       'OPENAI_API_KEY environment variable is not set\nprocesses will fail if no *_API_KEY is set',
-    );
-  }
+  };
+
+  Object.entries(optionalWarnings).forEach(([key, message]) => {
+    if (!process.env[key]) {
+      console.warn(message);
+    }
+  });
 }
 
 function validateEnv(groupName) {
@@ -84,11 +71,21 @@ async function validateLock(game) {
   await validateLock(game);
 }
 
-function logMessage(message, chatName, messageLevel) {
+/**
+ * Logs a formatted message to the console with different log levels.
+ *
+ * @param {string} message - The content of the message to be logged.
+ * @param {string} author - The author or sender of the message.
+ * @param {string} chatName - The name of the chat or conversation.
+ * @param {string} messageLevel - The level of the message, determining how it's logged.
+ *                                Possible values: 'success', 'locked', 'invalid', 'error'.
+ * @returns {void}
+ */
+function logMessage(message, author, chatName, messageLevel) {
   const template = `CHAT: {{chatName}} || FROM: {{author}} || MESSAGE: {{body}}`;
   const values = {
     chatName,
-    author: message.author,
+    author: author,
     body: message,
   };
   const newMessage = Mustache.render(template, values);
@@ -101,13 +98,18 @@ function logMessage(message, chatName, messageLevel) {
       console.warn(newMessage);
       break;
     case 'invalid':
+    case 'error':
       console.error(newMessage);
       break;
   }
 }
 
 function filterWhatsapp(whatsapp) {
-  return getProperties(whatsapp, [], ['sendMessage', 'on', 'initialize']);
+  return getProperties(
+    whatsapp,
+    [],
+    ['sendMessage', 'on', 'initialize', 'getChatById'],
+  );
 }
 
 function filterMessage(message) {
@@ -132,10 +134,10 @@ async function unlockGame(game) {
   await game.set('lock', null);
 }
 
-async function getGame(chat) {
-  let game = await Game.get(chat.id.user);
+async function getGame(chatId, chatName = '') {
+  let game = await Game.get(chatId);
   if (!game) {
-    game = await Game.create(chat.id.user, chat.name);
+    game = await Game.create(chatId, chatName);
   }
 
   return game;

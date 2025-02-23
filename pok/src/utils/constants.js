@@ -34,7 +34,7 @@ module.exports.STRENGTH_DICT = {
 };
 module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
-module.exports.HELP = `🃏 *How to Play Poker on WhatsApp* 🃏  
+module.exports.HELP_MESSAGE = `🃏 *How to Play Poker on WhatsApp* 🃏  
 
 Use the following commands in your *WhatsApp group* to play:
 

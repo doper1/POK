@@ -39,7 +39,7 @@ async function router({ whatsapp, message, chat, game, current }) {
       break;
     case 'exit':
       if (await validators.exit(message, current))
-        await actions.exit(game, message, current, whatsapp);
+        await actions.exit(game, current, whatsapp, false, message);
       break;
     case 'start':
       if (await validators.start(game, chat, message))
@@ -97,7 +97,7 @@ async function router({ whatsapp, message, chat, game, current }) {
         await actions.fold(game, message, whatsapp, current);
       break;
     default:
-      message.reply(constants.HELP);
+      message.reply(constants.HELP_MESSAGE);
       break;
   }
 }

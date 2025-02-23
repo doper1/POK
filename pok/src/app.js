@@ -4,6 +4,7 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const middleware = require('./utils/middleware.js');
 const router = require('./router/index.js');
 const constants = require('./utils/constants');
+const actions = require('./router/actions.js');
 
 middleware.validateEnvVariables();
 
@@ -27,9 +28,9 @@ let whatsapp = new Client({
 whatsapp = middleware.filterWhatsapp(whatsapp);
 
 // message_create: in case you want to play with the number the bot is hosted on
-// message: will be more optimized- ignore all of it's own messages
+// message: will be more optimized - ignore all of its own messages
 whatsapp.on('message_create', async (msg) => {
-  if (msg.author == undefined) return; // Prevents replying to it's own replies and on private chats
+  if (msg.author == undefined) return; // Prevents replying to its own replies and on private chats
 
   const message = middleware.filterMessage(msg);
   const chat = middleware.filterChat(await msg.getChat());
@@ -39,14 +40,24 @@ whatsapp.on('message_create', async (msg) => {
   }
 
   if (!middleware.validateMessage(msg)) {
-    middleware.logMessage(message.body.join(' '), chat.name, 'invalid');
+    middleware.logMessage(
+      message.body.join(' '),
+      message.author,
+      chat.name,
+      'invalid',
+    );
     return;
   }
 
-  const game = await middleware.getGame(chat);
+  const game = await middleware.getGame(chat.id.user, chat.name);
 
   if (!(await middleware.validateLock(game))) {
-    middleware.logMessage(message.body.join(' '), chat.name, 'locked');
+    middleware.logMessage(
+      message.body.join(' '),
+      message.author,
+      chat.name,
+      'locked',
+    );
     return;
   }
 
@@ -58,7 +69,12 @@ whatsapp.on('message_create', async (msg) => {
     return;
   }
 
-  middleware.logMessage(message.body.join(' '), chat.name, 'success');
+  middleware.logMessage(
+    message.body.join(' '),
+    message.author,
+    chat.name,
+    'success',
+  );
 
   await middleware.lockGame(game);
 
@@ -77,6 +93,7 @@ whatsapp.on('message_create', async (msg) => {
   await middleware.unlockGame(game);
 });
 
+// Handle private messages
 whatsapp.on('message', async (msg) => {
   const chat = middleware.filterChat(await msg.getChat());
 
@@ -86,7 +103,7 @@ whatsapp.on('message', async (msg) => {
       constants.ANSWER_SYSTEM_MESSAGE,
     );
 
-    middleware.logMessage(msg.body, chat.name, 'success');
+    middleware.logMessage(msg.body, msg.from, chat.name, 'success');
 
     if (process.env.env === 'dev') {
       console.log(`DEV translated message: ${output}`);
@@ -95,6 +112,119 @@ whatsapp.on('message', async (msg) => {
     }
 
     return;
+  }
+});
+
+// ----- Special Event Handlers -----
+
+// When player is added/joined using invite, greet them with a helper message.
+whatsapp.on('group_join', async (event) => {
+  const chatId = event.chatId.split('@')[0];
+  const playerId = event.id.participant.split('@')[0];
+  const chatName = (await whatsapp.getChatById(event.chatId)).name;
+  const game = await middleware.getGame(chatId, chatName);
+
+  try {
+    await whatsapp.sendMessage(
+      `${game.id}@g.us`,
+      `*Welcome to the poker table!*\n\n${constants.HELP_MESSAGE}`,
+    );
+
+    middleware.logMessage(`EVENT Player join`, playerId, chatName, 'success');
+  } catch (error) {
+    middleware.logMessage(
+      `EVENT Player join error: ${error}`,
+      playerId,
+      chatName,
+      'error',
+    );
+  }
+});
+// When player leaves or is removed, exit them from the game.
+// If the bot is removed, delete the game data and exit all players.
+whatsapp.on('group_leave', async (event) => {
+  const chatId = event.chatId.split('@')[0];
+  const playerId = event.id.participant.split('@')[0];
+  const game = await middleware.getGame(chatId);
+  const groupName = game.groupName;
+  const current = await game.getPlayer(playerId);
+  const players = await game.getPlayers();
+
+  if (event.id.participant.startsWith(process.env.PHONE_NUMBER)) {
+    try {
+      // Refund all players by "exiting" them.
+      for (const player of players) {
+        await actions.exit(game, player, whatsapp, true);
+
+        middleware.logMessage(
+          `EVENT Exited player`,
+          player.userId,
+          groupName,
+          'success',
+        );
+      }
+
+      await game.delete();
+
+      middleware.logMessage(
+        `EVENT Chat removed and game data cleaned for group`,
+        'System',
+        groupName,
+        'success',
+      );
+    } catch (error) {
+      middleware.logMessage(
+        `EVENT Error handling chat removal: ${error}`,
+        'System',
+        groupName,
+        'error',
+      );
+    }
+    return;
+  }
+
+  try {
+    if (current !== undefined) {
+      await actions.exit(game, current, whatsapp, false);
+    }
+
+    middleware.logMessage(`EVENT Group leave`, playerId, groupName, 'success');
+  } catch (error) {
+    middleware.logMessage(
+      `EVENT Group leave error: ${error}`,
+      playerId,
+      groupName,
+      'error',
+    );
+  }
+});
+
+// Update the name of a group on name change
+whatsapp.on('group_update', async (event) => {
+  switch (event.type) {
+    case 'subject': {
+      const chatId = event.chatId.split('@')[0];
+      const game = await middleware.getGame(chatId);
+      const oldName = game.groupName;
+
+      try {
+        await game.set('groupName', event.body);
+        middleware.logMessage(
+          `EVENT Subject change: ${event.body}`,
+          event.id.participant,
+          oldName,
+          'success',
+        );
+      } catch (error) {
+        middleware.logMessage(
+          `EVENT Subject change error: ${error}`,
+          event.id.participant,
+          event.body,
+          'error',
+        );
+      }
+      break;
+    }
   }
 });
 

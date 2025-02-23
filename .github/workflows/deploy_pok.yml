@@ -52,6 +52,7 @@ jobs:
             cd /pok
 
             echo ENV=prod > /pok/.env
+            echo PHONE_NUMBER="${{ secrets.PHONE_NUMBER }}" >> /pok/.env
             echo POSTGRES_HOST=localhost >> /pok/.env
             echo POSTGRES_DB="${{ secrets.POSTGRES_DB }}" >> /pok/.env
             echo POSTGRES_USER="${{ secrets.POSTGRES_USER }}" >> /pok/.env

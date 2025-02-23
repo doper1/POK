@@ -47,6 +47,10 @@ class Game {
     await gameRepo.updateGame(this.id, property, value);
   }
 
+  async delete() {
+    await gameRepo.deleteGame(this.id);
+  }
+
   async getPlayer(id) {
     return await Player.get(this.id, id);
   }
@@ -124,8 +128,8 @@ class Game {
 
     let template = `*Players  |  Stack  |   Money*
 {{#players}}{{index}}. @{{name}}I \${{stack}} I \${{money}}\n{{/players}}\n
-🔵 Small Blind: \${{smallBlind}}
-🟡 Big Blind: \${{bigBlind}}`;
+🔹 Small Blind: \${{smallBlind}}
+🔸 Big Blind: \${{bigBlind}}`;
     return Mustache.render(template, {
       players,
       smallBlind: this.smallBlind,
@@ -185,8 +189,8 @@ class Game {
 
     let template = `*Pot:* \${{mainPot}}\n
 *Playing Order  |  Bet  |  Stack* {{orderString}}\n
-🔵 Small Blind: \${{smallBlind}}
-🟡 Big Blind: \${{bigBlind}}`;
+🔹 Small Blind: \${{smallBlind}}
+🔸 Big Blind: \${{bigBlind}}`;
 
     return [
       await cardsFunctions.getCards(this.communityCards),

@@ -101,6 +101,10 @@ async function addPlayerMidGame(gameId, userId) {
   });
 }
 
+async function deleteGame(gameId) {
+  await db.delete(game).where(eq(game.id, gameId));
+}
+
 module.exports = {
   createGame,
   getGame,
@@ -112,4 +116,5 @@ module.exports = {
   addCommunityCards,
   getUsers,
   addPlayerMidGame,
+  deleteGame,
 };
