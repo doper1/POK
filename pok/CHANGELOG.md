@@ -1,5 +1,13 @@
 # Changelog
 
+## [7.7.1](https://github.com/doper1/POK/compare/POK@v7.7.0...POK@v7.7.1) (2025-02-23)
+
+
+### Bug Fixes
+
+* **pok:** cards handling ([430873f](https://github.com/doper1/POK/commit/430873fe2c55cd227f7e315d113c7962cbe1a647))
+* **pok:** event handlers by env ([bd79ee9](https://github.com/doper1/POK/commit/bd79ee9a2dc038b185d54a228eee58e1ab63f3f4))
+
 ## [7.7.0](https://github.com/doper1/POK/compare/POK@v7.6.7...POK@v7.7.0) (2025-02-23)
 
 
