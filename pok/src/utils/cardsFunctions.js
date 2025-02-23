@@ -253,30 +253,37 @@ function isPair(cards) {
 }
 
 function getHandStrength(tempCards) {
-  let hand;
-  if ((hand = isStraightFlush(tempCards))) {
+  let hand = isStraightFlush(tempCards);
+  if (hand) {
     let type = hand[0][0];
     // Check for royal flush (contains both King and Ace).
-    if (isCardInCards([type, 13], hand) && isCardInCards([type, 14], hand))
+    if (isCardInCards([type, 13], hand) && isCardInCards([type, 14], hand)) {
       return { strength: 0, cards: hand };
-    else {
+    } else {
       return { strength: 1, cards: hand };
     }
   }
 
-  if ((hand = isFourOfAKind(tempCards))) return { strength: 2, cards: hand };
+  hand = isFourOfAKind(tempCards);
+  if (hand) return { strength: 2, cards: hand };
 
-  if ((hand = isFullHouse(tempCards))) return { strength: 3, cards: hand };
+  hand = isFullHouse(tempCards);
+  if (hand) return { strength: 3, cards: hand };
 
-  if ((hand = isFlush(tempCards))) return { strength: 4, cards: hand };
+  hand = isFlush(tempCards);
+  if (hand) return { strength: 4, cards: hand };
 
-  if ((hand = isStraight(tempCards))) return { strength: 5, cards: hand };
+  hand = isStraight(tempCards);
+  if (hand) return { strength: 5, cards: hand };
 
-  if ((hand = isThreeOfAKind(tempCards))) return { strength: 6, cards: hand };
+  hand = isThreeOfAKind(tempCards);
+  if (hand) return { strength: 6, cards: hand };
 
-  if ((hand = isTwoPair(tempCards))) return { strength: 7, cards: hand };
+  hand = isTwoPair(tempCards);
+  if (hand) return { strength: 7, cards: hand };
 
-  if ((hand = isPair(tempCards))) return { strength: 8, cards: hand };
+  hand = isPair(tempCards);
+  if (hand) return { strength: 8, cards: hand };
 
   return { strength: 9, cards: tempCards.slice(0, 5) };
 }

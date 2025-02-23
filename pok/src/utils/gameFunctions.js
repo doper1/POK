@@ -20,9 +20,13 @@ function isValidWinner(player, participants) {
   );
 }
 
+/**
+ * Recursively distributes the given amount among the players.
+ * If no players remain, the remainder is awarded to a random winner from potWinners.
+ */
 function rakeToWinners(players, amount, winners, potWinners) {
   if (players.length === 0) {
-    // gives the reminder to a random winner (if there is a reminder)
+    // Give the remainder to a random winner (if any remainder exists)
     winners[randomWinnerKey(potWinners)].winnings += amount;
     return winners;
   }
@@ -34,15 +38,18 @@ function rakeToWinners(players, amount, winners, potWinners) {
       winnings: 0,
     };
   }
-  let winnings = (amount - (amount % players.length)) / players.length;
-  winners[player.userId].winnings += winnings;
+  const perPlayer = (amount - (amount % players.length)) / players.length;
+  winners[player.userId].winnings += perPlayer;
 
   players.splice(0, 1);
 
-  return rakeToWinners(players, amount - winnings, winners, potWinners);
+  return rakeToWinners(players, amount - perPlayer, winners, potWinners);
 }
 
-// Checking for ties and returning the right winner(s) accordingly
+/**
+ * Determines the winners among the players based on their hands.
+ * In case of a tie, all tying players are returned.
+ */
 function getWinners(players) {
   if (!players || players.length === 0) return [];
 
@@ -65,6 +72,10 @@ function getWinners(players) {
   return winners;
 }
 
+/**
+ * Compares two hands card-by-card.
+ * Returns 1 if hand1 is weaker than hand2, -1 if stronger, or 0 if equal.
+ */
 function compareHands(hand1, hand2) {
   for (let i = 0; i < hand1.length; i++) {
     let card1 = cardsFunctions.parseCardNumber(hand1[i])[1];
@@ -78,70 +89,81 @@ function compareHands(hand1, hand2) {
   return 0;
 }
 
+/**
+ * Returns a random key from the array of possible winner IDs.
+ */
 function randomWinnerKey(possibleWinners) {
   return possibleWinners[rand(possibleWinners.length)];
 }
 
+/**
+ * Returns the players still active in the game.
+ */
 async function getLastPlayers(game) {
-  return (await game.getPlayers()).filter((player) =>
+  const players = await game.getPlayers();
+  return players.filter((player) =>
     constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status),
   );
 }
 
+/**
+ * Reorganizes the pots by:
+ * - Adding remaining players to the main pot.
+ * - Sorting all pots in ascending order by their value.
+ * - Adjusting each side pot’s value so that players can only win up to what they contributed.
+ */
 async function reorgPots(game) {
-  // Add participants to the main pot
-  let promises = [];
-  (await getLastPlayers(game)).forEach((player) => {
-    promises.push(
-      participantRepo.createParticipant(game.mainPot, player.userId),
-    );
-  });
+  // Add participants to the main pot.
+  const lastPlayers = await getLastPlayers(game);
+  const promises = lastPlayers.map((player) =>
+    participantRepo.createParticipant(game.mainPot, player.userId),
+  );
   await Promise.all(promises);
 
-  // Sort the pots by their value in acending order
+  // Retrieve and sort the pots in ascending order by value.
   let pots = await game.getPots();
-
-  for (const index in pots) {
-    pots[index] = await Pot.get(pots[index].id);
-  }
+  pots = await Promise.all(pots.map(async (pot) => await Pot.get(pot.id)));
   pots.sort((a, b) => a.value - b.value);
 
-  // Reduce from each pot the amount of the pot before it to prevent handling players more then the pot is worth
-  let lastRoundPot;
-  for (const index in pots) {
-    let pot = pots[index];
-
-    if (index == 0) {
-      lastRoundPot = pot.value;
-      continue;
-    }
-    await pot.set('value', pot.value - lastRoundPot);
-    lastRoundPot += pot.value;
+  // Adjust each pot's value to reflect only the additional amount contributed beyond previous pots.
+  let previous = 0;
+  for (let i = 0; i < pots.length; i++) {
+    const originalValue = pots[i].value;
+    const effectiveValue = originalValue - previous;
+    await pots[i].set('value', effectiveValue);
+    previous = originalValue;
   }
 
   return pots;
 }
 
+/**
+ * Calculates winners for each pot, distributes winnings, and credits players.
+ */
 async function calcWinners(game, pots) {
-  let winners = {}; // { id: [{player: player, cards: cards, strength: strength}, player winnings] ...}
-  let handsStrengthList = await cardsFunctions.calcHandsStrength(game); // { strength: [{player: player1, cards: cards1}, {player: player2, cards: cards2}], strength2:...}
+  let winners = {}; // { id: { ...player, winnings: number, cards, strength } }
+  const handsStrengthList = await cardsFunctions.calcHandsStrength(game);
+  // Iterate over strength levels in ascending order (lower number = better hand)
+  const sortedStrengthLevels = Object.keys(handsStrengthList)
+    .map(Number)
+    .sort((a, b) => a - b);
 
-  // Loop on each pot
+  // Loop on each pot.
   for (const pot of pots) {
     if (pot.value === 0) continue;
 
-    let participants = await pot.getParticipants();
+    const participants = await pot.getParticipants();
     let potWinners = [];
 
-    // Loop on each players strength level (e.g. 6: [player, player], 8: [player])
-    for (let strengthLevel of Object.values(handsStrengthList)) {
-      strengthLevel = strengthLevel.filter((player) =>
+    // Loop on each strength level (best hands first).
+    for (const level of sortedStrengthLevels) {
+      let strengthLevel = handsStrengthList[level].filter((player) =>
         constants.PLAYER_IN_THE_GAME_STATUSES.includes(player.status),
       );
 
-      let possibleWinners = getWinners(strengthLevel);
+      const possibleWinners = getWinners(strengthLevel);
 
-      // Loops on each player inside the same strength level
+      // Check each possible winner against the pot participants.
       for (const possibleWinner of possibleWinners) {
         if (isValidWinner(possibleWinner, participants)) {
           potWinners.push(possibleWinner);
@@ -150,7 +172,7 @@ async function calcWinners(game, pots) {
 
       if (potWinners.length > 0) {
         winners = rakeToWinners(
-          potWinners,
+          potWinners.slice(), // use a copy so the original array isn’t mutated
           pot.value,
           winners,
           potWinners.map((pw) => pw.userId),
@@ -160,7 +182,7 @@ async function calcWinners(game, pots) {
     }
   }
 
-  // Give player their winnings
+  // Credit each winner their winnings.
   for (const winnerId of Object.keys(winners)) {
     let player = await game.getPlayer(winnerId);
     await player.set(
@@ -172,6 +194,9 @@ async function calcWinners(game, pots) {
   return winners;
 }
 
+/**
+ * Adjusts side pots for players who are all-in.
+ */
 async function qualifyToAllInsPots(game, amount, current) {
   let pots = (await game.getPots()).filter((pot) => pot.id !== game.mainPot);
   let promises = [];
@@ -179,7 +204,7 @@ async function qualifyToAllInsPots(game, amount, current) {
   for (let pot of pots) {
     pot = await Pot.get(pot.id);
 
-    if (pot.highestBet == -1 || current.currentBet >= pot.highestBet) {
+    if (pot.highestBet === -1 || current.currentBet >= pot.highestBet) {
       continue;
     }
 
@@ -196,6 +221,9 @@ async function qualifyToAllInsPots(game, amount, current) {
   await Promise.all(promises);
 }
 
+/**
+ * Processes the showdown by reorganizing pots, calculating winners, and preparing a message.
+ */
 async function showdown(game) {
   let pots = await reorgPots(game);
   let winners = await calcWinners(game, pots);
