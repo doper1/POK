@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.7.2](https://github.com/doper1/POK/compare/POK@v7.7.1...POK@v7.7.2) (2025-02-23)
+
+
+### Bug Fixes
+
+* **pok:** add new migrations ([1d30508](https://github.com/doper1/POK/commit/1d305081ea5f7669d395fa7d6a158de805c25f74))
+
 ## [7.7.1](https://github.com/doper1/POK/compare/POK@v7.7.0...POK@v7.7.1) (2025-02-23)
 
 
