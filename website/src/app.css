@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@import '@fontsource/ubuntu';
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/optional/presets';
+@import '@skeletonlabs/skeleton/themes/mona';
+
+/* Custom CSS Additions */
+.text-ubuntu {
+	font-family: 'Ubuntu', sans-serif;
+}
+
+.bg-mano-700 {
+	background-color: #374151;
+}
+.bg-mano-800 {
+	background-color: #1f2937;
+}
+.text-mano-100 {
+	color: #f3f4f6;
+}
+.border-mano-600 {
+	border-color: #4b5563;
+}
+
+.hover\:text-mano-50:hover {
+	color: #f3f4f6;
+}
+.hover\:bg-mano-700:hover {
+	background-color: #374151;
+}
+
+.transition-colors {
+	transition: color 0.2s ease-in-out;
+}
+
+.hover\:scale-\[1\.005\] {
+	transform: scale(1.005);
+}
+
+.font-mono {
+	font-family: 'Ubuntu Mono', monospace;
+}
+
+.transform {
+	transition:
+		transform 0.2s ease,
+		background-color 0.2s ease;
+}
+
+@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+
+[data-theme='mona'] {
+	--heading-font-family: 'Ubuntu', sans-serif;
+	--base-font-family: 'Ubuntu', sans-serif;
+	--anchor-font-family: 'inherit';
+}
