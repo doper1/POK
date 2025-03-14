@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "0.0.1",
+  "version": "5.0.0",
   "main": "app.js",
   "scripts": {
     "dev": "node --watch src/app.js",
