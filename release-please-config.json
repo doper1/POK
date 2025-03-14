@@ -9,6 +9,12 @@
     },
     "imagen": {
       "release-type": "rust"
+    },
+    "website": {
+      "release-type": "node"
+    },
+    "api": {
+      "release-type": "node"
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
