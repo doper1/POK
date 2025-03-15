@@ -33,7 +33,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/royal-flush.webp"
+								src="example-hands/royal-flush.webp"
 								alt="Royal flush"
 								class="rounded-lg w-80"
 							/>
@@ -54,7 +54,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/straight-flush.webp"
+								src="example-hands/straight-flush.webp"
 								alt="Straight flush"
 								class="rounded-lg w-80"
 							/>
@@ -75,7 +75,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/full-house.webp"
+								src="example-hands/full-house.webp"
 								alt="Four of a kind"
 								class="rounded-lg w-80"
 							/>
@@ -96,7 +96,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/full-house.webp"
+								src="example-hands/full-house.webp"
 								alt="Full House"
 								class="rounded-lg w-80"
 							/>
@@ -117,7 +117,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/flush.webp"
+								src="example-hands/flush.webp"
 								alt="Flush"
 								class="rounded-lg w-80"
 							/>
@@ -138,7 +138,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/straight.webp"
+								src="example-hands/straight.webp"
 								alt="Straight"
 								class="rounded-lg w-80"
 							/>
@@ -159,7 +159,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/three-of-a-kind.webp"
+								src="example-hands/three-of-a-kind.webp"
 								alt="Three of a kind"
 								class="rounded-lg w-80"
 							/>
@@ -180,7 +180,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/two-pair.webp"
+								src="example-hands/two-pair.webp"
 								alt="Two pair"
 								class="rounded-lg w-80"
 							/>
@@ -201,7 +201,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/pair.webp"
+								src="example-hands/pair.webp"
 								alt="Pair"
 								class="rounded-lg w-80"
 							/>
@@ -222,7 +222,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="/src/routes/poker-hands/assets/high-card.webp"
+								src="example-hands/high-card.webp"
 								alt="High Card"
 								class="rounded-lg w-80"
 							/>
