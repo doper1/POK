@@ -5,7 +5,7 @@
 
 <svelte:head>
 	<title>Leaderboard</title>
-	<meta name="description" content="Learn about Pok - the poker bot for WhatsApp groups" /><script
+	<meta name="description" content="Pok leaderboard" /><script
 		async
 		src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4877463839498887"
 		crossorigin="anonymous"
