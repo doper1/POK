@@ -5,7 +5,7 @@ export async function load({ fetch }) {
 	const apiUrl = API_ADDRESS;
 
 	if (!apiUrl) {
-		throw error(500, 'VITE_API_URL is not set in environment variables');
+		throw error(500, 'API_ADDRESS is not set in environment variables');
 	}
 
 	try {
