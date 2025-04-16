@@ -6,3 +6,4 @@ coverage
 auth
 .env
 newCards
+pok_app.log
