@@ -75,7 +75,7 @@
 						</div>
 						<div class="col-span-5 flex justify-center">
 							<img
-								src="example-hands/full-house.webp"
+								src="example-hands/four-of-a-kind.webp"
 								alt="Four of a kind"
 								class="rounded-lg w-80"
 							/>
