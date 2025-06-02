@@ -1,5 +1,18 @@
 # Changelog
 
+## [7.8.0](https://github.com/doper1/POK/compare/POK@v7.7.2...POK@v7.8.0) (2025-06-02)
+
+
+### Features
+
+* **website:** add github link in navbar ([cb9c1d4](https://github.com/doper1/POK/commit/cb9c1d4cf18b15c5e3ed98a5970ce73f1a8299cc))
+
+
+### Bug Fixes
+
+* **pok:** adapt whatsapp changes ([22718b5](https://github.com/doper1/POK/commit/22718b589782ff07f8ba719fe38eff7346cbb49d))
+* **pok:** logging ([ea281a8](https://github.com/doper1/POK/commit/ea281a8045dd9c92c917efd128551b90e52994c6))
+
 ## [7.7.2](https://github.com/doper1/POK/compare/POK@v7.7.1...POK@v7.7.2) (2025-02-23)
 
 
