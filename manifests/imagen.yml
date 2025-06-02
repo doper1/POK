@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imagen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: imagen
+  template:
+    metadata:
+      labels:
+        app: imagen
+    spec:
+      containers:
+        - name: imagen
+          image: dofer123/imagen:latest-${PLATFORM:-x86_64}
+          env:
+            - name: POSTGRES_HOST
+              value: db # Assumes there is a "db" service in your cluster.
+            # Include additional environment variables as needed.
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: new-cards-volume
+              mountPath: /app/newCards
+      volumes:
+        - name: new-cards-volume
+          persistentVolumeClaim:
+            claimName: new-cards-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: imagen
+spec:
+  selector:
+    app: imagen
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

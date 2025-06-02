@@ -1,12 +1,12 @@
 require('dotenv').config();
 const qrCode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const middleware = require('./utils/middleware.js');
+const { logger, validateEnvVariables, filterWhatsapp, filterMessage, filterChat, validateEnv, validateMessage, getGame, validateLock, lockGame, messageToCommand, unlockGame, translate } = require('./utils/middleware.js');
 const router = require('./router/index.js');
 const constants = require('./utils/constants');
 const actions = require('./router/actions.js');
 
-middleware.validateEnvVariables();
+validateEnvVariables();
 
 let whatsapp = new Client({
   puppeteer: {
@@ -25,58 +25,44 @@ let whatsapp = new Client({
 });
 
 // Clean up the whatsapp instance before passing it to the routes
-whatsapp = middleware.filterWhatsapp(whatsapp);
+whatsapp = filterWhatsapp(whatsapp);
 
 // message_create: in case you want to play with the number the bot is hosted on
 // message: will be more optimized - ignore all of its own messages
 whatsapp.on('message_create', async (msg) => {
   if (msg.author == undefined) return; // Prevents replying to its own replies and on private chats
 
-  const message = middleware.filterMessage(msg);
-  const chat = middleware.filterChat(await msg.getChat());
+  const message = filterMessage(msg);
+  const chat = filterChat(await msg.getChat());
 
-  if (!middleware.validateEnv(chat.name)) {
+  if (!validateEnv(chat.name)) {
     return;
   }
 
-  if (!middleware.validateMessage(msg)) {
-    middleware.logMessage(
-      message.body.join(' '),
-      message.author,
-      chat.name,
-      'invalid',
-    );
+  if (!validateMessage(msg)) {
+    logger.warn(message.body.join(' '), { metadata: { author: message.author, chatName: chat.name } });
     return;
   }
 
-  const game = await middleware.getGame(chat.id.user, chat.name);
+  const game = await getGame(chat.id.user, chat.name);
 
-  if (!(await middleware.validateLock(game))) {
-    middleware.logMessage(
-      message.body.join(' '),
-      message.author,
-      chat.name,
-      'locked',
-    );
+  if (!(await validateLock(game))) {
+    logger.warn(message.body.join(' '), { metadata: { author: message.author, chatName: chat.name } });
     return;
   }
 
   if (message.body[0] !== 'pok') {
-    message.body = await middleware.messageToCommand(message.body);
+    message.body = await messageToCommand(message.body);
   }
 
   if (message.body[0] !== 'pok') {
     return;
   }
 
-  middleware.logMessage(
-    message.body.join(' '),
-    message.author,
-    chat.name,
-    'success',
-  );
+  // Pass author and chatName directly, not nested under 'metadata'
+  logger.info(message.body.join(' '), { author: message.author, chatName: chat.name });
 
-  await middleware.lockGame(game);
+  await lockGame(game);
 
   const current = await game.getPlayer(message.author);
 
@@ -90,23 +76,23 @@ whatsapp.on('message_create', async (msg) => {
 
   await router(params);
 
-  await middleware.unlockGame(game);
+  await unlockGame(game);
 });
 
 // Handle private messages
 whatsapp.on('message', async (msg) => {
-  const chat = middleware.filterChat(await msg.getChat());
+  const chat = filterChat(await msg.getChat());
 
   if (!chat.isGroup) {
-    const output = await middleware.translate(
+    const output = await translate(
       msg.body,
       constants.ANSWER_SYSTEM_MESSAGE,
     );
 
-    middleware.logMessage(msg.body, msg.from, chat.name, 'success');
+    logger.info(msg.body, { metadata: { author: msg.from, chatName: chat.name } });
 
     if (process.env.ENV.toLocaleLowerCase().startsWith('dev')) {
-      console.log(`DEV translated message: ${output}`);
+      logger.info(`DEV translated message: ${output}`, { metadata: { author: msg.from, chatName: chat.name } });
     } else {
       msg.reply(output);
     }
@@ -123,11 +109,11 @@ whatsapp.on('group_join', async (event) => {
   const playerId = event.id.participant.split('@')[0];
   const chatName = (await whatsapp.getChatById(event.chatId)).name;
 
-  if (!middleware.validateEnv(chatName)) {
+  if (!validateEnv(chatName)) {
     return;
   }
 
-  const game = await middleware.getGame(chatId, chatName);
+  const game = await getGame(chatId, chatName);
 
   try {
     await whatsapp.sendMessage(
@@ -135,14 +121,9 @@ whatsapp.on('group_join', async (event) => {
       `*Welcome to the poker table!*\n\n${constants.HELP_MESSAGE}`,
     );
 
-    middleware.logMessage(`EVENT Player join`, playerId, chatName, 'success');
+    logger.info('EVENT Player join', { metadata: { author: playerId, chatName: chatName } });
   } catch (error) {
-    middleware.logMessage(
-      `EVENT Player join error: ${error}`,
-      playerId,
-      chatName,
-      'error',
-    );
+    logger.error('EVENT Player join error', { metadata: { author: playerId, chatName: chatName, error: error.message } });
   }
 });
 // When player leaves or is removed, exit them from the game.
@@ -150,10 +131,10 @@ whatsapp.on('group_join', async (event) => {
 whatsapp.on('group_leave', async (event) => {
   const chatId = event.chatId.split('@')[0];
   const playerId = event.id.participant.split('@')[0];
-  const game = await middleware.getGame(chatId);
+  const game = await getGame(chatId);
   const groupName = game.groupName;
 
-  if (!middleware.validateEnv(groupName)) {
+  if (!validateEnv(groupName)) {
     return;
   }
 
@@ -165,29 +146,14 @@ whatsapp.on('group_leave', async (event) => {
       for (const player of players) {
         await actions.exit(game, player, whatsapp, true);
 
-        middleware.logMessage(
-          `EVENT Exited player`,
-          player.userId,
-          groupName,
-          'success',
-        );
+        logger.info('EVENT Exited player', { metadata: { author: player.userId, chatName: groupName } });
       }
 
       await game.delete();
 
-      middleware.logMessage(
-        `EVENT Chat removed and game data cleaned for group`,
-        'System',
-        groupName,
-        'success',
-      );
+      logger.info('EVENT Chat removed and game data cleaned for group', { metadata: { author: 'System', chatName: groupName } });
     } catch (error) {
-      middleware.logMessage(
-        `EVENT Error handling chat removal: ${error}`,
-        'System',
-        groupName,
-        'error',
-      );
+      logger.error('EVENT Error handling chat removal', { metadata: { author: 'System', chatName: groupName, error: error.message } });
     }
     return;
   }
@@ -199,14 +165,9 @@ whatsapp.on('group_leave', async (event) => {
       await actions.exit(game, current, whatsapp, false);
     }
 
-    middleware.logMessage(`EVENT Group leave`, playerId, groupName, 'success');
+    logger.info('EVENT Group leave', { metadata: { author: playerId, chatName: groupName } });
   } catch (error) {
-    middleware.logMessage(
-      `EVENT Group leave error: ${error}`,
-      playerId,
-      groupName,
-      'error',
-    );
+    logger.error('EVENT Group leave error', { metadata: { author: playerId, chatName: groupName, error: error.message } });
   }
 });
 
@@ -214,10 +175,10 @@ whatsapp.on('group_leave', async (event) => {
 whatsapp.on('group_update', async (event) => {
   const chatId = event.chatId.split('@')[0];
   const chatName = (await whatsapp.getChatById(event.chatId)).name;
-  const game = await middleware.getGame(chatId, chatName);
+  const game = await getGame(chatId, chatName);
   const oldName = game.groupName;
 
-  if (!middleware.validateEnv(oldName)) {
+  if (!validateEnv(oldName)) {
     return;
   }
 
@@ -225,19 +186,9 @@ whatsapp.on('group_update', async (event) => {
     case 'subject': {
       try {
         await game.set('groupName', event.body);
-        middleware.logMessage(
-          `EVENT Subject change: ${event.body}`,
-          event.id.participant,
-          oldName,
-          'success',
-        );
+        logger.info(`EVENT Subject change: ${event.body}`, { metadata: { author: event.id.participant, chatName: oldName } });
       } catch (error) {
-        middleware.logMessage(
-          `EVENT Subject change error: ${error}`,
-          event.id.participant,
-          event.body,
-          'error',
-        );
+        logger.error('EVENT Subject change error', { metadata: { author: event.id.participant, chatName: oldName, error: error.message } });
       }
       break;
     }
@@ -257,7 +208,7 @@ whatsapp.on('qr', (qr) => {
 });
 
 whatsapp.on('ready', () => {
-  console.warn('-----| Client is ready |-----');
+  logger.warn('-----| Client is ready |-----');
 });
 
 whatsapp.initialize();

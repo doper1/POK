@@ -5,6 +5,28 @@ const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 const Groq = require('groq-sdk');
 const Redis = require('ioredis');
+const winston = require('winston');
+
+// Configure Winston Logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp'] }),
+    winston.format.printf(info => {
+      const { timestamp, level, message, metadata } = info;
+      const chatName = metadata?.chatName || 'SYSTEM';
+      const author = metadata?.author || '-';
+      // Handle cases where message might be an object (like errors)
+      const msg = typeof message === 'string' ? message : JSON.stringify(message);
+      return `[${timestamp}] [${level.toUpperCase()}] [${chatName}] [${author}] ${msg}`;
+    })
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'pok_app.log' })
+  ]
+});
 
 function validateEnvVariables() {
   const requiredVars = [
@@ -34,7 +56,8 @@ function validateEnvVariables() {
 
   Object.entries(optionalWarnings).forEach(([key, message]) => {
     if (!process.env[key]) {
-      console.warn(message);
+      // console.warn(message);
+      logger.warn(message);
     }
   });
 }
@@ -81,28 +104,28 @@ async function validateLock(game) {
  *                                Possible values: 'success', 'locked', 'invalid', 'error'.
  * @returns {void}
  */
-function logMessage(message, author, chatName, messageLevel) {
-  const template = `CHAT: {{chatName}} || FROM: {{author}} || MESSAGE: {{body}}`;
-  const values = {
-    chatName,
-    author: author,
-    body: message,
-  };
-  const newMessage = Mustache.render(template, values);
+// function logMessage(message, author, chatName, messageLevel) {
+//   const template = `CHAT: {{chatName}} || FROM: {{author}} || MESSAGE: {{body}}`;
+//   const values = {
+//     chatName,
+//     author: author,
+//     body: message,
+//   };
+//   const newMessage = Mustache.render(template, values);
 
-  switch (messageLevel) {
-    case 'success':
-      console.log(newMessage);
-      break;
-    case 'locked':
-      console.warn(newMessage);
-      break;
-    case 'invalid':
-    case 'error':
-      console.error(newMessage);
-      break;
-  }
-}
+//   switch (messageLevel) {
+//     case 'success':
+//       console.log(newMessage);
+//       break;
+//     case 'locked':
+//       console.warn(newMessage);
+//       break;
+//     case 'invalid':
+//     case 'error':
+//       console.error(newMessage);
+//       break;
+//   }
+// }
 
 function filterWhatsapp(whatsapp) {
   return getProperties(
@@ -117,13 +140,23 @@ function filterMessage(message) {
     .toLowerCase()
     .split(' ')
     .filter((word) => word != '');
-  message.author = message.author.match(/\d+/)[0];
+
+  // Use message.from (sender ID) as fallback if author is undefined (e.g., private chats in message_create)
+  const authorInput = message.author; // Store original for comparison
+  const fromInput = message.from;
+  const authorId = authorInput ? String(authorInput).match(/\d+/)?.[0] : String(fromInput).match(/\d+/)?.[0];
+  message.author = authorId;
 
   return getProperties(message, ['body', 'author', 'from'], ['react', 'reply']);
 }
 
 function filterChat(chat) {
-  return getProperties(chat, ['id', 'name', 'isGroup'], ['sendMessage']);
+  const filtered = getProperties(chat, ['id', 'name', 'isGroup'], ['sendMessage']);
+  // For private chats, chat.name might be null/undefined. Use user ID as name in that case.
+  if (!filtered.name && filtered.id?.user) {
+    filtered.name = filtered.id.user;
+  }
+  return filtered;
 }
 
 async function lockGame(game) {
@@ -166,7 +199,8 @@ async function translate(body, systemMessage) {
       })
     ).choices[0]?.message?.content;
   } catch (e) {
-    console.log('Groq Failed ---', e);
+    // console.log('Groq Failed ---', e);
+    logger.error('Groq API call failed', { metadata: { error: e } });
     return (
       await glhf.chat.completions.create({
         model: `${constants.MODEL_GLHF}`,
@@ -200,15 +234,18 @@ const redis = new Redis({
 
 // Listen for Redis events
 redis.on('error', (err) => {
-  console.error('Redis error:', err);
+  // console.error('Redis error:', err);
+  logger.error('Redis error', { metadata: { error: err } });
 });
 
 redis.on('connect', () => {
-  console.log('Redis connected');
+  // console.log('Redis connected');
+  logger.info('Redis connected');
 });
 
 redis.on('end', () => {
-  console.warn('Redis connection ended');
+  // console.warn('Redis connection ended');
+  logger.warn('Redis connection ended');
 });
 
 async function messageToCommand(body) {
@@ -223,7 +260,8 @@ async function messageToCommand(body) {
         return processOutput(cachedResult);
       }
     } catch (err) {
-      console.error('Redis get error:', err);
+      // console.error('Redis get error:', err);
+      logger.error('Redis GET error', { metadata: { error: err, cacheKey } });
     }
   }
 
@@ -242,7 +280,8 @@ async function messageToCommand(body) {
         await trimCache();
       }
     } catch (err) {
-      console.error('Redis set error:', err);
+      // console.error('Redis set error:', err);
+      logger.error('Redis SET/ZADD/TRIM error', { metadata: { error: err, cacheKey } });
     }
   }
 
@@ -263,7 +302,8 @@ async function trimCache() {
       await redis.zrem(constants.DATE_CACHE_NAME, ...oldestKeys);
     }
   } catch (err) {
-    console.error('Redis trim cache error:', err);
+    // console.error('Redis trim cache error:', err);
+    logger.error('Redis TRIM error', { metadata: { error: err } });
   }
 }
 
@@ -275,7 +315,8 @@ module.exports = {
   filterWhatsapp,
   filterMessage,
   filterChat,
-  logMessage,
+  // logMessage, // Removed original logMessage
+  logger, // Export the logger instance
   lockGame,
   unlockGame,
   getGame,

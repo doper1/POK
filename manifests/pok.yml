@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pok
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pok
+  template:
+    metadata:
+      labels:
+        app: pok
+    spec:
+      containers:
+        - name: pok
+          image: dofer123/pok:latest-aarch64
+          env:
+            - name: ENV
+              value: "prod"
+            - name: PHONE_NUMBER
+              value: "5511999999999"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: password
+            - name: REDIS_HOST
+              value: "redis-master"
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "pok"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: auth-volume
+              mountPath: /app/auth
+            - name: new-cards-volume
+              mountPath: /app/newCards
+      volumes:
+        - name: auth-storage
+          persistentVolumeClaim:
+            claimName: auth-pvc
+        - name: new-cards-storage
+          persistentVolumeClaim:
+            claimName: new-cards-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pok
+spec:
+  selector:
+    app: pok
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP

@@ -34,35 +34,12 @@ module.exports.STRENGTH_DICT = {
 };
 module.exports.SMALL_BLIND = 1;
 module.exports.BIG_BLIND = 2;
-module.exports.HELP_MESSAGE = `🃏 *How to Play Poker on WhatsApp* 🃏  
+module.exports.HELP_MESSAGE = `🃏 *Need Help or Want to Play?* 🃏
 
-Use the following commands in your *WhatsApp group* to play:
+For instructions on how to play, command details, or to add more in-game money, please visit our website:
+🌐 https://pokandplay.netlify.app/
 
-♠ *Game Actions:*  
-- *join [amount]* – Join the game (optional: buy-in with an amount).  
-- *start* – Starts the game.  
-- *exit* – Leave the game.  
-- *end* – Ends the game for everyone.  
-- *buy [amount]* – Buy more chips.
-
-️♥ *Betting:*  
-- *fold* – Fold your hand.  
-- *check* – Check (if no bet has been made).  
-- *call* – Call the current bet.  
-- *raise [amount]* – Raise the bet by the specified amount.
-
-♣ *Blinds:*  
-- *small [amount]* – Set the small blind.  
-- *big [amount]* – Set the big blind.
-
-♦ *Game Info:*  
-- *show* – Show the pot, players, bets, and current turn.  
-- *help* – Show this list of commands.
-
-💰 You start with $1000, and your money is shared across all WhatsApp groups!  
-
-📌 Remember: All actions must be done in a group chat! (But you can always ask questions in my private chat)
-🌍 Feel free to use any language and even natural language for your actions– just make sure to follow the basic format!`;
+📌 Remember: Game actions must be done in a group chat! (But you can always ask questions in my private chat)`;
 
 module.exports.SHAPES = ['️️️♠️', '♥️', '♣️', '♦️'];
 
@@ -145,7 +122,7 @@ module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translat
 - pok small [amount] – Set the small blind.
 - pok big [amount] – Set the big blind.
 
-If the message isn’t clearly poker-related or is non-readable, output 'not related'.
+If the message isn't clearly poker-related or is non-readable, output 'not related'.
 Translate messages to English before responding - But return only clean command.
 Differ between people talking to each other (not related) and commands`;
 

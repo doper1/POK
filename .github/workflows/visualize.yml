@@ -1,9 +1,7 @@
 name: Visualize project
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   get_data:

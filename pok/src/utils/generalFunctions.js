@@ -67,7 +67,8 @@ function isGameRunning(gameStatus, message) {
  *
  * @example
  * delay(1000)
- *   .then(() => console.log('1 second has passed'));
+ *   .then(() => {})
+ *   .catch((error) => console.error(error));
  */
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
