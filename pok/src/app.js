@@ -1,12 +1,35 @@
 require('dotenv').config();
 const qrCode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const { logger, validateEnvVariables, filterWhatsapp, filterMessage, filterChat, validateEnv, validateMessage, getGame, validateLock, lockGame, messageToCommand, unlockGame, translate } = require('./utils/middleware.js');
+const { logger, validateEnvVariables, filterWhatsapp, filterMessage, filterChat, validateEnv, validateMessage, getGame, validateLock, lockGame, messageToCommand, unlockGame, translate, validateDatabaseConnection } = require('./utils/middleware.js');
 const router = require('./router/index.js');
 const constants = require('./utils/constants');
 const actions = require('./router/actions.js');
 
 validateEnvVariables();
+
+// Validate database connection at startup
+(async () => {
+  try {
+    await validateDatabaseConnection();
+  } catch (error) {
+    logger.error(`Failed to connect to PostgreSQL database: ${error.message}`, { 
+      metadata: { 
+        errorCode: error.code,
+        database: process.env.POSTGRES_DB 
+      } 
+    });
+    
+    // In development mode, continue without database (non-blocking)
+    if (process.env.ENV?.toLowerCase().startsWith('dev')) {
+      logger.warn('Running in development mode - continuing without database connection');
+    } else {
+      // In production mode, exit on database failure
+      logger.error('Production mode - exiting due to database connection failure');
+      process.exit(1);
+    }
+  }
+})();
 
 let whatsapp = new Client({
   puppeteer: {
@@ -31,8 +54,7 @@ whatsapp = filterWhatsapp(whatsapp);
 // message: will be more optimized - ignore all of its own messages
 whatsapp.on('message_create', async (msg) => {
   if (msg.author == undefined) return; // Prevents replying to its own replies and on private chats
-
-  const message = filterMessage(msg);
+  const message = await filterMessage(msg);
   const chat = filterChat(await msg.getChat());
 
   if (!validateEnv(chat.name)) {

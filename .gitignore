@@ -1,5 +1,3 @@
 .VSCodeCounter
 .vscode
-# *.sql
-!mocked_test_data.sql
 .env

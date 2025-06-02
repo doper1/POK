@@ -1,11 +1,12 @@
 const constants = require('./constants');
 const { getProperties, currentTime, delay } = require('./generalFunctions');
-const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 const Groq = require('groq-sdk');
 const Redis = require('ioredis');
 const winston = require('winston');
+// Import database connection for validation
+const { connection: db } = require('../../db/db.ts');
 
 // Configure Winston Logger
 const logger = winston.createLogger({
@@ -27,6 +28,9 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: 'pok_app.log' })
   ]
 });
+
+// Database health check configuration
+const DB_HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
 
 function validateEnvVariables() {
   const requiredVars = [
@@ -94,39 +98,6 @@ async function validateLock(game) {
   await validateLock(game);
 }
 
-/**
- * Logs a formatted message to the console with different log levels.
- *
- * @param {string} message - The content of the message to be logged.
- * @param {string} author - The author or sender of the message.
- * @param {string} chatName - The name of the chat or conversation.
- * @param {string} messageLevel - The level of the message, determining how it's logged.
- *                                Possible values: 'success', 'locked', 'invalid', 'error'.
- * @returns {void}
- */
-// function logMessage(message, author, chatName, messageLevel) {
-//   const template = `CHAT: {{chatName}} || FROM: {{author}} || MESSAGE: {{body}}`;
-//   const values = {
-//     chatName,
-//     author: author,
-//     body: message,
-//   };
-//   const newMessage = Mustache.render(template, values);
-
-//   switch (messageLevel) {
-//     case 'success':
-//       console.log(newMessage);
-//       break;
-//     case 'locked':
-//       console.warn(newMessage);
-//       break;
-//     case 'invalid':
-//     case 'error':
-//       console.error(newMessage);
-//       break;
-//   }
-// }
-
 function filterWhatsapp(whatsapp) {
   return getProperties(
     whatsapp,
@@ -135,16 +106,17 @@ function filterWhatsapp(whatsapp) {
   );
 }
 
-function filterMessage(message) {
+async function filterMessage(message) {
   message.body = message.body
     .toLowerCase()
     .split(' ')
     .filter((word) => word != '');
-
-  // Use message.from (sender ID) as fallback if author is undefined (e.g., private chats in message_create)
-  const authorInput = message.author; // Store original for comparison
-  const fromInput = message.from;
-  const authorId = authorInput ? String(authorInput).match(/\d+/)?.[0] : String(fromInput).match(/\d+/)?.[0];
+// The old solution to get the phone number. Replaced by the lines below (commented out):
+  // // Use message.from (sender ID) as fallback if author is undefined (e.g., private chats in message_create)
+  // const authorInput = message.author; // Store original for comparison
+  // const fromInput = message.from;
+  //  const authorId = authorInput ? String(authorInput).match(/\d+/)?.[0] : String(fromInput).match(/\d+/)?.[0]; 
+  const authorId = (await message.getContact()).number;
   message.author = authorId;
 
   return getProperties(message, ['body', 'author', 'from'], ['react', 'reply']);
@@ -248,6 +220,65 @@ redis.on('end', () => {
   logger.warn('Redis connection ended');
 });
 
+// Initialize PostgreSQL database connection validation
+let isDbHealthy = true; // Track database connection state
+
+/**
+ * Validates the PostgreSQL database connection by executing a simple test query.
+ * This function is called at application startup and logs the connection status.
+ * 
+ * @returns {Promise<Array>} - Result of the test query
+ * @throws {Error} - If the database connection fails
+ */
+async function validateDatabaseConnection() {
+  logger.info('Attempting PostgreSQL database connection');
+  try {
+    // Test the database connection with a simple query using postgres.js syntax
+    const result = await db`SELECT 1 as test`;
+    logger.info('PostgreSQL database connected successfully');
+    isDbHealthy = true;
+    return result;
+  } catch (error) {
+    // Log clean error message without verbose details
+    logger.error(`PostgreSQL database connection failed: ${error.message}`, { 
+      metadata: { 
+        errorCode: error.code,
+        database: process.env.POSTGRES_DB,
+        host: process.env.POSTGRES_HOST
+      } 
+    });
+    
+    isDbHealthy = false;
+    throw error;
+  }
+}
+
+// Note: postgres.js doesn't support traditional event listeners like .on('error')
+// Instead, we rely on try/catch blocks and periodic health checks
+
+// Add a periodic health check for the database connection
+// This helps monitor database connectivity and logs state changes
+setInterval(async () => {
+  try {
+    await db`SELECT 1`;
+    // Only log if connection was previously unhealthy
+    if (!isDbHealthy) {
+      logger.info('PostgreSQL database connection restored');
+      isDbHealthy = true;
+    }
+  } catch (error) {
+    // Only log if connection was previously healthy
+    if (isDbHealthy) {
+      logger.error(`PostgreSQL database health check failed: ${error.message}`, { 
+        metadata: { 
+          errorCode: error.code
+        } 
+      });
+      isDbHealthy = false;
+    }
+  }
+}, DB_HEALTH_CHECK_INTERVAL);
+
 async function messageToCommand(body) {
   const cacheKey = body.join('_').toLowerCase();
   const isCacheValid = body.length <= 6 && body.join('').length <= 40;
@@ -322,4 +353,5 @@ module.exports = {
   getGame,
   translate,
   messageToCommand,
+  validateDatabaseConnection, // Export the new database validation function
 };
