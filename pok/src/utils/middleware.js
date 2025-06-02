@@ -1,6 +1,5 @@
 const constants = require('./constants');
 const { getProperties, currentTime, delay } = require('./generalFunctions');
-const Mustache = require('mustache');
 const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 const Groq = require('groq-sdk');
@@ -98,39 +97,6 @@ async function validateLock(game) {
   // Check the state of the lock again
   await validateLock(game);
 }
-
-/**
- * Logs a formatted message to the console with different log levels.
- *
- * @param {string} message - The content of the message to be logged.
- * @param {string} author - The author or sender of the message.
- * @param {string} chatName - The name of the chat or conversation.
- * @param {string} messageLevel - The level of the message, determining how it's logged.
- *                                Possible values: 'success', 'locked', 'invalid', 'error'.
- * @returns {void}
- */
-// function logMessage(message, author, chatName, messageLevel) {
-//   const template = `CHAT: {{chatName}} || FROM: {{author}} || MESSAGE: {{body}}`;
-//   const values = {
-//     chatName,
-//     author: author,
-//     body: message,
-//   };
-//   const newMessage = Mustache.render(template, values);
-
-//   switch (messageLevel) {
-//     case 'success':
-//       console.log(newMessage);
-//       break;
-//     case 'locked':
-//       console.warn(newMessage);
-//       break;
-//     case 'invalid':
-//     case 'error':
-//       console.error(newMessage);
-//       break;
-//   }
-// }
 
 function filterWhatsapp(whatsapp) {
   return getProperties(
