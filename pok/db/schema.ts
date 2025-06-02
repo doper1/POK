@@ -15,10 +15,10 @@ const game = pgTable('game', {
   groupName: varchar('group_name', { length: 100 }),
   type: varchar('type').default('nlh'),
   status: varchar('status').default('pending'),
-  currentPlayer: varchar('current_player', { length: 12 }).references(
+  currentPlayer: varchar('current_player', { length: 256 }).references(
     () => user.id,
   ),
-  button: varchar('button', { length: 12 }).references(() => user.id),
+  button: varchar('button', { length: 256 }).references(() => user.id),
   deck: varchar('deck', { length: 16 })
     .array()
     .array()
@@ -36,7 +36,7 @@ const game = pgTable('game', {
 
 // TABLE: user
 const user = pgTable('user', {
-  id: varchar('id', { length: 12 }).primaryKey(),
+  id: varchar('id', { length: 256 }).primaryKey(),
   money: integer('money').default(constants.BASE_MONEY),
 });
 
@@ -47,7 +47,7 @@ const player = pgTable(
     gameId: varchar('game_id', { length: 256 }).references(() => game.id, {
       onDelete: 'cascade',
     }),
-    userId: varchar('user_id', { length: 12 }).references(() => user.id),
+    userId: varchar('user_id', { length: 256 }).references(() => user.id),
     gameMoney: integer('game_money').default(0),
     currentBet: integer('current_bet').default(0),
     status: varchar('status').default('pending'),
@@ -57,7 +57,7 @@ const player = pgTable(
       .array()
       .array()
       .default(sql`'{}'::varchar[][]`),
-    nextPlayer: varchar('next_player', { length: 12 }).references(
+    nextPlayer: varchar('next_player', { length: 256 }).references(
       () => user.id,
     ),
   },
@@ -83,7 +83,7 @@ const participant = pgTable(
   'participant',
   {
     potId: uuid('pot_id').references(() => pot.id, { onDelete: 'cascade' }),
-    userId: varchar('user_id', { length: 12 }).references(() => user.id),
+    userId: varchar('user_id', { length: 256 }).references(() => user.id),
   },
   (table) => {
     return {
