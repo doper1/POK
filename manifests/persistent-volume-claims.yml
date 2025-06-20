@@ -8,7 +8,6 @@ spec:
   resources:
     requests:
       storage: 100M
-  volumeName: auth-pv
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -20,3 +19,14 @@ spec:
   resources:
     requests:
       storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi 

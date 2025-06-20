@@ -17,6 +17,29 @@ function printCards(cards) {
 
 async function generateCards(cards, path, title = undefined) {
   return new Promise((resolve, reject) => {
+    // Import logger from the new logger module
+    const { logger } = require('./logger');
+
+    // Check if newCards directory exists, create if not
+    const outputDir = 'newCards';
+    if (!fs.existsSync(outputDir)) {
+      try {
+        fs.mkdirSync(outputDir, { recursive: true });
+        logger.info(`Created directory: ${outputDir}`, {
+          chatName: 'SYSTEM',
+          author: 'CardGeneration',
+        });
+      } catch (dirError) {
+        const errorMsg = `Failed to create directory ${outputDir}: ${dirError.message}`;
+        logger.error(errorMsg, {
+          chatName: 'SYSTEM',
+          author: 'CardGeneration',
+        });
+        reject(new Error(errorMsg));
+        return;
+      }
+    }
+
     let bin;
     if (os.type().includes('Windows')) {
       bin = 'magick';
@@ -26,7 +49,18 @@ async function generateCards(cards, path, title = undefined) {
 
     let cmd1Args = [];
     for (const card of cards) {
-      cmd1Args.push(`cards/${card[0]}${card[1]}.png`);
+      const cardPath = `cards/${card[0]}${card[1]}.png`;
+      // Check if card image exists
+      if (!fs.existsSync(cardPath)) {
+        const errorMsg = `Card image not found: ${cardPath}`;
+        logger.error(errorMsg, {
+          chatName: 'SYSTEM',
+          author: 'CardGeneration',
+        });
+        reject(new Error(errorMsg));
+        return;
+      }
+      cmd1Args.push(cardPath);
     }
     cmd1Args.push(
       '-gravity',
@@ -62,13 +96,65 @@ async function generateCards(cards, path, title = undefined) {
     let cmd1 = spawn(bin, cmd1Args);
     let cmd2 = spawn(bin, cmd2Args);
 
+    // Capture stderr for both processes
+    let cmd1Stderr = '';
+    let cmd2Stderr = '';
+
+    cmd1.stderr.on('data', (data) => {
+      cmd1Stderr += data.toString();
+    });
+
+    cmd2.stderr.on('data', (data) => {
+      cmd2Stderr += data.toString();
+    });
+
+    // Handle process errors
+    cmd1.on('error', (error) => {
+      const errorMsg = `ImageMagick process 1 failed to start: ${error.message}. Make sure ImageMagick is installed and '${bin}' is available in PATH.`;
+      logger.error(errorMsg, {
+        chatName: 'SYSTEM',
+        author: 'CardGeneration',
+      });
+      reject(new Error(errorMsg));
+    });
+
+    cmd2.on('error', (error) => {
+      const errorMsg = `ImageMagick process 2 failed to start: ${error.message}. Make sure ImageMagick is installed and '${bin}' is available in PATH.`;
+      logger.error(errorMsg, {
+        chatName: 'SYSTEM',
+        author: 'CardGeneration',
+      });
+      reject(new Error(errorMsg));
+    });
+
     cmd1.stdout.pipe(cmd2.stdin);
 
     cmd2.on('close', (code) => {
       if (code === 0) {
         resolve(MessageMedia.fromFilePath(path));
       } else {
-        reject(new Error('Image generation failed'));
+        let errorMsg = `Image generation failed with exit code ${code}`;
+
+        // Add stderr information if available
+        if (cmd1Stderr) {
+          errorMsg += `\nImageMagick process 1 stderr: ${cmd1Stderr.trim()}`;
+        }
+        if (cmd2Stderr) {
+          errorMsg += `\nImageMagick process 2 stderr: ${cmd2Stderr.trim()}`;
+        }
+
+        // Add helpful troubleshooting info
+        errorMsg += `\nTroubleshooting tips:`;
+        errorMsg += `\n- Ensure ImageMagick is installed and '${bin}' command is available`;
+        errorMsg += `\n- Check that all card images exist in the 'cards/' directory`;
+        errorMsg += `\n- Verify write permissions for the '${outputDir}/' directory`;
+        errorMsg += `\n- Cards requested: ${cards.map((card) => `${card[0]}${card[1]}`).join(', ')}`;
+
+        logger.error(errorMsg, {
+          chatName: 'SYSTEM',
+          author: 'CardGeneration',
+        });
+        reject(new Error(errorMsg));
       }
     });
   });
@@ -296,7 +382,7 @@ function getHand(game, player) {
     tempCards[i] = parseCardNumber(tempCards[i]);
   }
 
-  // If there’s an Ace, add an extra card for wheel straights if needed.
+  // If there's an Ace, add an extra card for wheel straights if needed.
   if (
     tempCards.some((card) => card[1] === 14) &&
     !tempCards.some((card) => card[1] === 1)

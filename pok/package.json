@@ -14,8 +14,7 @@
     "test": "tsx db/wipeDatabase.ts && tsx db/seed.ts && jest",
     "test:watch": "tsx db/wipeDatabase.ts && tsx db/seed.ts && jest --watch",
     "test:cover": "tsx db/wipeDatabase.ts && tsx db/seed.ts && jest --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "prettier --write \"src/**/*.js\" && eslint . --fix",
     "release": "semantic-release",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
@@ -61,9 +60,10 @@
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "@faker-js/faker": "^9.1.0",
-    "drizzle-kit": "^0.30.4",
+    "drizzle-kit": "^0.30.6",
     "eslint": "^9.9.1",
     "globals": "^15.9.0",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "prettier": "^3.0.0"
   }
 }

@@ -4,6 +4,7 @@ const cardsFunctions = require('../utils/cardsFunctions');
 const Pot = require('../models/Pot.js');
 const participantRepo = require('../repositories/participantRepo.js');
 const { rand } = require('./generalFunctions.js');
+const { logger } = require('./logger');
 
 /**
  * Checks if a player is a valid winner by verifying their presence in the list of participants.
@@ -109,32 +110,192 @@ async function getLastPlayers(game) {
 /**
  * Reorganizes the pots by:
  * - Adding remaining players to the main pot.
- * - Sorting all pots in ascending order by their value.
- * - Adjusting each side pot’s value so that players can only win up to what they contributed.
+ * - Sorting all pots in ascending order by their highestBet value.
+ * - Adjusting each side pot's value so that players can only win up to what they contributed.
  */
 async function reorgPots(game) {
-  // Add participants to the main pot.
-  const lastPlayers = await getLastPlayers(game);
-  const promises = lastPlayers.map((player) =>
-    participantRepo.createParticipant(game.mainPot, player.userId),
-  );
-  await Promise.all(promises);
+  try {
+    // Validate input
+    if (!game?.mainPot) {
+      throw new Error('Game main pot is required for pot reorganization');
+    }
 
-  // Retrieve and sort the pots in ascending order by value.
-  let pots = await game.getPots();
-  pots = await Promise.all(pots.map(async (pot) => await Pot.get(pot.id)));
-  pots.sort((a, b) => a.value - b.value);
+    if (!game?.id) {
+      throw new Error('Game ID is required for pot reorganization');
+    }
 
-  // Adjust each pot's value to reflect only the additional amount contributed beyond previous pots.
-  let previous = 0;
-  for (let i = 0; i < pots.length; i++) {
-    const originalValue = pots[i].value;
-    const effectiveValue = originalValue - previous;
-    await pots[i].set('value', effectiveValue);
-    previous = originalValue;
+    // Add participants to the main pot with error handling
+    const lastPlayers = await getLastPlayers(game);
+
+    if (!Array.isArray(lastPlayers)) {
+      throw new Error('Failed to retrieve active players list');
+    }
+
+    if (lastPlayers.length === 0) {
+      throw new Error('No active players found for pot reorganization');
+    }
+
+    // Use Promise.allSettled instead of Promise.all to handle partial failures
+    const participantPromises = lastPlayers.map(async (player) => {
+      if (!player?.userId) {
+        throw new Error(`Invalid player data: missing userId`);
+      }
+      return participantRepo.createParticipant(game.mainPot, player.userId);
+    });
+
+    const participantResults = await Promise.allSettled(participantPromises);
+
+    // Check for failures in participant creation
+    const participantFailures = participantResults.filter(
+      (result) => result.status === 'rejected',
+    );
+    if (participantFailures.length > 0) {
+      logger.warn(
+        `Warning: ${participantFailures.length} participant creations failed during pot reorganization`,
+        {
+          metadata: { 
+            chatName: 'SYSTEM',
+            author: 'PotReorganization',
+            gameId: game.id,
+            failureCount: participantFailures.length
+          },
+        }
+      );
+      // Log failures but continue - some participants may already exist
+      participantFailures.forEach((failure, index) => {
+        logger.warn(
+          `Participant creation failed for player ${lastPlayers[index]?.userId}: ${failure.reason}`,
+          {
+            metadata: { 
+              chatName: 'SYSTEM',
+              author: 'PotReorganization',
+              gameId: game.id,
+              playerId: lastPlayers[index]?.userId
+            },
+          }
+        );
+      });
+    }
+
+    // Retrieve and sort the pots with error handling
+    let pots = await game.getPots();
+
+    if (!Array.isArray(pots)) {
+      throw new Error('Failed to retrieve pots from game');
+    }
+
+    // Fetch pot details with error handling
+    const potDetailPromises = pots.map(async (pot) => {
+      if (!pot?.id) {
+        throw new Error(`Invalid pot data: missing pot ID`);
+      }
+      const potDetail = await Pot.get(pot.id);
+      if (!potDetail) {
+        throw new Error(`Pot with ID ${pot.id} not found`);
+      }
+      return potDetail;
+    });
+
+    const potDetailResults = await Promise.allSettled(potDetailPromises);
+
+    // Filter successful pot retrievals
+    pots = potDetailResults
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => result.value);
+
+    const potFailures = potDetailResults.filter(
+      (result) => result.status === 'rejected',
+    );
+    if (potFailures.length > 0) {
+      throw new Error(
+        `Failed to retrieve ${potFailures.length} pot details: ${potFailures.map((f) => f.reason).join(', ')}`,
+      );
+    }
+
+    if (pots.length === 0) {
+      throw new Error('No valid pots found for reorganization');
+    }
+
+    pots.sort((a, b) => a.highestBet - b.highestBet);
+
+    // Adjust each pot's value with error handling
+    let previous = 0;
+    const potUpdatePromises = [];
+
+    for (let i = 0; i < pots.length; i++) {
+      try {
+        const currentPot = pots[i];
+        const currentLevel = currentPot.highestBet;
+        const previousLevel = previous;
+
+        // Calculate the effective value for this pot level
+        const levelContribution = currentLevel - previousLevel;
+
+        if (levelContribution < 0) {
+          throw new Error(
+            `Invalid pot level contribution: ${levelContribution} for pot ${currentPot.id}`,
+          );
+        }
+
+        // Get participants for this pot with error handling
+        const participants = await currentPot.getParticipants();
+
+        if (!Array.isArray(participants)) {
+          throw new Error(
+            `Failed to get participants for pot ${currentPot.id}`,
+          );
+        }
+
+        // Calculate the actual pot value based on participant contributions
+        // Each participant contributes the levelContribution amount to this pot
+        const actualPotValue = participants.length * levelContribution;
+
+        if (actualPotValue < 0) {
+          throw new Error(
+            `Calculated negative pot value: ${actualPotValue} for pot ${currentPot.id}`,
+          );
+        }
+
+        // Queue the pot update
+        potUpdatePromises.push(currentPot.set('value', actualPotValue));
+        previous = currentLevel;
+      } catch (potError) {
+        throw new Error(
+          `Failed to process pot ${pots[i]?.id || 'unknown'}: ${potError.message}`,
+        );
+      }
+    }
+
+    // Execute all pot updates
+    const updateResults = await Promise.allSettled(potUpdatePromises);
+    const updateFailures = updateResults.filter(
+      (result) => result.status === 'rejected',
+    );
+
+    if (updateFailures.length > 0) {
+      throw new Error(
+        `Failed to update ${updateFailures.length} pots: ${updateFailures.map((f) => f.reason).join(', ')}`,
+      );
+    }
+
+    return pots;
+  } catch (error) {
+    // Log the error with context for debugging
+    logger.error('Pot reorganization failed', {
+      metadata: {
+        chatName: 'SYSTEM',
+        author: 'PotReorganization',
+        gameId: game?.id,
+        error: error.message,
+        stack: error.stack,
+      },
+    });
+
+    // Re-throw with context
+    throw new Error(
+      `Pot reorganization failed for game ${game?.id}: ${error.message}`,
+    );
   }
-
-  return pots;
 }
 
 /**
@@ -172,7 +333,7 @@ async function calcWinners(game, pots) {
 
       if (potWinners.length > 0) {
         winners = rakeToWinners(
-          potWinners.slice(), // use a copy so the original array isn’t mutated
+          potWinners.slice(), // use a copy so the original array isn't mutated
           pot.value,
           winners,
           potWinners.map((pw) => pw.userId),

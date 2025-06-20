@@ -4,30 +4,9 @@ const Game = require('../models/Game.js');
 const OpenAI = require('openai');
 const Groq = require('groq-sdk');
 const Redis = require('ioredis');
-const winston = require('winston');
+const { logger } = require('./logger');
 // Import database connection for validation
 const { connection: db } = require('../../db/db.ts');
-
-// Configure Winston Logger
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp'] }),
-    winston.format.printf(info => {
-      const { timestamp, level, message, metadata } = info;
-      const chatName = metadata?.chatName || 'SYSTEM';
-      const author = metadata?.author || '-';
-      // Handle cases where message might be an object (like errors)
-      const msg = typeof message === 'string' ? message : JSON.stringify(message);
-      return `[${timestamp}] [${level.toUpperCase()}] [${chatName}] [${author}] ${msg}`;
-    })
-  ),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'pok_app.log' })
-  ]
-});
 
 // Database health check configuration
 const DB_HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
@@ -60,7 +39,6 @@ function validateEnvVariables() {
 
   Object.entries(optionalWarnings).forEach(([key, message]) => {
     if (!process.env[key]) {
-      // console.warn(message);
       logger.warn(message);
     }
   });
@@ -111,11 +89,11 @@ async function filterMessage(message) {
     .toLowerCase()
     .split(' ')
     .filter((word) => word != '');
-// The old solution to get the phone number. Replaced by the lines below (commented out):
+  // The old solution to get the phone number. Replaced by the lines below (commented out):
   // // Use message.from (sender ID) as fallback if author is undefined (e.g., private chats in message_create)
   // const authorInput = message.author; // Store original for comparison
   // const fromInput = message.from;
-  //  const authorId = authorInput ? String(authorInput).match(/\d+/)?.[0] : String(fromInput).match(/\d+/)?.[0]; 
+  //  const authorId = authorInput ? String(authorInput).match(/\d+/)?.[0] : String(fromInput).match(/\d+/)?.[0];
   const authorId = (await message.getContact()).number;
   message.author = authorId;
 
@@ -123,7 +101,11 @@ async function filterMessage(message) {
 }
 
 function filterChat(chat) {
-  const filtered = getProperties(chat, ['id', 'name', 'isGroup'], ['sendMessage']);
+  const filtered = getProperties(
+    chat,
+    ['id', 'name', 'isGroup'],
+    ['sendMessage'],
+  );
   // For private chats, chat.name might be null/undefined. Use user ID as name in that case.
   if (!filtered.name && filtered.id?.user) {
     filtered.name = filtered.id.user;
@@ -171,7 +153,6 @@ async function translate(body, systemMessage) {
       })
     ).choices[0]?.message?.content;
   } catch (e) {
-    // console.log('Groq Failed ---', e);
     logger.error('Groq API call failed', { metadata: { error: e } });
     return (
       await glhf.chat.completions.create({
@@ -200,38 +181,87 @@ function processOutput(body) {
 const redis = new Redis({
   host: process.env.REDIS_HOST,
   password: process.env.REDIS_PASSWORD,
-  retryStrategy: (times) => Math.min(times * 50, 2000),
-  reconnectOnError: () => true,
+  retryStrategy: () => null, // Disable automatic retries, we'll handle them manually
+  lazyConnect: true, // Don't connect immediately
+  maxRetriesPerRequest: 0, // Don't retry individual commands
 });
+
+// Track Redis connection state
+let isRedisHealthy = false;
+
+// Redis connection retry configuration
+const REDIS_RETRY_INTERVAL = 5000; // 5 seconds
+
+/**
+ * Attempts to connect to Redis and logs the result.
+ * @returns {Promise<boolean>} - True if connection successful, false otherwise
+ */
+async function attemptRedisConnection() {
+  try {
+    await redis.connect();
+    isRedisHealthy = true;
+    return true;
+  } catch (error) {
+    logger.error(`Redis connection failed: ${error.message}`, {
+      metadata: {
+        errorCode: error.code,
+        host: process.env.REDIS_HOST,
+      },
+    });
+    isRedisHealthy = false;
+    return false;
+  }
+}
 
 // Listen for Redis events
 redis.on('error', (err) => {
-  // console.error('Redis error:', err);
-  logger.error('Redis error', { metadata: { error: err } });
+  if (isRedisHealthy) {
+    logger.error(`Redis error: ${err.message}`, { metadata: { error: err } });
+    isRedisHealthy = false;
+  }
 });
 
 redis.on('connect', () => {
-  // console.log('Redis connected');
-  logger.info('Redis connected');
+  if (!isRedisHealthy) {
+    logger.info('Redis connected successfully');
+    isRedisHealthy = true;
+  }
 });
 
 redis.on('end', () => {
-  // console.warn('Redis connection ended');
-  logger.warn('Redis connection ended');
+  if (isRedisHealthy) {
+    logger.warn('Redis connection ended');
+    isRedisHealthy = false;
+  }
 });
 
+redis.on('close', () => {
+  if (isRedisHealthy) {
+    isRedisHealthy = false;
+  }
+});
+
+// Start Redis connection attempts (non-blocking)
+(async () => {
+  while (true) {
+    if (!isRedisHealthy) {
+      await attemptRedisConnection();
+    }
+    await delay(REDIS_RETRY_INTERVAL);
+  }
+})();
+
 // Initialize PostgreSQL database connection validation
-let isDbHealthy = true; // Track database connection state
+let isDbHealthy = false; // Track database connection state
 
 /**
  * Validates the PostgreSQL database connection by executing a simple test query.
  * This function is called at application startup and logs the connection status.
- * 
+ *
  * @returns {Promise<Array>} - Result of the test query
  * @throws {Error} - If the database connection fails
  */
 async function validateDatabaseConnection() {
-  logger.info('Attempting PostgreSQL database connection');
   try {
     // Test the database connection with a simple query using postgres.js syntax
     const result = await db`SELECT 1 as test`;
@@ -240,16 +270,34 @@ async function validateDatabaseConnection() {
     return result;
   } catch (error) {
     // Log clean error message without verbose details
-    logger.error(`PostgreSQL database connection failed: ${error.message}`, { 
-      metadata: { 
+    logger.error(`PostgreSQL database Error: ${error.errors}`, {
+      metadata: {
         errorCode: error.code,
         database: process.env.POSTGRES_DB,
-        host: process.env.POSTGRES_HOST
-      } 
+        host: process.env.POSTGRES_HOST,
+      },
     });
-    
+
     isDbHealthy = false;
     throw error;
+  }
+}
+
+/**
+ * Continuously attempts to connect to the PostgreSQL database until successful.
+ * This function will retry indefinitely with a delay between attempts.
+ * 
+ * @param {number} retryDelayMs - Delay between retry attempts in milliseconds (default: 5000)
+ * @returns {Promise<Array>} - Result of the successful test query
+ */
+async function waitForDatabaseConnection(retryDelayMs = 5000) {
+  while (true) {
+    try {
+      const result = await validateDatabaseConnection();
+      return result;
+    } catch (error) {
+      await delay(retryDelayMs);
+    }
   }
 }
 
@@ -263,16 +311,18 @@ setInterval(async () => {
     await db`SELECT 1`;
     // Only log if connection was previously unhealthy
     if (!isDbHealthy) {
-      logger.info('PostgreSQL database connection restored');
+      logger.info('PostgreSQL database connected successfully');
       isDbHealthy = true;
     }
   } catch (error) {
     // Only log if connection was previously healthy
     if (isDbHealthy) {
-      logger.error(`PostgreSQL database health check failed: ${error.message}`, { 
-        metadata: { 
-          errorCode: error.code
-        } 
+      logger.error(`PostgreSQL database connection failed: ${error.message}`, {
+        metadata: {
+          errorCode: error.code,
+          database: process.env.POSTGRES_DB,
+          host: process.env.POSTGRES_HOST,
+        },
       });
       isDbHealthy = false;
     }
@@ -291,7 +341,6 @@ async function messageToCommand(body) {
         return processOutput(cachedResult);
       }
     } catch (err) {
-      // console.error('Redis get error:', err);
       logger.error('Redis GET error', { metadata: { error: err, cacheKey } });
     }
   }
@@ -311,8 +360,9 @@ async function messageToCommand(body) {
         await trimCache();
       }
     } catch (err) {
-      // console.error('Redis set error:', err);
-      logger.error('Redis SET/ZADD/TRIM error', { metadata: { error: err, cacheKey } });
+      logger.error('Redis SET/ZADD/TRIM error', {
+        metadata: { error: err, cacheKey },
+      });
     }
   }
 
@@ -333,7 +383,6 @@ async function trimCache() {
       await redis.zrem(constants.DATE_CACHE_NAME, ...oldestKeys);
     }
   } catch (err) {
-    // console.error('Redis trim cache error:', err);
     logger.error('Redis TRIM error', { metadata: { error: err } });
   }
 }
@@ -346,12 +395,12 @@ module.exports = {
   filterWhatsapp,
   filterMessage,
   filterChat,
-  // logMessage, // Removed original logMessage
-  logger, // Export the logger instance
+  logger,
   lockGame,
   unlockGame,
   getGame,
   translate,
   messageToCommand,
-  validateDatabaseConnection, // Export the new database validation function
+  validateDatabaseConnection,
+  waitForDatabaseConnection, 
 };
