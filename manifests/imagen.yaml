@@ -15,30 +15,10 @@ spec:
       labels:
         app: imagen
     spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - pok
-            topologyKey: kubernetes.io/hostname
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
-      initContainers:
-      - name: wait-for-pok
-        image: busybox:1.28
-        command: ['sh', '-c', 'until nslookup pok.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for pok; sleep 2; done;']
-      - name: wait-for-volume
-        image: busybox:1.28
-        command: ['sh', '-c', 'sleep 10']
-        volumeMounts:
-        - name: new-cards-volume
-          mountPath: /app/newCards
       containers:
         - name: imagen
           image: dofer123/imagen:latest-aarch64
