@@ -41,7 +41,7 @@ jobs:
           - host: ubuntu-latest
             platform: linux/amd64
             target: x86_64
-          - host: self-hosted
+          - host: ubuntu-latest
             platform: linux/arm64/v8
             target: aarch64
     steps:
