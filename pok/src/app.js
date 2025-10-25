@@ -23,7 +23,8 @@ const actions = require('./router/actions.js');
 
 validateEnvVariables();
 
-// Wait for database connection at startup - this blocks the app until connected
+// Wait for database connection at startup and initialize schema if needed
+// This blocks the app until connected and migrated (on first run)
 (async () => {
   await waitForDatabaseConnection();
 
