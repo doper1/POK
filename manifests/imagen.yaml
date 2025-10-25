@@ -37,7 +37,6 @@ spec:
           volumeMounts:
             - name: new-cards-volume
               mountPath: /app/newCards
-              readOnly: true
           resources:
             requests:
               memory: "256Mi"
@@ -56,7 +55,6 @@ spec:
         - name: new-cards-volume
           persistentVolumeClaim:
             claimName: new-cards-pvc
-            readOnly: true
 ---
 apiVersion: v1
 kind: Service
