@@ -16,7 +16,7 @@ services:
     restart: always
     env_file: .env
     ports:
-      - 6379:6379
+      - 6379:6379A
       - 8001:8001
 
   api:
@@ -25,7 +25,8 @@ services:
         condition: service_started
       cache:
         condition: service_started
-    image: dofer123/pok:latest-${PLATFORM:-x86_64}
+    build: ./pok
+    # image: dofer123/pok:latest-${PLATFORM:-x86_64}
     restart: always
     env_file: .env
     environment:
@@ -42,7 +43,7 @@ services:
     depends_on:
       db:
         condition: service_started
-    image: dofer123/imagen:latest-${PLATFORM:-x86_64}
+    build: ./imagen
     restart: always
     env_file: .env
     environment:

@@ -89,14 +89,20 @@ async function filterMessage(message) {
     .toLowerCase()
     .split(' ')
     .filter((word) => word != '');
-  // The old solution to get the phone number. Replaced by the lines below (commented out):
-  // // Use message.from (sender ID) as fallback if author is undefined (e.g., private chats in message_create)
-  // const authorInput = message.author; // Store original for comparison
-  // const fromInput = message.from;
-  //  const authorId = authorInput ? String(authorInput).match(/\d+/)?.[0] : String(fromInput).match(/\d+/)?.[0];
-  const authorId = (await message.getContact()).number;
-  message.author = authorId;
 
+  // getContact() fails when the number running the bot sends a message. In this case, take it's ID from the env variable PHONE_NUMBER
+  try {
+  message.author = (await message.getContact()).number;
+  } catch (error) {
+    if (error.message && error.message.includes('Data passed to getter must include an id property')) {
+      message.author = process.env.PHONE_NUMBER;
+    } else if (error.message && error.message.includes('Cannot read properties of undefined (reading \'_serialized\')')) {
+      message.author = process.env.PHONE_NUMBER;
+    } else {
+      console.log('Unexpected error getting contact:', error);
+      message.author = process.env.PHONE_NUMBER;
+    }
+  }
   return getProperties(message, ['body', 'author', 'from'], ['react', 'reply']);
 }
 

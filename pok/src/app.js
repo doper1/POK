@@ -115,7 +115,11 @@ whatsapp.on('message', async (msg) => {
       metadata: { author: msg.from, chatName: chat.name },
     });
 
-    msg.reply(output);
+    if (process.env.ENV === 'dev'){
+      logger.info(`DEV OUTPUT: ${output}`)
+    } else {
+      msg.reply(output);
+    }
   }
 });
 
@@ -254,7 +258,7 @@ whatsapp.on('qr', (qr) => {
 });
 
 whatsapp.on('ready', () => {
-  logger.warn('-----| Client is ready |-----');
+  logger.info('-----| Client is ready |-----');
 });
 
 whatsapp.initialize();
