@@ -25,7 +25,7 @@ spec:
         command: ['sh', '-c', 'until nslookup pok.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for pok; sleep 2; done;']
       containers:
         - name: imagen
-          image: dofer123/imagen:latest-x86_64
+          image: dofer123/imagen:latest-aarch64
           imagePullPolicy: Always
           envFrom:
             - secretRef:
