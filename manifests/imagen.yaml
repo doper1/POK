@@ -1,49 +1,53 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: pok
+  name: imagen
   labels:
-    app: pok
+    app: imagen
 spec:
+  serviceName: imagen
   replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 1
   selector:
     matchLabels:
-      app: pok
+      app: imagen
   template:
     metadata:
       labels:
-        app: pok
+        app: imagen
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
-        - name: pok
-          image: dofer123/pok:latest-aarch64
+        - name: imagen
+          image: dofer123/imagen:latest-x86_64
           imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: pok-secrets
           ports:
-            - containerPort: 3000
+            - containerPort: 8080
               name: http
               protocol: TCP
           volumeMounts:
-            - name: auth-volume
-              mountPath: /app/auth
             - name: new-cards-volume
               mountPath: /app/newCards
           resources:
             requests:
-              memory: "1Gi"
-              cpu: "1000m"
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "400m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
       restartPolicy: Always
       volumes:
-        - name: auth-volume
-          persistentVolumeClaim:
-            claimName: auth-pvc
         - name: new-cards-volume
           persistentVolumeClaim:
             claimName: new-cards-pvc
@@ -51,15 +55,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: pok
+  name: imagen
   labels:
-    app: pok
+    app: imagen
 spec:
   selector:
-    app: pok
+    app: imagen
   ports:
-    - port: 3000
-      targetPort: 3000
+    - port: 8080
+      targetPort: 8080
       protocol: TCP
       name: http
   type: ClusterIP

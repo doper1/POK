@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pok
+  labels:
+    app: pok
+spec:
+  serviceName: pok
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pok
+  template:
+    metadata:
+      labels:
+        app: pok
+    spec:
+      containers:
+        - name: pok
+          image: dofer123/pok:latest-aarch64
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: pok-secrets
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - name: auth-volume
+              mountPath: /app/auth
+            - name: new-cards-volume
+              mountPath: /app/newCards
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1000m"
+      restartPolicy: Always
+      volumes:
+        - name: auth-volume
+          persistentVolumeClaim:
+            claimName: auth-pvc
+        - name: new-cards-volume
+          persistentVolumeClaim:
+            claimName: new-cards-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pok
+  labels:
+    app: pok
+spec:
+  selector:
+    app: pok
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  type: ClusterIP
