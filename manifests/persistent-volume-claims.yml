@@ -16,7 +16,7 @@ metadata:
   name: new-cards-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: longhorn
   resources:
     requests:
