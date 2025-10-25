@@ -1,5 +1,5 @@
 # Build stage with cargo-chef for optimal caching
-FROM clux/muslrust:stable AS chef
+FROM clux/muslrust:1.90.0-stable AS chef
 WORKDIR /app
 
 # Install cargo-chef
