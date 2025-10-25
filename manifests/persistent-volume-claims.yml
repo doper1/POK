@@ -4,7 +4,7 @@ metadata:
   name: auth-pvc
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   storageClassName: longhorn
   resources:
     requests:
@@ -16,7 +16,7 @@ metadata:
   name: new-cards-pvc
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   storageClassName: longhorn
   resources:
     requests:
@@ -32,4 +32,4 @@ spec:
   storageClassName: longhorn
   resources:
     requests:
-      storage: 5Gi 
+      storage: 5Gi
