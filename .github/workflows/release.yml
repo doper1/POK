@@ -85,20 +85,20 @@ jobs:
           build-args: |
             TARGET=${{ matrix.target }}
 
-  call-deploy-pok:
-    if: ${{ needs.release.outputs.pok--release_created }}
-    needs:
-      - release
-      - build-and-push
+  # call-deploy-pok:
+  #   if: ${{ needs.release.outputs.pok--release_created }}
+  #   needs:
+  #     - release
+  #     - build-and-push
 
-    uses: ./.github/workflows/deploy_pok.yml
-    secrets: inherit
+  #   uses: ./.github/workflows/deploy_pok.yml
+  #   secrets: inherit
 
-  call-deploy-imagen:
-    if: ${{ needs.release.outputs.imagen--release_created }}
-    needs:
-      - release
-      - build-and-push
+  # call-deploy-imagen:
+  #   if: ${{ needs.release.outputs.imagen--release_created }}
+  #   needs:
+  #     - release
+  #     - build-and-push
 
-    uses: ./.github/workflows/deploy_imagen.yml
-    secrets: inherit
+  #   uses: ./.github/workflows/deploy_imagen.yml
+  #   secrets: inherit
