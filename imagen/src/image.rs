@@ -43,6 +43,7 @@ async fn generate_image(
     Ok(())
 }
 
+// Optimize using optipng
 async fn optimize_image(target: &str) -> Result<Output, Error> {
     let args: [String; 4] = [
         String::from("-strip"),
