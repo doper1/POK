@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.9.0](https://github.com/doper1/POK/compare/POK@v7.8.0...POK@v7.9.0) (2025-10-25)
+
+
+### Features
+
+* **pok:** create schema on startup ([c446eee](https://github.com/doper1/POK/commit/c446eee7fd8c61e5a970cc3aaf6562180ce3aa80))
+
 ## [7.8.0](https://github.com/doper1/POK/compare/POK@v7.7.2...POK@v7.8.0) (2025-10-25)
 
 
