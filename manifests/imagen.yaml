@@ -30,9 +30,6 @@ spec:
             - containerPort: 8080
               name: http
               protocol: TCP
-          volumeMounts:
-            - name: new-cards-volume
-              mountPath: /app/newCards
           resources:
             requests:
               memory: "256Mi"
@@ -46,11 +43,14 @@ spec:
             capabilities:
               drop:
                 - ALL
-      restartPolicy: Always
+          volumeMounts:
+            - name: new-cards-volume
+              mountPath: /app/newCards
       volumes:
         - name: new-cards-volume
           persistentVolumeClaim:
             claimName: new-cards-pvc
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
