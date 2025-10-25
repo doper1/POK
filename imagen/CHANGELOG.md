@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3](https://github.com/doper1/POK/compare/imagen@v2.3.2...imagen@v2.3.3) (2025-10-25)
+
+
+### Bug Fixes
+
+* **imagen:** dockerfile ([f163ca6](https://github.com/doper1/POK/commit/f163ca62cd6dc6e31f844a9b47473a1a069a700b))
+
 ## [2.3.2](https://github.com/doper1/POK/compare/imagen@v2.3.1...imagen@v2.3.2) (2025-01-28)
 
 
