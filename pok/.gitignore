@@ -9,3 +9,4 @@ newCards
 pok_app.log
 *.sql
 !mocked_test_data.sql
+!db/migrations/**/*.sql

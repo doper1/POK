@@ -92,10 +92,28 @@ async function runDatabaseMigrations() {
     // Find the correct migrations folder path
     for (const testPath of possiblePaths) {
       const journalPath = path.join(testPath, 'meta', '_journal.json');
+      logger.info(`Checking path: ${testPath}`);
+      logger.info(`Looking for journal at: ${journalPath}`);
+      
+      // Check if directory exists first
+      if (fs.existsSync(testPath)) {
+        logger.info(`Directory exists: ${testPath}`);
+        try {
+          const contents = fs.readdirSync(testPath);
+          logger.info(`Directory contents: ${contents.join(', ')}`);
+        } catch (err) {
+          logger.warn(`Cannot read directory: ${err.message}`);
+        }
+      } else {
+        logger.info(`Directory does not exist: ${testPath}`);
+      }
+      
       if (fs.existsSync(journalPath)) {
         migrationsFolder = testPath;
         logger.info(`Found migrations folder at: ${migrationsFolder}`);
         break;
+      } else {
+        logger.info(`Journal file not found at: ${journalPath}`);
       }
     }
     
