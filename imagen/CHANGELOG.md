@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/doper1/POK/compare/imagen@v2.3.3...imagen@v2.4.0) (2025-10-25)
+
+
+### Features
+
+* **imagen:** build new version ([5a30596](https://github.com/doper1/POK/commit/5a305965fb222aba9b01c4f011c26c15c41ad94f))
+
 ## [2.3.3](https://github.com/doper1/POK/compare/imagen@v2.3.2...imagen@v2.3.3) (2025-10-25)
 
 
