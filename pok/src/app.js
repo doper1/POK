@@ -15,8 +15,8 @@ const {
   messageToCommand,
   unlockGame,
   translate,
-  waitForDatabaseConnection,
 } = require('./utils/middleware.js');
+const { waitForDatabaseConnection } = require('./utils/dbInit.js');
 const router = require('./router/index.js');
 const constants = require('./utils/constants');
 const actions = require('./router/actions.js');

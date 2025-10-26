@@ -5,13 +5,6 @@ const OpenAI = require('openai');
 const Groq = require('groq-sdk');
 const Redis = require('ioredis');
 const { logger } = require('./logger');
-// Import database connection for validation
-const { connection: db, db: drizzleDb } = require('../../db/db.ts');
-const { migrate } = require('drizzle-orm/postgres-js/migrator');
-const path = require('path');
-
-// Database health check configuration
-const DB_HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
 
 function validateEnvVariables() {
   const requiredVars = [
@@ -259,161 +252,6 @@ redis.on('close', () => {
   }
 })();
 
-// Initialize PostgreSQL database connection validation
-let isDbHealthy = false; // Track database connection state
-
-/**
- * Validates the PostgreSQL database connection by executing a simple test query.
- * This function is called at application startup and logs the connection status.
- *
- * @returns {Promise<Array>} - Result of the test query
- * @throws {Error} - If the database connection fails
- */
-async function validateDatabaseConnection() {
-  try {
-    // Test the database connection with a simple query using postgres.js syntax
-    const result = await db`SELECT 1 as test`;
-    logger.info('PostgreSQL database connected successfully');
-    isDbHealthy = true;
-    return result;
-  } catch (error) {
-    // Log clean error message without verbose details
-    logger.error(`PostgreSQL database Error: ${error.errors}`, {
-      metadata: {
-        errorCode: error.code,
-        database: process.env.POSTGRES_DB,
-        host: process.env.POSTGRES_HOST,
-      },
-    });
-
-    isDbHealthy = false;
-    throw error;
-  }
-}
-
-/**
- * Checks if the database schema is initialized by verifying if core tables exist.
- * This function queries the information_schema to check for the existence of expected tables.
- *
- * @returns {Promise<boolean>} - True if schema is initialized, false otherwise
- */
-async function isDatabaseSchemaInitialized() {
-  try {
-    // Check if the 'game' table exists (core table that should always be present)
-    const result = await db`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name = 'game'
-      ) as table_exists
-    `;
-    
-    return result[0]?.table_exists || false;
-  } catch (error) {
-    logger.error('Failed to check database schema initialization', {
-      metadata: { error: error.message },
-    });
-    return false;
-  }
-}
-
-/**
- * Runs Drizzle migrations to initialize the database schema.
- * This function is called automatically on first startup if the schema is not initialized.
- *
- * @returns {Promise<void>}
- * @throws {Error} - If migrations fail
- */
-async function runDatabaseMigrations() {
-  try {
-    logger.info('Database schema not found. Running migrations...');
-    
-    // Get the absolute path to the migrations folder
-    const migrationsFolder = path.join(__dirname, '../../db/migrations');
-    
-    // Run migrations using Drizzle's migrate function
-    await migrate(drizzleDb, { migrationsFolder });
-    
-    logger.info('Database migrations completed successfully');
-  } catch (error) {
-    logger.error('Failed to run database migrations', {
-      metadata: {
-        error: error.message,
-        stack: error.stack,
-      },
-    });
-    throw error;
-  }
-}
-
-/**
- * Continuously attempts to connect to the PostgreSQL database until successful.
- * Once connected, checks if the database schema is initialized and runs migrations if needed.
- * This function will retry indefinitely with a delay between attempts.
- * 
- * @param {number} retryDelayMs - Delay between retry attempts in milliseconds (default: 5000)
- * @returns {Promise<Array>} - Result of the successful test query
- */
-async function waitForDatabaseConnection(retryDelayMs = 5000) {
-  // Step 1: Wait for database connection
-  while (true) {
-    try {
-      const result = await validateDatabaseConnection();
-      break; // Connection successful, proceed to schema check
-    } catch (error) {
-      await delay(retryDelayMs);
-    }
-  }
-
-  // Step 2: Check if schema is initialized
-  try {
-    const schemaInitialized = await isDatabaseSchemaInitialized();
-    
-    if (!schemaInitialized) {
-      logger.info('Database schema not initialized. Running migrations for first time setup...');
-      await runDatabaseMigrations();
-      logger.info('Database is now ready for use');
-    } else {
-      logger.info('Database schema is already initialized');
-    }
-  } catch (error) {
-    logger.error('Failed to initialize database schema', {
-      metadata: { error: error.message },
-    });
-    throw error;
-  }
-
-  return await db`SELECT 1 as test`;
-}
-
-// Note: postgres.js doesn't support traditional event listeners like .on('error')
-// Instead, we rely on try/catch blocks and periodic health checks
-
-// Add a periodic health check for the database connection
-// This helps monitor database connectivity and logs state changes
-setInterval(async () => {
-  try {
-    await db`SELECT 1`;
-    // Only log if connection was previously unhealthy
-    if (!isDbHealthy) {
-      logger.info('PostgreSQL database connected successfully');
-      isDbHealthy = true;
-    }
-  } catch (error) {
-    // Only log if connection was previously healthy
-    if (isDbHealthy) {
-      logger.error(`PostgreSQL database connection failed: ${error.message}`, {
-        metadata: {
-          errorCode: error.code,
-          database: process.env.POSTGRES_DB,
-          host: process.env.POSTGRES_HOST,
-        },
-      });
-      isDbHealthy = false;
-    }
-  }
-}, DB_HEALTH_CHECK_INTERVAL);
-
 async function messageToCommand(body) {
   const cacheKey = body.join('_').toLowerCase();
   const isCacheValid = body.length <= 6 && body.join('').length <= 40;
@@ -480,14 +318,9 @@ module.exports = {
   filterWhatsapp,
   filterMessage,
   filterChat,
-  logger,
   lockGame,
   unlockGame,
   getGame,
   translate,
   messageToCommand,
-  validateDatabaseConnection,
-  waitForDatabaseConnection,
-  isDatabaseSchemaInitialized,
-  runDatabaseMigrations,
 };
