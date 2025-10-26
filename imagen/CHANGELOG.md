@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/doper1/POK/compare/imagen@v2.5.0...imagen@v2.6.0) (2025-10-26)
+
+
+### Features
+
+* **imagen:** docker file fix ([8bd3ae0](https://github.com/doper1/POK/commit/8bd3ae02bf7bbc7d95df1cabdc6542c6f0dc43a1))
+
 ## [2.5.0](https://github.com/doper1/POK/compare/imagen@v2.4.0...imagen@v2.5.0) (2025-10-26)
 
 
