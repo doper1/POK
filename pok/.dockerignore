@@ -4,3 +4,4 @@
 # Ignore unneeded DB files
 /db/seed.ts
 /db/wipeDatabase.ts
+
