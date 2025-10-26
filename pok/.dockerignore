@@ -2,7 +2,5 @@
 **__tests__
 
 # Ignore unneeded DB files
-/db/migrations
-/db/migrate.ts
 /db/seed.ts
 /db/wipeDatabase.ts
