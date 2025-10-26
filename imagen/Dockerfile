@@ -30,6 +30,7 @@ RUN cargo build --release --target ${TARGET}-unknown-linux-musl --bin imagen
 
 # Runtime stage
 FROM alpine:3.19 AS runtime
+ARG TARGET=x86_64
 
 # Copy cards directory
 COPY cards cards
@@ -44,7 +45,7 @@ RUN addgroup -S pok && \
     optipng
 
 # Copy binary from builder stage
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/imagen /app/imagen
+COPY --from=builder /app/target/${TARGET}-unknown-linux-musl/release/imagen /app/imagen
 
 # Switch to non-root user
 USER pok
