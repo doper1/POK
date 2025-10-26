@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.0.2](https://github.com/doper1/POK/compare/POK@v8.0.1...POK@v8.0.2) (2025-10-26)
+
+
+### Bug Fixes
+
+* **pok:** remove migrations from gitignore ([d8426dc](https://github.com/doper1/POK/commit/d8426dc4de67d92d0512f03360b081e4d5bfdf21))
+
 ## [8.0.1](https://github.com/doper1/POK/compare/POK@v8.0.0...POK@v8.0.1) (2025-10-26)
 
 
