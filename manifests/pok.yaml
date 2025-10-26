@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: pok
-          image: dofer123/pok:7.9.0-aarch64
+          image: dofer123/pok:8.0.0-aarch64
           imagePullPolicy: Always
           envFrom:
             - secretRef:
