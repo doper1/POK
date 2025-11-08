@@ -7,6 +7,17 @@
 @import '@skeletonlabs/skeleton/optional/presets';
 @import '@skeletonlabs/skeleton/themes/mona';
 
+/* Force dark mode - override any light mode preferences */
+:root {
+	color-scheme: dark only;
+}
+
+html,
+body {
+	background-color: #161616 !important;
+	color: #ffffff !important;
+}
+
 /* Custom CSS Additions */
 .text-ubuntu {
 	font-family: 'Ubuntu', sans-serif;
