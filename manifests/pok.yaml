@@ -19,23 +19,25 @@ spec:
         - name: pok
           image: dofer123/pok:8.0.0-aarch64
           imagePullPolicy: Always
-          envFrom:
-            - secretRef:
-                name: pok-secrets
           ports:
             - containerPort: 3000
               name: http
               protocol: TCP
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1000m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          envFrom:
+            - secretRef:
+                name: pok-secrets
           volumeMounts:
             - name: auth-volume
               mountPath: /app/auth
             - name: new-cards-volume
               mountPath: /app/newCards
-          resources:
-            requests:
-              memory: "1Gi"
-              cpu: "1000m"
-      restartPolicy: Always
       volumes:
         - name: auth-volume
           persistentVolumeClaim:
@@ -43,6 +45,7 @@ spec:
         - name: new-cards-volume
           persistentVolumeClaim:
             claimName: new-cards-pvc
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service

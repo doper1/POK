@@ -15,17 +15,10 @@ spec:
       labels:
         app: imagen
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 1000
       containers:
         - name: imagen
           image: dofer123/imagen:latest-aarch64
           imagePullPolicy: Always
-          envFrom:
-            - secretRef:
-                name: pok-secrets
           ports:
             - containerPort: 8080
               name: http
@@ -37,12 +30,9 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "400m"
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop:
-                - ALL
+          envFrom:
+            - secretRef:
+                name: pok-secrets
           volumeMounts:
             - name: new-cards-volume
               mountPath: /app/newCards
