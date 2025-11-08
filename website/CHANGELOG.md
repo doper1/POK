@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.1](https://github.com/doper1/POK/compare/website@v5.0.0...website@v5.0.1) (2025-11-08)
+
+
+### Bug Fixes
+
+* **website:** remove device based white mode ([77891a5](https://github.com/doper1/POK/commit/77891a5a9e4d300a83056a7338d13443396a2efe))
+* **website:** remove device based white mode ([2f02363](https://github.com/doper1/POK/commit/2f02363e40fe567216b70bc988f5d6ab86a00f1e))
+
 ## 5.0.0 (2025-06-02)
 
 
