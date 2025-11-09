@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.1.0](https://github.com/doper1/POK/compare/POK@v8.0.3...POK@v8.1.0) (2025-11-09)
+
+
+### Features
+
+* **pok:** mark current player with emoji ([73d1b12](https://github.com/doper1/POK/commit/73d1b127578277c2630bfb85c533088b8437882d))
+
 ## [8.0.3](https://github.com/doper1/POK/compare/POK@v8.0.2...POK@v8.0.3) (2025-11-09)
 
 
