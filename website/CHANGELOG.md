@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.2](https://github.com/doper1/POK/compare/website@v5.0.1...website@v5.0.2) (2025-11-09)
+
+
+### Bug Fixes
+
+* **website:** remove extra darkmode tags ([3a552f1](https://github.com/doper1/POK/commit/3a552f1dda98c4fefece97ac8a54d71ba820644d))
+
 ## [5.0.1](https://github.com/doper1/POK/compare/website@v5.0.0...website@v5.0.1) (2025-11-08)
 
 
