@@ -177,7 +177,7 @@ class Game {
       }
 
       if (current.userId === this.currentPlayer) {
-        orderString += `*_`;
+        orderString += `*_ 🕙`;
       } else if (
         !constants.PLAYER_IN_THE_GAME_STATUSES.includes(current.status)
       ) {
