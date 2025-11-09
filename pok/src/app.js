@@ -144,15 +144,16 @@ whatsapp.on('group_join', async (event) => {
       `*Welcome to the poker table!*\n\n${constants.HELP_MESSAGE}`,
     );
 
-    logger.info('EVENT Player join', {
+    logger.info('EVENT Group join', {
       metadata: { author: playerId, chatName: chatName },
     });
   } catch (error) {
-    logger.error('EVENT Player join error', {
+    logger.error('EVENT Group join error', {
       metadata: { author: playerId, chatName: chatName, error: error.message },
     });
   }
 });
+
 // When player leaves or is removed, exit them from the game.
 // If the bot is removed, delete the game data and exit all players.
 whatsapp.on('group_leave', async (event) => {

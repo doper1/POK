@@ -25,12 +25,18 @@ async function router({ whatsapp, message, chat, game, current }) {
     case 'join':
       const players = await game.getPlayers();
 
-      if (await validators.join(game, message, amount, players)) {
-        if (amount !== undefined) {
-          if (await validators.buy(game, message, amount, current, false))
+      // Redirect to buy if player already joined
+      if (current && amount !== undefined) {
+        if (await validators.buy(game, message, amount, current))
+          await actions.buy(game, message, chat, amount, current);
+      } else {
+        if (await validators.join(game, message, amount, players)) {
+          if (amount !== undefined) {
+            if (await validators.buy(game, message, amount, current, false))
+              await actions.join(game, message, chat, amount, players);
+          } else {
             await actions.join(game, message, chat, amount, players);
-        } else {
-          await actions.join(game, message, chat, amount, players);
+          }
         }
       }
       break;
@@ -47,10 +53,6 @@ async function router({ whatsapp, message, chat, game, current }) {
       break;
     case 'end':
       if (validators.end(game, message)) await actions.end(game, message, chat);
-      break;
-    case 'buy':
-      if (await validators.buy(game, message, amount, current))
-        await actions.buy(game, message, chat, amount, current);
       break;
     case 'small':
       amount = Number(message.body[2]);

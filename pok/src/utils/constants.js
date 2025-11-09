@@ -1,5 +1,7 @@
+module.exports.WEBSITE_URL = 'https://pokandplay.netlify.app/';
 module.exports.MODEL_GLHF = 'hf:meta-llama/Llama-3.3-70B-Instruct';
-module.exports.MODEL_GROQ = 'llama-3.3-70b-versatile';
+// module.exports.MODEL_GROQ = 'llama-3.3-70b-versatile'; // old model
+module.exports.MODEL_GROQ = 'groq/compound';
 module.exports.GAME_TYPES = ['nlh'];
 module.exports.GAME_STATUSES = ['pending', 'running', 'to end'];
 module.exports.GAME_RUNNING_STATUSES = ['running', 'to end'];
@@ -37,7 +39,7 @@ module.exports.BIG_BLIND = 2;
 module.exports.HELP_MESSAGE = `🃏 *Need Help or Want to Play?* 🃏
 
 For instructions on how to play, command details, or to add more in-game money, please visit our website:
-🌐 https://pokandplay.netlify.app/
+🌐 ${module.exports.WEBSITE_URL}
 
 📌 Remember: Game actions must be done in a group chat! (But you can always ask questions in my private chat)`;
 
@@ -105,26 +107,23 @@ module.exports.EMOJIES = {
   SAD: ['😔', '😕', '🙁', '😫', '😖', '🙄', '😪'],
 };
 
-module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translator. When you receive a poker-related message, output exactly one of these commands:
-- pok check – Check and pass the turn.
-- pok call – Call the current bet.
-- pok all in – Bet all your chips.
-- pok raise [amount] – Raise by the specified amount. Amount can be a number (e.g., 1, 2, 3, 4),
-  a word (e.g., pot, double, triple, quadruple, half, third, quarter), or a phrase like "2 pots" (meaning double, etc.).
-- pok fold – Fold your hand.
-- pok buy [amount] – Buy chips for the table.
-- pok help – Explains how to play.
-- pok start – Start the game.
-- pok join [amount] – Join the game (optionally buying chips with the given amount).
-- pok show – Display the pot value, players, order, statuses, bets, and current player.
-- pok exit – Leave the game.
-- pok end – End the game for everyone.
-- pok small [amount] – Set the small blind.
-- pok big [amount] – Set the big blind.
-
-If the message isn't clearly poker-related or is non-readable, output 'not related'.
-Translate messages to English before responding - But return only clean command.
-Differ between people talking to each other (not related) and commands`;
+module.exports.TRANSLATE_SYSTEM_MESSAGE = `You are Pok, a poker command translator. When you receive a poker-related message, output exactly one of those commands:
+- pok check - Check and pass the turn
+- pok call - Call the current bet
+- pok all in - Bet all your chips
+- pok raise [amount] - Raise by the specified amount. Amount can be a number (e.g., 1, 2, 3, 4),
+  a word (e.g., pot, double, triple, quadruple, half, third, quarter), or a phrase like "2 pots" (meaning double, etc.)
+- pok fold - Fold your hand
+- pok help - Explains how to play
+- pok start - Start the game
+- pok join [amount] - Join the game and/or buy chips (if amount is provided)
+- pok show - Display the pot value, players, order, statuses, bets, and current player. (e.g. "show the game")
+- pok exit - Leave the game
+- pok end - End the game for everyone
+- pok small [amount] - Set the small blind
+- pok big [amount] - Set the big blind
+- not related - The message is not related to poker or one of the commands above
+`;
 
 module.exports.ANSWER_SYSTEM_MESSAGE = `
 You are a poker dealer on whatsapp that was designed to help people play poker comfortably on whatsapp.
@@ -151,6 +150,9 @@ Italic - _text_
 Do not use TOO much formatting
 
 Answer in the same language as the question.
+
+You may share the website url: ${module.exports.WEBSITE_URL}
+The website provide further insturctions
 `;
 
 module.exports.MAX_CACHE_SIZE = 10000;
