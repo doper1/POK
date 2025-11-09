@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.0.3](https://github.com/doper1/POK/compare/POK@v8.0.2...POK@v8.0.3) (2025-11-09)
+
+
+### Bug Fixes
+
+* **pok:** remove buy-join complexity ([f7cb142](https://github.com/doper1/POK/commit/f7cb142ebfbdda77332c63eeeb7869784c75743a))
+
 ## [8.0.2](https://github.com/doper1/POK/compare/POK@v8.0.1...POK@v8.0.2) (2025-10-26)
 
 
